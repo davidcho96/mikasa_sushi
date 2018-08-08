@@ -8,7 +8,7 @@
     <title>Mikasa Sushi</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="src/css/index-style.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/materialize-css/dist/css/materialize.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/materialize-css/dist/css/materialize.css" />
     <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" href="../node_modules/animate.css/animate.min.css">
@@ -77,20 +77,48 @@
             </li>
         </ul>
     </div>
-    <div class="carousel carousel-slider" data-indicators="true">
-        <a class="carousel-item" href="#one!"><img src="http://qnimate.com/wp-content/uploads/2014/03/images2.jpg"></a>
-        <a class="carousel-item" href="#two!"><img src="http://qnimate.com/wp-content/uploads/2014/03/images2.jpg"></a>
-        <a class="carousel-item" href="#three!"><img src="http://qnimate.com/wp-content/uploads/2014/03/images2.jpg"></a>
-        <a class="carousel-item" href="#four!"><img src="http://qnimate.com/wp-content/uploads/2014/03/images2.jpg"></a>
-    </div>
-    <div>
-        <button classa="hola">hola</button>
-    </div>
+    <!--  -->
+    <!-- <div class="carousel carousel-slider carousel-index center">
+        <a class="carousel-item" href="#one!"><img src="src/img/deadpool.png"></a>
+        <a class="carousel-item" href="#two!"><img src="src/img/darth-vader.png"></a>
+        <a class="carousel-item" href="#three!"><img src="src/img/BVS.jpg"></a>
+    </div> -->
+    <div class="slider">
+        <div class="left-arrow-slider">
+            <i class="fa fa-angle-left fa-4x"></i>
+        </div>
+        <div class="rigth-arrow-slider">
+            <i class="fa fa-angle-right fa-4x"></i>
+        </div>
+    <ul class="slides">
+      <li>
+        <img src="src/img/deadpool.png" class="img-slider"> <!-- random image -->
+        <div class="caption center-align">
+          <h2>This is our big Tagline!</h2>
+          <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
+        </div>
+      </li>
+      <li>
+        <img src="src/img/darth-vader.png"> <!-- random image -->
+        <div class="caption left-align">
+          <h3>Left Aligned Caption</h3>
+          <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
+        </div>
+      </li>
+      <li>
+        <img src="src/img/BVS.jpg"> <!-- random image -->
+        <div class="caption right-align">
+          <h3>Right Aligned Caption</h3>
+          <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
+        </div>
+      </li>
+    </ul>
+  </div>
     <!-- ----------------------------------------------------------------------- -->
     <!-- Información -->
     <div class="section">
         <div class="row">
-            <div class="col s12 m6 l3 wow bounceInDown" data-wow-delay="0">
+            <div class="col s12 m6 l3 wow slideInLeft" data-wow-delay="0">
                 <div class="icon-block">
                     <h2 class="center-align red-text">
                         <i class="medium material-icons">restaurant</i>
@@ -102,7 +130,7 @@
                     </p>
                 </div>
             </div>
-            <div class="col s12 m6 l3 wow bounceInDown" data-wow-delay="0.1s">
+            <div class="col s12 m6 l3 wow slideInLeft" data-wow-delay="0.1s">
                 <div class="icon-block">
                     <h2 class="center-align red-text">
                         <i class="medium material-icons">attach_money</i>
@@ -115,7 +143,7 @@
                     </p>
                 </div>
             </div>
-            <div class="col s12 m6 l3 wow bounceInDown" data-wow-delay="0.2s">
+            <div class="col s12 m6 l3 wow slideInRight" data-wow-delay="0.2s">
                 <div class="icon-block">
                     <h2 class="center-align red-text">
                         <i class="medium material-icons">access_time</i>
@@ -127,7 +155,7 @@
                     </p>
                 </div>
             </div>
-            <div class="col s12 m6 l3 wow bounceInDown" data-wow-delay="0.3s">
+            <div class="col s12 m6 l3 wow slideInRight" data-wow-delay="0.3s">
                 <div class="icon-block">
                     <h2 class="center-align red-text">
                         <i class="medium material-icons">motorcycle</i>

@@ -8,15 +8,18 @@ $(document).ready(function () {
   $('.modal').modal();
   $('.collapsible').collapsible();
   $('.tabs').tabs();
-  $('.carousel').carousel({
-    fullWidth: true,
-    indicators: true
+  $(document).ready(function () {
+    $('.slider').slider();
   });
-  setInterval(function () {
-    $('.carousel').carousel('next');
-  }, 4000);
 });
 
+$('.rigth-arrow-slider').click(function () {
+  $('.slider').slider('next');
+});
+
+$('.left-arrow-slider').click(function () {
+  $('.slider').slider('prev');
+});
 "use strict";
 
 $("#form_registro").validate({

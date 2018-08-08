@@ -81,8 +81,45 @@ nav {
 
 /* Parallax design */
 
-.parallax-main {
-    height: 91% !important;
+.slider {
+    height: 90% !important;
+}
+
+.slider>.left-arrow-slider {
+    position: absolute;
+    z-index: 500;
+    color: #ffff;
+    left: 2%;
+    top: 43%;
+}
+
+.left-arrow-slider:hover {
+    color: #ff0000;
+}
+
+.slider>.rigth-arrow-slider {
+    position: absolute;
+    z-index: 500;
+    color: #ffff;
+    right: 2%;
+    top: 43%;
+}
+
+.rigth-arrow-slider:hover {
+    color: #ff0000;
+}
+
+.slides {
+    height: 100% !important;
+}
+
+.captioner:after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: black;
+    z-index: 100;
 }
 
 .parallax-text .header {

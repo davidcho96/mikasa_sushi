@@ -6,42 +6,16 @@ $(document).ready(function () {
     $('.modal').modal();
     $('.collapsible').collapsible();
     $('.tabs').tabs();
-    $('.carousel').carousel({
-        fullWidth: true,
-        indicators: true
+    $(document).ready(function () {
+        $('.slider').slider();
+
     });
-    setInterval(() => {
-        $('.carousel').carousel('next');
-    }, 4000);
 });
 
-// autoplay()
+$('.rigth-arrow-slider').click(() => {
+    $('.slider').slider('next');
+});
 
-// function autoplay() {
-//     $('.carousel').carousel('next');
-//     setTimeout(autoplay, 4500);
-// }
-
-// CAROUSEL
-// $(document).ready(function () {
-//     $('.carousel.carousel-slider').carousel({
-//         dist: 0,
-//         padding: 0,
-//         fullWidth: true,
-//         indicators: true,
-//         duration: 100,
-//     });
-// });
-// $('.hola').click(function () {
-//     $('.carousel.carousel-slider').carousel().next();
-// });
-
-// function autoplay() {
-//     $('.carousel').carousel('next');
-//     setTimeout(autoplay, 4500);
-// }
-
-// let autoplay = () => {
-//     setTimeout(autoplay, 4000);
-// }
-// autoplay();
+$('.left-arrow-slider').click(() => {
+    $('.slider').slider('prev');
+});
