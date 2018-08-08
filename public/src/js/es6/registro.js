@@ -4,7 +4,7 @@ $("#form_registro").validate({
   errorClass: "invalid red-text",
   validClass: "valid",
   errorElement: "div",
-  errorPlacement: function(error, element) {
+  errorPlacement: function (error, element) {
     $(element)
       .closest("form")
       .find(`label[for=${element.attr("id")}]`)
@@ -65,20 +65,20 @@ $("#form_registro").validate({
       minlength: "Mínimo 10 caractere"
     }
   },
-  invalidHandler: function(form) {
+  invalidHandler: function (form) {
     M.toast({
       html: "Por favor completa los campos requeridos",
       displayLength: 3000,
       classes: "red"
     });
   },
-  submitHandler: function() {
+  submitHandler: function () {
     var action = "RegistroCliente";
     $.ajax({
       data: `${$("#form_registro").serialize()}&action=${action}`,
       url: "../app/control/despCliente.php",
       type: "POST",
-      success: function(resp) {
+      success: function (resp) {
         console.log(`${$("#form_registro").serialize()}`);
         console.log(resp);
         switch (resp) {
@@ -90,7 +90,7 @@ $("#form_registro").validate({
             break;
         }
       },
-      error: function() {
+      error: function () {
         alert("Lo sentimos ha ocurrido un error inesperado");
       }
     });
@@ -99,7 +99,7 @@ $("#form_registro").validate({
 
 jQuery.validator.addMethod(
   "lettersonly",
-  function(value, element) {
+  function (value, element) {
     return this.optional(element) || /^[a-z ]+$/i.test(value);
   },
   "Ingresa solo letras por favor"

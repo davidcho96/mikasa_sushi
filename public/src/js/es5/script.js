@@ -2,28 +2,22 @@
 
 $(document).ready(function () {
   // Activa sidenav en el index
-  $(document).ready(function () {
-    $('.sidenav').sidenav();
+  $('.sidenav').sidenav();
+  $('.parallax').parallax();
+  $('.scrollspy').scrollSpy();
+  $('.modal').modal();
+  $('.collapsible').collapsible();
+  $('.tabs').tabs();
+  $('.carousel').carousel({
+    fullWidth: true,
+    indicators: true
   });
-
-  $(document).ready(function () {
-    $('.parallax').parallax();
-  });
-
-  $(document).ready(function () {
-    $('.scrollspy').scrollSpy();
-  });
-  $(document).ready(function () {
-    $('.modal').modal();
-  });
-  $(document).ready(function () {
-    $('.collapsible').collapsible();
-  });
-  $(document).ready(function () {
-    $('.tabs').tabs();
-  });
+  setInterval(function () {
+    $('.carousel').carousel('next');
+  }, 4000);
 });
-'use strict';
+
+"use strict";
 
 $("#form_registro").validate({
   errorClass: "invalid red-text",
@@ -89,7 +83,7 @@ $("#form_registro").validate({
   },
   invalidHandler: function invalidHandler(form) {
     M.toast({
-      html: 'Por favor completa los campos requeridos',
+      html: "Por favor completa los campos requeridos",
       displayLength: 3000,
       classes: "red"
     });

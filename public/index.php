@@ -77,25 +77,14 @@
             </li>
         </ul>
     </div>
-    <!-- ---------------------------------------------------------------------- -->
-    <!-- Parallax-menú -->
-    <div id="index-banner" class="parallax-container center valign-wrapper parallax-main">
-        <div class="container">
-            <div class="row">
-                <div class="parallax-text col s12 white-text">
-                    <p class="lighten-2 header">Disfruta del mejor sushi</p>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto ducimus minus quo, harum quas perspiciatis
-                        repellendus, necessitatibus dolorum id placeat magni? Natus deserunt sunt porro dolor officiis, eum
-                        unde ipsum!</p>
-                </div>
-                <div>
-                    <a class="btn red accent-4 btn-large waves-effect waves pulse" id="btn-down" href="#carta">Ver carta</a>
-                </div>
-            </div>
-        </div>  
-        <div class="parallax">
-            <img src="src/img/fondo2.jpg">
-        </div>
+    <div class="carousel carousel-slider" data-indicators="true">
+        <a class="carousel-item" href="#one!"><img src="http://qnimate.com/wp-content/uploads/2014/03/images2.jpg"></a>
+        <a class="carousel-item" href="#two!"><img src="http://qnimate.com/wp-content/uploads/2014/03/images2.jpg"></a>
+        <a class="carousel-item" href="#three!"><img src="http://qnimate.com/wp-content/uploads/2014/03/images2.jpg"></a>
+        <a class="carousel-item" href="#four!"><img src="http://qnimate.com/wp-content/uploads/2014/03/images2.jpg"></a>
+    </div>
+    <div>
+        <button classa="hola">hola</button>
     </div>
     <!-- ----------------------------------------------------------------------- -->
     <!-- Información -->
@@ -356,6 +345,7 @@
 <script src="../node_modules/jquery/dist/jquery.min.js"></script>
 <script src="../node_modules/materialize-css/dist/js/materialize.min.js"></script>
 <script src="../node_modules/wowjs/dist/wow.min.js"></script>
+<script src="../node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="src/js/es5/script.js"></script>
 <script>
     new WOW().init();
