@@ -14,9 +14,9 @@ class Cliente extends connection{
     private $password;
     private $telefono;
 
-    public function __construct(){
-        $this->connect();
-    }
+    // public function __construct(){
+    //     // $this->connect();
+    // }
 
     public function getIdCliente(){
 		return $this->idCliente;
@@ -99,32 +99,41 @@ class Cliente extends connection{
     }
     
     public function registro(){
-        $id=1;
-        $rut='NULL';
-        $estado=1;
-        $sexo=1;
-        $telefono='NULL';
-        $password_hash=password_hash($this->getPassword(), PASSWORD_DEFAULT, ['cost'=>12]);
-        $conn=$this->dbConnection;
-        $stmt=$conn->prepare("call registroCliente (
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            @out_value)");
-        $stmt->bind_param('issssiisss', $id, $rut, $this->getNombre(), $this->getApellidoP(), $this->getApellidoM(), $estado, $sexo, $this->getCorreo(), $password_hash, $telefono);
-        $stmt->execute();
-        $stmt->bind_result($result);
-        if($stmt->fetch()>0){
-            return $result;
-        }else{
-            return 1;
-        }
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+
+			$id=1;
+			$rut='NULL';
+			$estado=1;
+			$sexo=1;
+			$telefono='NULL';
+			$password_hash=password_hash($this->getPassword(), PASSWORD_DEFAULT, ['cost'=>12]);
+			$stmt=$conn->prepare("call registroCliente (
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				@out_value)");
+			$stmt->bind_param('issssiisss', $id, $rut, $this->getNombre(), $this->getApellidoP(), $this->getApellidoM(), $estado, $sexo, $this->getCorreo(), $password_hash, $telefono);
+			$stmt->execute();
+			$stmt->bind_result($result);
+				if($stmt->fetch()>0){
+					return $result;
+				}else{
+					return 1;
+				}
+			
+			$stmt->free_result();
+
+		}catch (Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
     }
 }

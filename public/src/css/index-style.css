@@ -122,18 +122,6 @@ nav {
     z-index: 100;
 }
 
-.parallax-text .header {
-    text-shadow: 4px 2px 1px rgba(145, 150, 150, 0.79);
-    font-weight: bold;
-    font-size: 50px;
-}
-
-.scroll-down-message {
-    margin: 0;
-    padding: 0;
-    color: white;
-}
-
 /* ------------------------------------------- */
 
 .servicios-p-text {
@@ -232,6 +220,8 @@ nav {
 }
 
 /* -------------------------- */
+
+/* Registro */
 
 .full-page {
     margin-bottom: 0 !important;
