@@ -8,12 +8,12 @@
     <title>Inicio de sesión</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="src/css/index-style.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/materialize-css/dist/css/materialize.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/materialize-css/dist/css/materialize.css" />
     <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" href="../node_modules/animate.css/animate.min.css">
     <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
-    <link rel="shortcut icon" type="image/png" href="src/img/favicon.png"/>
+    <link rel="shortcut icon" type="image/png" href="dist/img/m-logo.png"/>
 </head>
 
 <body>
@@ -23,7 +23,7 @@
             <div class="nav-wrapper">
                 <div>
                     <a href="" class="brand-logo">
-                        <img src="src/img/logo.png" alt="" class="nav-image-no-circle">
+                        <img src="dist/img/logo.png" alt="" class="nav-image-no-circle">
                     </a>
                 </div>
                 <a href="#" data-target="mobile-demo" class="sidenav-trigger black-text black-darken-4">
@@ -31,19 +31,19 @@
                 </a>
                 <ul class="right hide-on-med-and-down nav-ul-options">
                     <li class="">
-                        <a href="index.php" class="black-text">Inicio</a>
+                        <a href="index.php" class="black-text bottom-hover-nav">Inicio</a>
                     </li>
                     <li>
-                        <a class="black-text" href="login.php">Iniciar Sesión</a>
+                        <a class="black-text bottom-hover-nav" href="login.php">Iniciar Sesión</a>
                     </li>
                     <li>
-                        <a href="register.php" class="black-text">Registro</a>
+                        <a href="register.php" class="black-text bottom-hover-nav">Registro</a>
                     </li>
                     <li>
-                        <a href="carta.php" class="black-text">Carta</a>
+                        <a href="carta.php" class="black-text bottom-hover-nav">Carta</a>
                     </li>
                     <li>
-                        <a href="about.php" class="black-text">Saber más</a>
+                        <a href="about.php" class="black-text bottom-hover-nav">Saber más</a>
                     </li>
                 </ul>
             </div>
@@ -54,7 +54,7 @@
     <ul class="sidenav" id="mobile-demo">
             <li>
                 <div class="user-view background-sidenav">
-                    <img src="public/src/img/sidenav-background.png" height="120px" width="100%">
+                    <img src="dist/img/m-logo.png" height="120px" width="100%">
                 </div>
             </li>
             <li class="">
@@ -92,7 +92,7 @@
         <div id="test1" class="col s12">
             <div class="quienes-somos">
                 <div class="col s12 m4 l4">
-                    <img src="src/img/mikasa-logo.jpg" alt="" class="responsive-img">
+                    <img src="dist/img/mikasa-logo.jpg" alt="" class="responsive-img">
                 </div>
                 <div class="col s12 m8 l8 right">
                     <p class="tittle-about">Somos Mikasa Sushi</p>
@@ -114,10 +114,10 @@
         </div>
         <div id="test2">
             <div class="preguntas-frecuentes">
-                <div>
-                    <p class="tittle-about">Preguntas frecuentes</p>
-                </div>
                 <div class="col s12">
+                    <div>
+                        <p class="tittle-about">Preguntas frecuentes</p>
+                    </div>
                     <ul class="collapsible">
                         <li>
                             <div class="collapsible-header">
@@ -261,6 +261,7 @@
 <script src="../node_modules/jquery/dist/jquery.min.js"></script>
 <script src="../node_modules/materialize-css/dist/js/materialize.min.js"></script>
 <script src="../node_modules/wowjs/dist/wow.min.js"></script>
-<script src="src/js/design-functions.js"></script>
+<script src="../node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="src/js/es5/script.js"></script>
 
 </html>

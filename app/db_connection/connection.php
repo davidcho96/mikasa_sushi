@@ -4,14 +4,13 @@ class connection{
     private static $_instance;
     public function __construct(){
             
-        $this->dbConnection = new mysqli("localhost","root","","bd_mikasas");
+        $this->dbConnection = new mysqli("localhost","root","","bd_mikasa");
 
         if(mysqli_connect_error()) {
 			die("Database connection failed: " . 
             mysqli_connect_error() . " (" . 
             mysqli_connect_errno() . ")" 
             ); 
-            printf('hola');
 		}
     }
     public static function getInstance() {

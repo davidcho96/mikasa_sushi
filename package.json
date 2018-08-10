@@ -33,8 +33,10 @@
     "gulp-babel": "^7.0.1",
     "gulp-clean-css": "^3.9.4",
     "gulp-concat": "^2.6.1",
+    "gulp-imagemin": "^4.1.0",
     "gulp-postcss": "^8.0.0",
     "gulp-uglify": "^3.0.1",
+    "imagemin-pngquant": "^6.0.0",
     "onchange": "^4.1.0",
     "parallelshell": "^3.0.2"
   }

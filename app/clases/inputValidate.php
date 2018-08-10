@@ -19,16 +19,16 @@ class  Input {
         }
 	}
 
-	static function int($val) {
+	static function int($val, $max, $min) {
 		$val = filter_var($val, FILTER_VALIDATE_INT);
-		if ($val === false) {
+		if ($val === false || $val <= $max || $val >= $min) {
 			self::throwError('Invalid Integer', 901);
 		}
 		return $val;
 	}
 
-	static function str($val) {
-		if (!is_string($val)) {
+	static function str($val, $maxLength, $minLength) {
+		if (!is_string($val) || strlen(trim($val)) > $maxLength || strlen(trim($val)) < $minLength) {
 			self::throwError('Invalid String', 902);
 		}
 		$val = trim(htmlspecialchars($val));
@@ -48,10 +48,18 @@ class  Input {
 		return $val;
 	}
 
+	static function pass($val, $maxLength, $minLength) {
+		$val = filter_var($val, FILTER_VALIDATE_STRING);
+		if ($val === false || strlen(trim($val)) > $maxLength || strlen(trim($val)) < $minLength) {
+			self::throwError('Invalid Password', 904);
+		}
+		return $val;
+	}
+
 	static function url($val) {
 		$val = filter_var($val, FILTER_VALIDATE_URL);
 		if ($val === false) {
-			self::throwError('Invalid URL', 904);
+			self::throwError('Invalid URL', 905);
 		}
 		return $val;
 	}

@@ -9,11 +9,11 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Slabo+27px" rel="stylesheet">
     <link rel="stylesheet" href="src/css/index-style.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/materialize-css/dist/css/materialize.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/materialize-css/dist/css/materialize.css" />
     <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" href="../node_modules/animate.css/animate.min.css">
-    <link rel="shortcut icon" type="image/png" href="src/img/favicon.png"/>
+    <link rel="shortcut icon" type="image/png" href="dist/img/m-logo.png"/>
 </head>
 
 <body>
@@ -32,16 +32,16 @@
                 </a>
                 <ul class="right hide-on-med-and-down nav-ul-options">
                     <li class="">
-                        <a href="index.php" class="white-text">Inicio</a>
+                        <a href="index.php" class="white-text normal-hover-nav">Inicio</a>
                     </li>
                     <li>
-                        <a href="login.php" class="white-text">Iniciar Sesión</a>
+                        <a href="login.php" class="white-text normal-hover-nav">Iniciar Sesión</a>
                     </li>
                     <li>
-                        <a href="register.php" class="white-text">Registro</a>
+                        <a href="register.php" class="white-text normal-hover-nav">Registro</a>
                     </li>
                     <li>
-                        <a href="carta.php" class="white-text">Carta</a>
+                        <a href="carta.php" class="white-text normal-hover-nav">Carta</a>
                     </li>
                 </ul>
             </div>
@@ -52,7 +52,7 @@
         <ul class="sidenav" id="mobile-demo">
             <li>
                 <div class="user-view background-sidenav">
-                    <img src="public/src/img/sidenav-background.png" height="120px" width="100%">
+                    <img src="dist/img/m-logo.png" height="120px" width="100%">
                 </div>
             </li>
             <li class="">
@@ -83,12 +83,8 @@
                             <label for="txt_nombre">Nombre</label>
                         </div>
                         <div class="input-field">
-                            <input id="txt_apellidoP" name="txt_apellidoP" type="text">
-                            <label for="txt_apellidoP">Apellido Paterno</label>
-                        </div>
-                        <div class="input-field">
-                            <input id="txt_apellidoM" name="txt_apellidoM" type="text">
-                            <label for="txt_apellidoM">Apellido Materno</label>
+                            <input id="txt_apellidos" name="txt_apellidos" type="text">
+                            <label for="txt_apellidos">Apellido(s)</label>
                         </div>
                         <div class="input-field">
                             <input id="txt_email" name="txt_email" type="email">
@@ -142,7 +138,7 @@
                             ducimus officia.</p>
                     </div>
                     <div class="right">
-                        <button class="btn red">Saber más.</button>
+                        <a class="btn red" href="about.php">Saber más.</a>
                     </div>
                 </div>
             </div>
@@ -151,7 +147,7 @@
         <script src="../node_modules/jquery/dist/jquery.min.js"></script>
         <script src="../node_modules/materialize-css/dist/js/materialize.min.js"></script>
         <script src="../node_modules/wowjs/dist/wow.min.js"></script>
-        <script src="../node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="../node_modules/jquery-validation/dist/jquery.validate.js"></script>
         <script src="src/js/es5/script.js"></script>
 </body>
 

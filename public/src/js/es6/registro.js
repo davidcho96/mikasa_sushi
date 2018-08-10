@@ -18,13 +18,7 @@ $("#form_registro").validate({
       maxlength: 45,
       lettersonly: true
     },
-    txt_apellidoP: {
-      required: true,
-      minlength: 3,
-      maxlength: 45,
-      lettersonly: true
-    },
-    txt_apellidoM: {
+    txt_apellidos: {
       required: true,
       minlength: 3,
       maxlength: 45,
@@ -46,15 +40,10 @@ $("#form_registro").validate({
       minlength: "Ingresa un nombre válido",
       maxlength: "Máximo permitido 45 caracteres"
     },
-    txt_apellidoP: {
+    txt_apellidos: {
       required: "Campo requerido *",
       minlength: "Ingresa un apellido válido",
       maxlength: "Máximo permitido 45 caracteres"
-    },
-    txt_apellidoM: {
-      required: "Campo requerido *",
-      minlength: "Ingresa un apellido válido",
-      maxlength: "Máximo 45 caracteres"
     },
     txt_email: {
       required: "Campo requerido *",
@@ -62,7 +51,7 @@ $("#form_registro").validate({
     },
     txt_password: {
       required: "Campo requerido *",
-      minlength: "Mínimo 10 caractere"
+      minlength: "Mínimo 10 caracteres"
     }
   },
   invalidHandler: function (form) {
@@ -79,7 +68,6 @@ $("#form_registro").validate({
       url: "../app/control/despCliente.php",
       type: "POST",
       success: function (resp) {
-        console.log(`${$("#form_registro").serialize()}`);
         console.log(resp);
         switch (resp) {
           case "1":
@@ -88,6 +76,8 @@ $("#form_registro").validate({
           case "2":
             alert("Registro Exitoso");
             break;
+          default:
+            console.log(resp);
         }
       },
       error: function () {

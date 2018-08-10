@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Slabo+27px" rel="stylesheet">
     <link rel="stylesheet" href="src/css/index-style.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/materialize-css/dist/css/materialize.min.css"
+    <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/materialize-css/dist/css/materialize.css"
     />
     <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../node_modules/normalize.css/normalize.css">
@@ -22,7 +22,7 @@
         <!-- Navbar index -->
         <div class="navbar-fixed navbar-login">
             <nav class="transparent z-depth-0">
-                <div class="nav-wrapper">
+                <div class="nav-wrapper navbar-register">
                     <div>
                         <a href="#" class="brand-logo">
                             <img src="src/img/logo.png" class="nav-image-no-circle">
@@ -33,19 +33,19 @@
                     </a>
                     <ul class="right hide-on-med-and-down nav-ul-options">
                         <li>
-                            <a class="black-text" href="index.php">Inicio</a>
+                            <a class="normal-hover-nav" href="index.php">Inicio</a>
                         </li>
                         <li>
-                            <a class="black-text" href="login.php">Iniciar Sesión</a>
+                            <a class="normal-hover-nav" href="login.php">Iniciar Sesión</a>
                         </li>
                         <li>
-                            <a class="black-text" href="register.php">Registro</a>
+                            <a class="normal-hover-nav" href="register.php">Registro</a>
                         </li>
                         <li>
-                            <a class="black-text" href="carta.php">Carta</a>
+                            <a class="normal-hover-nav" href="carta.php">Carta</a>
                         </li>
                         <li>
-                            <a class="black-text" href="about.php">Saber más</a>
+                            <a class="normal-hover-nav" href="about.php">Saber más</a>
                         </li>
                     </ul>
                 </div>
@@ -56,7 +56,7 @@
             <ul class="sidenav" id="mobile-demo">
                 <li>
                     <div class="user-view background-sidenav">
-                        <img src="public/src/img/sidenav-background.png" height="120px" width="100%">
+                        <img src="src/img/m-logo.png" height="120px" width="100%">
                     </div>
                 </li>
                 <li>
@@ -126,7 +126,8 @@
     <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../node_modules/materialize-css/dist/js/materialize.min.js"></script>
     <script src="../node_modules/wowjs/dist/wow.min.js"></script>
-    <script src="src/js/design-functions.js"></script>
+    <script src="../node_modules/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="src/js/es5/script.js"></script>
 </body>
 
 </html>

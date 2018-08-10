@@ -6,8 +6,7 @@ class Cliente extends connection{
     private $idCliente;
     private $rut;
     private $nombre;
-    private $apellidoP;
-    private $apellidoM;
+    private $apellidos;
     private $idEstado;
     private $idSexo;
     private $correo;
@@ -42,20 +41,12 @@ class Cliente extends connection{
 		$this->nombre = $nombre;
 	}
 
-	public function getApellidoP(){
-		return $this->apellidoP;
+	public function getApellidos(){
+		return $this->apellidos;
 	}
 
-	public function setApellidoP($apellidoP){
-		$this->apellidoP = $apellidoP;
-	}
-
-	public function getApellidoM(){
-		return $this->apellidoM;
-	}
-
-	public function setApellidoM($apellidoM){
-		$this->apellidoM = $apellidoM;
+	public function setApellidos($apellidos){
+		$this->apellidos = $apellidos;
 	}
 
 	public function getIdEstado(){
@@ -118,16 +109,14 @@ class Cliente extends connection{
 				?,
 				?,
 				?,
-				?,
-				?,
 				@out_value)");
-			$stmt->bind_param('issssiisss', $id, $rut, $this->getNombre(), $this->getApellidoP(), $this->getApellidoM(), $estado, $sexo, $this->getCorreo(), $password_hash, $telefono);
+			$stmt->bind_param('sssiisss', $rut, $this->getNombre(), $this->getApellidos(), $estado, $sexo, $this->getCorreo(), $password_hash, $telefono);
 			$stmt->execute();
 			$stmt->bind_result($result);
 				if($stmt->fetch()>0){
 					return $result;
 				}else{
-					return 1;
+					return 'Ha ocurrido un error';
 				}
 			
 			$stmt->free_result();

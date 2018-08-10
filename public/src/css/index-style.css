@@ -33,6 +33,10 @@ nav {
     z-index: 10;
 }
 
+.navbar-register ul li a {
+    color: black;
+}
+
 @media only screen and (max-width: 992px) {
     .navbar-login {
         position: fixed !important;
@@ -57,8 +61,8 @@ nav {
 }
 
 .nav-image {
-    width: 130px;
-    height: 50%;
+    width: 125px;
+    height: 49%;
     padding: 5px;
     position: absolute;
     top: 25%;
@@ -240,7 +244,7 @@ nav {
 }
 
 .right-background {
-    background-image: url(../img/background-login.jpg);
+    background-image: url(../img/background-register.jpg);
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -273,6 +277,7 @@ nav {
 }
 
 .content-text {
+    text-align: justify;
     padding: 20px 0 20px 0;
 }
 
@@ -289,14 +294,14 @@ nav {
 }
 
 .content-form {
-    margin-top: 15% !important;
+    margin-top: 17% !important;
     padding: 0 10% 0 10%;
 }
 
 /* LOGIN */
 
 .full-page-login {
-    background-image: url(../img/white-background.jpg);
+    background-image: url(../img/background-login.jpg);
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -317,7 +322,7 @@ nav {
 .content-info-login {
     position: absolute;
     left: 33.33%;
-    top: 9%;
+    top: 10%;
     background-color: white;
     height: auto;
     border-radius: 3px;
@@ -369,7 +374,7 @@ nav {
 .tittle-about {
     font-family: 'Pacifico', cursive;
     font-size: 2rem;
-    padding: 70px 0 10px 0;
+    padding: 10px;
     margin: 0;
     text-align: center;
 }

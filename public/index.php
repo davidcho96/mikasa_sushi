@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" href="../node_modules/animate.css/animate.min.css">
-    <link rel="shortcut icon" type="image/png" href="src/img/favicon.png"/>
+    <link rel="shortcut icon" type="image/png" href="src/img/m-logo.png"/>
     <!-- <link rel="stylesheet" href="dist/css/style.min.css"> -->
 </head>
 
@@ -26,7 +26,7 @@
             <div class="nav-wrapper">
                 <div class="logo-nav-img brand-logo animated zoomIn">
                     <a href="#">
-                        <img src="src/img/logo.png" class="nav-image align-center">
+                        <img src="dist/img/logo.png" class="nav-image align-center">
                     </a>
                 </div>
                 <a href="#" data-target="mobile-demo" class="sidenav-trigger black-text black-darken-4">
@@ -34,19 +34,19 @@
                 </a>
                 <ul class="right hide-on-med-and-down nav-ul-options">
                     <li class="">
-                        <a href="index.php" class="black-text">Inicio</a>
+                        <a href="index.php" class="black-text bottom-hover-nav">Inicio</a>
                     </li>
                     <li>
-                        <a class="black-text" href="login.php">Iniciar Sesión</a>
+                        <a class="black-text bottom-hover-nav" href="login.php">Iniciar Sesión</a>
                     </li>
                     <li>
-                        <a href="register.php" class="black-text">Registro</a>
+                        <a href="register.php" class="black-text bottom-hover-nav">Registro</a>
                     </li>
                     <li>
-                        <a href="carta.php" class="black-text">Carta</a>
+                        <a href="carta.php" class="black-text bottom-hover-nav">Carta</a>
                     </li>
                     <li>
-                        <a href="about.php" class="black-text">Saber más</a>
+                        <a href="about.php" class="black-text bottom-hover-nav">Saber más</a>
                     </li>
                 </ul>
             </div>
@@ -57,7 +57,7 @@
         <ul class="sidenav" id="mobile-demo">
             <li>
                 <div class="user-view background-sidenav">
-                    <img src="public/src/img/sidenav-background.png" height="120px" width="100%">
+                    <img src="dist/img/m-logo.png" height="170px" width="100%">
                 </div>
             </li>
             <li class="">
@@ -78,11 +78,6 @@
         </ul>
     </div>
     <!--  -->
-    <!-- <div class="carousel carousel-slider carousel-index center">
-        <a class="carousel-item" href="#one!"><img src="src/img/deadpool.png"></a>
-        <a class="carousel-item" href="#two!"><img src="src/img/darth-vader.png"></a>
-        <a class="carousel-item" href="#three!"><img src="src/img/BVS.jpg"></a>
-    </div> -->
     <div class="slider">
         <div class="left-arrow-slider">
             <i class="fa fa-angle-left fa-4x"></i>
@@ -90,30 +85,30 @@
         <div class="rigth-arrow-slider">
             <i class="fa fa-angle-right fa-4x"></i>
         </div>
-    <ul class="slides">
-      <li>
-        <img src="src/img/deadpool.png" class="img-slider"> <!-- random image -->
-        <div class="caption center-align">
-          <h2>This is our big Tagline!</h2>
-          <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
-        </div>
-      </li>
-      <li>
-        <img src="src/img/darth-vader.png"> <!-- random image -->
-        <div class="caption left-align">
-          <h3>Left Aligned Caption</h3>
-          <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
-        </div>
-      </li>
-      <li>
-        <img src="src/img/BVS.jpg"> <!-- random image -->
-        <div class="caption right-align">
-          <h3>Right Aligned Caption</h3>
-          <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
-        </div>
-      </li>
-    </ul>
-  </div>
+        <ul class="slides">
+        <li>
+            <img src="dist/img/deadpool.png" class="img-slider"> <!-- random image -->
+            <div class="caption center-align">
+            <h2>This is our big Tagline!</h2>
+            <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
+            </div>
+        </li>
+        <li>
+            <img src="dist/img/darth-vader.png"> <!-- random image -->
+            <div class="caption left-align">
+            <h3>Left Aligned Caption</h3>
+            <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
+            </div>
+        </li>
+        <li>
+            <img src="dist/img/BVS.jpeg"> <!-- random image -->
+            <div class="caption right-align">
+            <h3>Right Aligned Caption</h3>
+            <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
+            </div>
+        </li>
+        </ul>
+    </div>
     <!-- ----------------------------------------------------------------------- -->
     <!-- Información -->
     <div class="section">
@@ -185,7 +180,7 @@
             </div>
         </div>
         <div class="parallax">
-            <img src="src/img/fondo3.jpg">
+            <img src="dist/img/fondo3.jpg">
         </div>
     </div>
     <!-- -------------------------------------------------------- -->
@@ -203,7 +198,7 @@
                         <p class="center-align">-50%</p>
                     </div>
                     <div class="card-image">
-                        <img class="activator" height="280px" src="src/img/fondo3.jpg">
+                        <img class="activator" height="280px" src="dist/img/fondo3.jpg">
                     </div>
                     <div class="card-content">
                         <span class="card-title activator grey-text text-darken-4 ">Promo 1
@@ -231,7 +226,7 @@
             <div class="col s12 m12 l4">
                 <div class="card">
                     <div class="card-image">
-                        <img class="activator" height="280px" src="src/img/fondo4.jpg">
+                        <img class="activator" height="280px" src="dist/img/fondo3.jpg">
                     </div>
                     <div class="card-content">
                         <span class="card-title activator grey-text text-darken-4">Promo 2
@@ -258,7 +253,7 @@
                         <p class="center-align">-50%</p>
                     </div>
                     <div class="card-image">
-                        <img class="activator" height="280px" src="src/img/fondo3.jpg">
+                        <img class="activator" height="280px" src="dist/img/fondo3.jpg">
                     </div>
                     <div class="card-content">
                         <span class="card-title activator grey-text text-darken-4">Promo 3
@@ -294,7 +289,7 @@
                 <h4>Contáctate con nosotros</h4>
                 <p>Horario de atención: Lunes a Domingo 11:00 - 23:00</p>
                 <div class="col m4">
-                    <img src="src/img/phone.png" alt="" class="responsive-img hide-on-small-only">
+                    <img src="dist/img/phone.png" alt="" class="responsive-img hide-on-small-only">
                 </div>
                 <div class="col m4 s12">
                 <div class="contact-rectangulo card-panel green white-text">
