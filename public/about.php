@@ -7,13 +7,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Inicio de sesión</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="src/css/index-style.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="../node_modules/materialize-css/dist/css/materialize.css" />
-    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../node_modules/normalize.css/normalize.css">
-    <link rel="stylesheet" href="../node_modules/animate.css/animate.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="dist/css/style.min.css">
     <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
-    <link rel="shortcut icon" type="image/png" href="dist/img/m-logo.png"/>
+    <link rel="shortcut icon" type="image/png" href="dist/img/m-logo.ico" />
 </head>
 
 <body>
@@ -54,7 +50,7 @@
     <ul class="sidenav" id="mobile-demo">
             <li>
                 <div class="user-view background-sidenav">
-                    <img src="dist/img/m-logo.png" height="120px" width="100%">
+                    <img src="dist/img/m-logo.png" height="200px" width="100%">
                 </div>
             </li>
             <li class="">
@@ -75,7 +71,7 @@
         </ul>
     </div>
     <!--  -->
-    <div class="row">
+    <div class="row content-about">
         <div class="col s12 m12 l12">
             <ul class="tabs">
                 <li class="tab col s4">
@@ -258,10 +254,6 @@
     </footer>
 </body>
 
-<script src="../node_modules/jquery/dist/jquery.min.js"></script>
-<script src="../node_modules/materialize-css/dist/js/materialize.min.js"></script>
-<script src="../node_modules/wowjs/dist/wow.min.js"></script>
-<script src="../node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="src/js/es5/script.js"></script>
+<script src="dist/js/script.min.js"></script>
 
 </html>

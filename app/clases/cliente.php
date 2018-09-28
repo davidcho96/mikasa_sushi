@@ -1,10 +1,12 @@
 <?php
 
-require_once "../db_connection/connection.php";
+//*Bd = Base de datos
 
-class Cliente extends connection{
-    private $idCliente;
-    private $rut;
+require_once "../db_connection/connection.php"; //*Se requiere a la clase conexión
+
+class Cliente extends connection{ //*Se hereda la clase de conexión
+	private $idCliente;
+	//!Campo rut eliminado
     private $nombre;
     private $apellidos;
     private $idEstado;
@@ -23,14 +25,6 @@ class Cliente extends connection{
 
 	public function setIdCliente($idCliente){
 		$this->idCliente = $idCliente;
-	}
-
-	public function getRut(){
-		return $this->rut;
-	}
-
-	public function setRut($rut){
-		$this->rut = $rut;
 	}
 
 	public function getNombre(){
@@ -90,16 +84,17 @@ class Cliente extends connection{
     }
     
     public function registro(){
+		//*Método para la reaización del registro de datos de usuario en el sistema y BD
 		try{
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
-
-			$id=1;
-			$rut='NULL';
+			//*Se establece la conexión con la BD
 			$estado=1;
 			$sexo=1;
 			$telefono='NULL';
+			//*Se encripta la contraseña para ser almacenada en la BD
 			$password_hash=password_hash($this->getPassword(), PASSWORD_DEFAULT, ['cost'=>12]);
+			//*Se prepara la consulta
 			$stmt=$conn->prepare("call registroCliente (
 				?,
 				?,
@@ -108,17 +103,24 @@ class Cliente extends connection{
 				?,
 				?,
 				?,
-				?,
-				@out_value)");
-			$stmt->bind_param('sssiisss', $rut, $this->getNombre(), $this->getApellidos(), $estado, $sexo, $this->getCorreo(), $password_hash, $telefono);
+				@out_value)");//*Representa el valor output
+				
+			//*Se pasan los parámetros a la consulta
+			$stmt->bind_param('ssiiss
+			s', $this->getNombre(), $this->getApellidos(), $estado, $sexo, $this->getCorreo(), $password_hash, $telefono);
+			//*Se ejecuta la consulta en BD
 			$stmt->execute();
+			//*Se obtiene el resultado
 			$stmt->bind_result($result);
+
+			//*Se comprueba la respuesta
 				if($stmt->fetch()>0){
 					return $result;
 				}else{
 					return 'Ha ocurrido un error';
 				}
 			
+			//*Se libera la respuesta en BD
 			$stmt->free_result();
 
 		}catch (Exception $error){
