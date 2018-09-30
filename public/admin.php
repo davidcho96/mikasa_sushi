@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Mikasa Sushi</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Login Local Mikasa Sushi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="screen" href="dist/css/style.min.css">
     <link rel="shortcut icon" type="image/png" href="dist/img/m-logo.ico" />
 </head>
 
 <body>
-    <div class="full-page-login row">
+    <div class="login-admin">
         <!-- Navbar index -->
         <div class="navbar-fixed navbar-login">
             <nav class="transparent z-depth-0">
@@ -70,17 +70,14 @@
                 </li>
             </ul>
         </div>
-        <!-- Login form content -->
-
-        <!-- Contenido derecha -->
         <div class="content-info-login">
             <div class="form-login">
-                <form action="" id="form-login-cliente" name="form-login-cliente">
-                    <h5 class="">Ingresar a mi cuenta</h5>
-                    <p>Bienvenido. Por favor ingresa con tu cuenta.</p>
+                <form action="" id="form-login-empleado" name="form-login-empleado">
+                    <h5 class="">Bienvenido a Mikasa</h5>
+                    <p>Por favor ingresa con tus datos de usuario</p>
                     <div class="input-div">
                         <div class="input-field">
-                            <input id="txt_email" name="txt_email" type="email" class="validate">
+                            <input id="txt_email" type="email" name="txt_email" class="validate">
                             <label for="txt_email">Email</label>
                         </div>
                         <div class="input-field" id="input">
@@ -94,28 +91,12 @@
                             <div class="btn-div">
                                 <input type="submit" class="btn black btn-login" value="Iniciar sesión">
                             </div>
-                            <div class="linea">
-                                <hr class="hr2 black">
-                                <div class="header-line">ó</div>
-                                <hr class="hr1 black">
-                            </div>
-                            <div class="btn-div">
-                                <button class="btn blue btn-login">
-                                    <i class="fa fa-facebook"></i>
-                                    Continuar con Facebook
-                                </button>
-                            </div>
-                        </div>
-                        <div class="center-align">
-                            <p>¿Aún no te registras? Haz clic
-                                <a href="#modal1" class="modal-trigger">Aquí</a>
-                            </p>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
+    </div class="login-admin">
     <!-- ----------------------------------------------------------- -->
     <script src="dist/js/script.min.js"></script>
     <script src='src/js/es5/script.js'></script>

@@ -76,17 +76,24 @@ $('#form_registro').validate({
         //*Acción a ejecutar si la respuesta existe
         switch (resp) {
           case '1':
-            alert('El correo ingresado ya está registrado');
+            M.toast({
+              html:
+                'Lo sentimos el correo ingresado ya se encuentra en nuestros registros',
+              displayLength: 3000,
+              classes: 'red'
+            });
             break;
           case '2':
-            alert('Registro Exitoso');
+            // alert('Registro Exitoso');
+            //*Se redirige al usuario al menu de cliente
+            location.href = 'index-cliente.php';
             break;
           default:
             console.log(resp);
         }
       },
       error: function() {
-        alert('Lo sentimos ha ocurrido un error inesperado');
+        alert('Lo sentimos ha ocurrido un error');
       }
     });
   }
@@ -96,7 +103,12 @@ $('#form_registro').validate({
 jQuery.validator.addMethod(
   'lettersonly',
   function(value, element) {
-    return this.optional(element) || /^[a-z ]+$/i.test(value);
+    return (
+      this.optional(element) ||
+      /^[a-zA-ZÀ-ÿ\u00f1\u00d1]+(\s*[a-zA-ZÀ-ÿ\u00f1\u00d1]*)*[a-zA-ZÀ-ÿ\u00f1\u00d1]+$/i.test(
+        value
+      )
+    );
   },
   'Ingresa solo letras por favor'
 );
