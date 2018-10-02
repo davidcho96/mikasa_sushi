@@ -273,4 +273,35 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
+
+	public function cargarTabla(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare('call listarClientes2()');
+			//*Se pasan los parámetros a la consulta
+			// $stmt->bind_param('s', $this->getCorreo());
+			//*Se ejecuta la consulta en BD
+			$stmt->execute();
+			//*Se obtiene el resultado
+			$stmt->bind_result($nombre, $apellidos, $correo, $telefono);
+			$datos = array();
+			// if($stmt->fetch()>0){
+				while($stmt->fetch()){
+					$datos[]=array(
+						"Nombre"=>$nombre,
+						"Apellidos"=>$apellidos,
+						"Correo"=>$correo,
+						"Telefono"=>$telefono
+					);
+				}
+				return json_encode($datos);
+			// }else{
+				// return 'error';
+			// }
+			$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
 }

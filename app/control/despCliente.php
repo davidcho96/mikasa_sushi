@@ -173,6 +173,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                 } 
             }
             break;
+
+            // *--------------------------------------------------
+
+
+            case 'CargarTablaClientes':
+                echo $cliente->cargarTabla();
+            break;
         }
 }else{
     echo 'Solicitud denegada';

@@ -110,7 +110,7 @@
                         </div>
                         <div class="center-align">
                             <p>¿Ya tienes cuenta? Haz clic
-                                <a href="#modal1" class="modal-trigger">Aquí</a>
+                                <a href="login.php" class="modal-trigger">Aquí</a>
                             </p>
                         </div>
                     </div>

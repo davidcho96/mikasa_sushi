@@ -108,7 +108,7 @@
                         </div>
                         <div class="center-align">
                             <p>¿Aún no te registras? Haz clic
-                                <a href="#modal1" class="modal-trigger">Aquí</a>
+                                <a href="register.php" class="modal-trigger">Aquí</a>
                             </p>
                         </div>
                     </div>
