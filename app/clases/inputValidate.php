@@ -23,7 +23,7 @@ class  Input {
 	//*Valida que el dato obtenido sea del tipo numérico y el valor máximo y mínimo
 	static function int($val, $max, $min) {
 		$val = filter_var($val, FILTER_VALIDATE_INT);
-		if ($val === false || $val <= $max || $val >= $min) {
+		if ($val === false || $val >= $max || $val <= $min) {
 			self::throwError('Invalid Integer', 901);
 		}
 		return $val;

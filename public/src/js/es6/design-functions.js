@@ -9,6 +9,8 @@ $(document).ready(function() {
   $('.modal').modal();
   // *Activa collapsible
   $('.collapsible').collapsible();
+  // *Activa dropdown en li nav
+  $('.dropdown-trigger').dropdown();
   // *Activa tabs
   $('.tabs').tabs();
   //* Activa slider

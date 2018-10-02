@@ -163,16 +163,112 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 				if($result != 'error'){
 					$passHash = $result;
 					if(password_verify($this->getPassword(), $passHash)){
-						return 1; //*Registro exitoso
+						return 1; //*Login exitoso
 					}else {
-						return 2; //*Registro erróneo
+						return 2; //*Login erróneo
 					}
 				}else{
-					return 2; //*Registro erróneo
+					return 2; //*Login erróneo
 				}
 			}
 			//*Se libera la respuesta en BD
 			$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+	public function cargarDatosPerfil(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare('call obtenerDatosEditarPerfil(?,
+			@out_value)');
+			//*Se pasan los parámetros a la consulta
+			$stmt->bind_param('s', $this->getCorreo());
+			//*Se ejecuta la consulta en BD
+			$stmt->execute();
+			//*Se obtiene el resultado
+			$stmt->bind_result($name, $apellidos, $correo, $telefono);
+			$datos = array();
+			// if($stmt->fetch()>0){
+				while($stmt->fetch()){
+					$datos[]=array(
+						"Nombre"=>$name,
+						"Apellidos"=>$apellidos,
+						"Correo"=>$correo,
+						"Telefono"=>$telefono
+					);
+					return json_encode($datos);
+				}
+			// }else{
+				// return 'error';
+			// }
+			$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function actualizarDatosPerfil(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare('call actualizarPerfil (?, ?, ?, ?, @out_value)');
+			$stmt->bind_param('ssss', $this->getNombre(), $this->getApellidos(),  $this->getCorreo(), $this->getTelefono());
+			$stmt->execute();
+			$stmt->bind_result($result);
+			if($stmt->fetch()>0){
+				echo $result;
+			}else{
+				echo '2';
+			}
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function confirmarPass(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare('call loginCliente (?, @out_value)');
+			//*Se reutiliza el procedimiento para obtener la password
+			$stmt->bind_param('s', $this->getCorreo());
+			$stmt->execute();
+			$stmt->bind_result($result);
+			if($stmt->fetch()>0){
+				if ($result == 'error') {
+					echo '1';
+				}else{
+					$passHash = $result;
+					if(password_verify($this->getPassword(), $passHash)){
+						echo '1'; //*Si coincide
+					}else {
+						echo '2';
+					}
+				}
+			}else{
+				echo '2';
+			}
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function cambiarPass(){
+		try{
+			$password_ = password_hash($this->getPassword(), PASSWORD_DEFAULT, ['cost'=>12]);
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare('call actualizarPassCliente (?, ?, @out_value)');
+			$stmt->bind_param('ss', $password_, $this->getCorreo());
+			$stmt->execute();
+			$stmt->bind_result($result);
+			if($stmt->fetch()>0){
+				echo $result;
+			}else{
+				echo '2';
+			}
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}

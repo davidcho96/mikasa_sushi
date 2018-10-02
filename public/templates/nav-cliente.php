@@ -1,30 +1,7 @@
-<?php
-//* Validamos la existencia de la sesión y el tipo de usuario que solicita el acceso
-    session_start();
-    if(!isset($_SESSION['user']) || $_SESSION['user'] == '' || $_SESSION['user'][0] != 'cliente'){
-        header('Location: login.php');
-        // echo '<script>console.log("'. $_SESSION['user'][1].'")</script>';
-    }
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Mikasa Clientes</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="shortcut icon" type="image/png" href="dist/img/m-logo.ico" />
-    <link rel="stylesheet" href="dist/css/style.min.css">
-</head>
-
-<body>
-    <ul id="dropdown1" class="dropdown-content">
+<ul id="dropdown1" class="dropdown-content">
         <li><a href="#!" class="black-text"><i class="material-icons left">account_circle</i>David Maldonado</a></li>
         <li class="divider"></li>
-        <li><a href="perfil-cliente.php" class="black-text"><i class="material-icons left">edit</i>Editar Perfil</a></li>
+        <li><a href="#!" class="black-text"><i class="material-icons left">edit</i>Editar Perfil</a></li>
         <li class="divider"></li>
         <li><a href="#!" class="black-text"><i class="material-icons">power_settings_new</i>Cerrar sesión</a></li>
     </ul>
@@ -82,16 +59,8 @@
             <li>
                 <a href="mis-compras.php" class="black-text">Mis Compras</a>
             </li>
+            <li>
+                <a href="carrito.php" class="black-text">Carrito</a>
+            </li>
         </ul>
     </div>
-
-    <script src="dist/js/script.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.dropdown-trigger').dropdown();
-            // *Activa tabs
-        });
-    </script>
-</body>
-
-</html>

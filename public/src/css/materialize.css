@@ -2773,12 +2773,12 @@ i {
 
 i.left {
   float: left;
-  margin-right: 15px;
+  margin-right: 5px;
 }
 
 i.right {
   float: right;
-  margin-left: 15px;
+  margin-left: 5px;
 }
 
 i.tiny {
@@ -4394,8 +4394,9 @@ nav [class*="mdi-"],
 nav i.material-icons {
   display: block;
   font-size: 24px;
-  height: 56px;
-  line-height: 56px;
+  height: 100%;
+  /* //!Cambio para iconos en li nav def: 56px */
+  line-height: 100%;
 }
 
 nav .nav-wrapper {
@@ -5740,7 +5741,7 @@ button.btn-floating {
   min-width: 100px;
   overflow-y: auto;
   opacity: 0;
-  position: absolute;
+  /* position: absolute; */
   left: 0;
   top: 0;
   z-index: 9999;

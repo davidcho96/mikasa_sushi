@@ -52,8 +52,7 @@ $('#form-login-cliente').validate({
         //*Acción a ejecutar si la respuesta existe
         switch (resp) {
           case '1':
-            // alert('Registro Exitoso');
-            //*Se redirige al usuario al menu de cliente
+            //*Inicio de sesión exitoso, se redirige al usuario al menu de cliente
             location.href = 'index-cliente.php';
             break;
           case '2':
@@ -129,11 +128,11 @@ $('#form-login-empleado').validate({
         switch (respuesta) {
           case '1':
             // alert('Registro Exitoso');
-            //*Se redirige al usuario al menu de admin
+            //*Inicio de sesión exitoso se redirige al usuario al menu de admin
             location.href = 'index-admin.html';
             break;
           case '2':
-            //*Se redirige al usuario al menu de repartidor
+            //*Inicio de sesión exitoso se redirige al usuario al menu de repartidor
             location.href = 'index-repartidor.html';
             break;
           case 'error':
