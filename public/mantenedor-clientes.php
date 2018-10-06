@@ -14,6 +14,9 @@
 
     </table>
     <script src="dist/js/script.min.js"></script>
-    <script src="src/js/es6/funciones-admin.js"></script>
+    <script>
+        CargarTablaClientes();
+    </script>
+    <!-- <script src="src/js/es6/funciones-admin.js"></script> -->
 </body>
 </html>

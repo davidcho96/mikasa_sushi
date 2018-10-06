@@ -28,7 +28,7 @@ $('#form_registro').validate({
     },
     txt_email: {
       required: true,
-      email: true
+      emailCom: true
     },
     txt_password: {
       required: true,
@@ -111,4 +111,15 @@ jQuery.validator.addMethod(
     );
   },
   'Ingresa solo letras por favor'
+);
+
+jQuery.validator.addMethod(
+  'emailCom',
+  function(value, element) {
+    return (
+      this.optional(element) ||
+      /^[a-zA-Z0-9\._-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,4}$/.test(value)
+    );
+  },
+  'Ingresa un correo válido'
 );

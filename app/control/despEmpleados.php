@@ -28,15 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     switch($empleado->login()){
                         case '1':
                             echo '1'; 
+                            $array_session = array('admin', $empleado->getCorreo());
                             //* Registro exitoso
                             if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
-                                $_SESSION['user'] = 'admin';
+                                $_SESSION['user'] = $array_session;
                             }
                         break;
                         case '2':
                             echo '2'; 
+                            $array_session = array('repartidor', $empleado->getCorreo());
                             if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
-                                $_SESSION['user'] = 'repartidor';
+                                $_SESSION['user'] = $array_session;
                             }
                         break;
                         case 'error':

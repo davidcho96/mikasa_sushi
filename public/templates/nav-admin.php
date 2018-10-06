@@ -1,22 +1,5 @@
-<!DOCTYPE html5>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Menú administrador.</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="dist/css/style.min.css">
-    <style>
-        .user-name {
-            margin: 5px;
-        }
-    </style>
-</head>
-
-<body>
-    <ul id="slide-out" class="sidenav sidenav-fixed">
+<?php session_start(); ?>
+<ul id="slide-out" class="sidenav">
         <li>
             <div class="user-view background red">
                 <div class="col s6 m6 l6">
@@ -24,7 +7,7 @@
                         <img class="circle" src="http://img.stomp.com.sg/s3fs-public/avatar_ck.png">
                     </a>
                     <a href="#name" class="white-text">
-                        John Doe
+                        <?php echo $_SESSION['user'][1] ?>
                     </a>
                 </div>
             </div>
@@ -121,8 +104,3 @@
     <a href="#" data-target="slide-out" class="sidenav-trigger">
         <i class="material-icons">menu</i>
     </a>
-
-    <script src="dist/js/script.min.js"></script>
-</body>
-
-</html>

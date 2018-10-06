@@ -57,13 +57,19 @@ $('#form-login-cliente').validate({
             break;
           case '2':
             M.toast({
-              html: 'Los datos ingresador son incorrectos',
+              html: 'La contraseña es incorrecta',
               displayLength: 3000,
               classes: 'red'
             });
             break;
-          default:
-            console.log(resp);
+          case '3':
+            M.toast({
+              html: 'Los datos ingresados son incorrectos',
+              displayLength: 3000,
+              classes: 'red'
+            });
+            break;
+            console.log('error');
         }
       },
       error: function() {
@@ -129,11 +135,11 @@ $('#form-login-empleado').validate({
           case '1':
             // alert('Registro Exitoso');
             //*Inicio de sesión exitoso se redirige al usuario al menu de admin
-            location.href = 'index-admin.html';
+            location.href = 'index-admin.php';
             break;
           case '2':
             //*Inicio de sesión exitoso se redirige al usuario al menu de repartidor
-            location.href = 'index-repartidor.html';
+            location.href = 'index-repartidor.php';
             break;
           case 'error':
             M.toast({

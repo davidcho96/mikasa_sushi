@@ -434,3 +434,21 @@ nav {
   height: 100%;
   width: 100%;
 }
+
+/* Mantenedor Agregados */
+
+.precios-productos {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 10px;
+}
+
+.btn-mant-productos {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.lbl_id {
+  display: none;
+}

@@ -14,9 +14,8 @@ $(document).ready(function() {
   // *Activa tabs
   $('.tabs').tabs();
   //* Activa slider
-  $(document).ready(function() {
-    $('.slider').slider();
-  });
+  $('.slider').slider();
+  $('.dropdown-trigger').dropdown();
 });
 
 // * Activa funciones de cambios de slide en slider de index

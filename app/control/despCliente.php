@@ -82,8 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                             echo '2'; 
                             //* Registro erróneo
                         break;
-                        case 'error':
-                            echo 'error';
+                        case '3':
+                            echo '3';
                         break;
                     }
                 }
@@ -152,7 +152,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                 }
             }
             break;
-            
+
+            // *-----------------------------------------------------------
+
             case 'CambiarPassCliente':
             if($validate->check(['txt_pass_nueva', 'txt_pass_confirmar'], $_REQUEST)){ 
                 $password1= $validate->pass($_POST['txt_pass_nueva'], '100', '10');

@@ -73,6 +73,7 @@
                     <tr>
                         <td colspan="2" class="center">
                             <input type="submit" class="btn black" value="Confirmar">
+                            <button id="btn-restaurar-datos-cliente" class="btn red">Restaurar Datos</button>
                         </td>
                     </tr>
                 </table>
@@ -93,22 +94,24 @@
                             <input id="txt_pass_confirmar" name="txt_pass_confirmar" type="password">
                             <label for="txt_pass_confirmar">Confirmar contraseña</label>
                         </div>
-                        <input type="submit" class="btn black" value="Confirmar">
+                        <div class="center">
+                            <input type="submit" class="btn black" value="Confirmar">
+                            <button id="btn-limpiar-campos-clave" class="btn red">Limpiar Campos</button>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancelar</a>
+                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cerrar</a>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="dist/js/script.min.js"></script>
-    <script src="src/js/es6/funciones-cliente.js"></script>
+    <!-- <script src="src/js/es6/funciones-cliente.js"></script> -->
     <script>
         $(document).ready(function() {
-            $('.dropdown-trigger').dropdown();
-            // *Activa tabs
+            cargarDatosPerfilCliente();
         });
     </script>
 </body>

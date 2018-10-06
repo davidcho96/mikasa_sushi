@@ -21,14 +21,16 @@ const gulp = require('gulp'),
       `${directorio.nm}/font-awesome/css/font-awesome.min.css`,
       `${directorio.public}/src/css/index-style.css`,
       `${directorio.nm}/animate.css/animate.min.css`,
-      `${directorio.nm}/normalize.css/normalize.css`
+      `${directorio.nm}/normalize.css/normalize.css`,
+      `${directorio.nm}/sweetalert2/dist/sweetalert2.min.css`
     ],
     JS: [
       `${directorio.nm}/jquery/dist/jquery.min.js`,
       `${directorio.nm}/materialize-css/dist/js/materialize.min.js`,
       `${directorio.nm}/wowjs/dist/wow.min.js`,
       `${directorio.nm}/jquery-validation/dist/jquery.validate.js`,
-      `${directorio.public}/src/js/es5/script.js`
+      `${directorio.public}/src/js/es5/script.js`,
+      `${directorio.nm}/sweetalert2/dist/sweetalert2.min.js`
     ],
     Fonts: [`${directorio.nm}/font-awesome/fonts/*.*`],
     minCSS: 'style.min.css',

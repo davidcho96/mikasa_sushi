@@ -118,7 +118,7 @@
     </div>
     <!-- ----------------------------------------------------------- -->
     <script src="dist/js/script.min.js"></script>
-    <script src='src/js/es6/login.js'></script>
+    <!-- <script src='src/js/es6/login.js'></script> -->
 </body>
 
 </html>

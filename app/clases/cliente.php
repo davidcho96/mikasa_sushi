@@ -168,7 +168,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 						return 2; //*Login erróneo
 					}
 				}else{
-					return 2; //*Login erróneo
+					return 3; //*Login erróneo
 				}
 			}
 			//*Se libera la respuesta en BD
@@ -244,7 +244,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 					if(password_verify($this->getPassword(), $passHash)){
 						echo '1'; //*Si coincide
 					}else {
-						echo '2';
+						echo '3';
 					}
 				}
 			}else{
