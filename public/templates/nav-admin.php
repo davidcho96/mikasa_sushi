@@ -47,11 +47,6 @@
             </a>
         </li>
         <li>
-            <a href="#!">
-                <i class="material-icons">fastfood</i>
-                Carta
-            </a>
-        </li>
         <li>
             <a href="">
                 <i class="material-icons">poll</i>
@@ -61,14 +56,40 @@
         <li>
             <ul class="collapsible collapsible-accordion">
                 <li>
-                    <a class="collapsible-header">Dropdown
-                        <i class="material-icons">label</i>
+                    <a class="collapsible-header">Carta
+                        <i class="material-icons">fastfood</i>
                         <i class="material-icons right">arrow_drop_down</i>
                     </a>
                     <div class="collapsible-body">
                         <ul>
                             <li>
-                                <a href="#!">First</a>
+                                <a href="mantenedor-agregadosM.php">Agregados</a>
+                            </li>
+                            <li>
+                                <a href="mantenedor-coberturasM.php">Coberturas</a>
+                            </li>
+                            <li>
+                                <a href="mantenedor-rellenosM.php">Rellenos</a>
+                            </li>
+                            <li>
+                                <a href="mantenedor-promosM.php">Promos</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <ul class="collapsible collapsible-accordion">
+                <li>
+                    <a class="collapsible-header">Opciones de venta
+                        <i class="material-icons">shopping_basket</i>
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                    <div class="collapsible-body">
+                        <ul>
+                            <li>
+                                <a href="mantenedor-tipo-pago.php">Tipo Pago</a>
                             </li>
                             <li>
                                 <a href="#!">Second</a>

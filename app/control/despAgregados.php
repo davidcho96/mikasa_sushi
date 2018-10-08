@@ -2,7 +2,6 @@
 
 require_once "../clases/agregados.php"; //*Clase agregados
 require_once "../clases/inputValidate.php"; //*Clase input para validación de campos
-require_once "../clases/empleado.php";
 
 session_start();
 
@@ -14,9 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     switch($_REQUEST['action']){
         case 'CargarMantenedorAgregados':
-            if (isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL'){
                 echo $agregados->CargarMantenedorAgregados();
-            }
         break;
         case 'EliminarAgregado':
             if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL'){

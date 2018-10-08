@@ -54,7 +54,7 @@
                 </div>
                 <div class="">
                     <label>Estado en carta</label>
-                    <select name="comboBoxEstadoElemento" id="comboBoxEstadoElemento" class="browser-default">
+                    <select name="comboBoxEstadoElemento" id="comboBoxEstadoElementoForm" class="browser-default">
                         
                     </select>
                 </div>
@@ -66,12 +66,18 @@
         </div>
     </div>
     <script src="dist/js/script.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
-    <script src="src/js/es6/agregados-functions.js"></script>
+    <!-- <script src="src/js/es6/agregados-functions.js"></script> -->
     <script>
         $(document).ready(function(){
             cargarComboEstadoElemento();
             cargarMantenedorAgregados();
+            $('#modal-actualizar-agregado').modal({
+            onCloseEnd: function() {
+            $('#form-actualizar-agregado')[0].reset();
+            $('#lbl_id').text('');
+            $('#precio_descuentoAgregado').text('');
+            }
+        });
         });
     </script>
 </body>

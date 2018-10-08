@@ -142,7 +142,6 @@ class Agregados extends connection{
 
 	public function actualizarDatos($correo){
 		try{
-			$id = 1;
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
@@ -165,7 +164,6 @@ class Agregados extends connection{
 
 	public function ingresarAgregados($correo){
 		try{
-			$id = 1;
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
