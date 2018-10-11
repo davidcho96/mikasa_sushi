@@ -35,8 +35,7 @@ function cargarMantenedorCoberturas(estado, caracter) {
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml +=
               '<div class="card-image waves-effect waves-block waves-light">';
-            cargaHtml +=
-              '<img class="activator" src="https://www.tusushiya.cl/wp-content/uploads/2018/06/wasabi_paste.jpg">';
+            cargaHtml += `<img class="activator" src="uploads/${item.ImgUrl}">`;
             cargaHtml += '</div>';
             cargaHtml += '<div class="card-content">';
             cargaHtml += `<span class="card-title activator grey-text text-darken-4">${
@@ -87,7 +86,7 @@ function cargarMantenedorCoberturas(estado, caracter) {
   });
 }
 
-$('#comboBoxEstadoCoberturasFiltro').change(function(item) {
+$('#combo_estado_coberturas_filtro').change(function(item) {
   cargarMantenedorCoberturas(
     $(this)
       .find('option:selected')
@@ -103,7 +102,7 @@ $('#comboBoxEstadoCoberturasFiltro').change(function(item) {
 
 $('#txt_buscar_coberturas').keyup(function(item) {
   cargarMantenedorCoberturas(
-    $('#comboBoxEstadoCoberturasFiltro')
+    $('#combo_estado_coberturas_filtro')
       .find('option:selected')
       .text(),
     $(this).val()
@@ -153,7 +152,8 @@ function eliminarCoberturaM(id) {
 
 // *Al presionar el botón de editar del producto se cargarán los datos en los campos permitiendo editar los valores actuales
 function actualizarCoberturaM(id) {
-  $('#modal-mantenedor-cobertura').modal('open');
+  $('#accion_coberturas').text('Actualizar Cobertura');
+  $('#modal_mantenedor_cobertura').modal('open');
   var action = 'CargarModalCobertura';
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
@@ -173,10 +173,11 @@ function actualizarCoberturaM(id) {
         $('#txt_nombre').val(item.Nombre);
         $(`label[for='txt_descripcion']`).addClass('active');
         $('#txt_descripcion').val(item.Descripcion);
-        $(`label[for='txt_precioCobertura']`).addClass('active');
-        $('#txt_precioCobertura').val(item.Precio);
-        $('#comboBoxEstadoCobertura').val(item.Estado);
-        $('#comboBoxIndiceCobertura').val(item.Indice);
+        $(`label[for='txt_precio_cobertura']`).addClass('active');
+        $('#txt_precio_cobertura').val(item.Precio);
+        $('#combo_estado_cobertura').val(item.Estado);
+        $('#imagen_coberturas_text').val(item.ImgUrl);
+        $('#combo_indice_cobertura').val(item.Indice);
       });
     },
     error: function() {
@@ -206,7 +207,7 @@ function cargarIndiceCobertura() {
           item.Descripcion
         }</option>`;
       });
-      $('#comboBoxIndiceCobertura').html(cargaHtml);
+      $('#combo_indice_cobertura').html(cargaHtml);
     },
     error: function() {
       alert('Lo sentimos ha ocurrido un error');
@@ -216,12 +217,12 @@ function cargarIndiceCobertura() {
 
 // *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
 // *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
-$('#cancelar_actualizar_cobertura').on('click', function(evt) {
+$('#cancelar_mantenedor_cobertura').on('click', function(evt) {
   evt.preventDefault();
-  $('#modal-mantenedor-cobertura').modal('close');
+  $('#modal_mantenedor_cobertura').modal('close');
 });
 
-var validarFormActualizarAgregados = $('#form-actualizar-cobertura').validate({
+var validarFormActualizarAgregados = $('#form_mantenedor_cobertura').validate({
   errorClass: 'invalid red-text',
   validClass: 'valid',
   errorElement: 'div',
@@ -243,17 +244,24 @@ var validarFormActualizarAgregados = $('#form-actualizar-cobertura').validate({
       minlength: 3,
       maxlength: 1000
     },
-    txt_precioCobertura: {
+    txt_precio_cobertura: {
       required: true,
       min: 0,
       max: 1000000,
       digits: true
     },
-    comboBoxEstadoElemento: {
+    combo_estado_elemento: {
       required: true
     },
-    comboBoxIndiceCobertura: {
+    combo_indice_cobertura: {
       required: true
+    },
+    imagen_coberturas: {
+      // required: true,
+      extension: 'jpeg|jpg|png'
+    },
+    imagen_coberturas_text: {
+      // required: true
     }
   },
   messages: {
@@ -267,17 +275,24 @@ var validarFormActualizarAgregados = $('#form-actualizar-cobertura').validate({
       minlength: 'Mínimo 3 caracteres',
       maxlength: 'Máximo 1000 caracteres'
     },
-    txt_precioCobertura: {
+    txt_precio_cobertura: {
       required: 'Campo requerido *',
       min: 'El valor mínimo es 0',
       max: 'Valor máximo 1000000',
       digits: 'Ingresa solo números'
     },
-    comboBoxEstadoElemento: {
+    combo_estado_elemento: {
       required: 'Selecciona una opción'
     },
-    comboBoxIndiceCobertura: {
+    combo_indice_cobertura: {
       required: 'Selecciona una opción'
+    },
+    imagen_coberturas: {
+      // required: '',
+      extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
+    },
+    imagen_coberturas_text: {
+      // required: 'Selecciona una imagen'
     }
   },
   invalidHandler: function(form) {
@@ -299,47 +314,70 @@ var validarFormActualizarAgregados = $('#form-actualizar-cobertura').validate({
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.value) {
-        // var action = 'ActualizarDatosAgregados';
-        var dataInfo = '';
+        console.log('ascasc');
+        // *imgExtension obtiene la extensión de la imagen
+        var imgExtension = $('#imagen_coberturas')
+          .val()
+          .substr(
+            $('#imagen_coberturas')
+              .val()
+              .lastIndexOf('.') + 1
+          );
+
+        // *La variable formData inicializa el formulario al cual se le pasan los datos usando append
+        var formData = new FormData();
+        formData.append('nombre', $('#txt_nombre').val());
+        formData.append('descripcion', $('#txt_descripcion').val());
+        formData.append('precio', $('#txt_precio_cobertura').val());
+        formData.append('estado', $('#combo_estado_cobertura').val());
+        formData.append('indice', $('#combo_indice_cobertura').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
         if ($('#lbl_id_cobertura').text() == '') {
           let action = 'IngresarCobertura';
-          dataInfo = {
-            nombre: $('#txt_nombre').val(),
-            descripcion: $('#txt_descripcion').val(),
-            precio: $('#txt_precioCobertura').val(),
-            estado: $('#comboBoxEstadoCobertura').val(),
-            indice: $('#comboBoxIndiceCobertura').val(),
-            action: action
-          };
+          formData.append('action', action);
+          if ($('#imagen_coberturas').val() != '') {
+            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            console.log('imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('no imagen');
+          }
         } else {
           let actionUpdate = 'ActualizarDatosCobertura';
-          dataInfo = {
-            id: $('#lbl_id_cobertura').text(),
-            nombre: $('#txt_nombre').val(),
-            descripcion: $('#txt_descripcion').val(),
-            precio: $('#txt_precioCobertura').val(),
-            estado: $('#comboBoxEstadoCobertura').val(),
-            indice: $('#comboBoxIndiceCobertura').val(),
-            action: actionUpdate
-          };
-          //!Cambiar texto botón
+          formData.append('id', $('#lbl_id_cobertura').text());
+          formData.append('action', actionUpdate);
+          // *Se comprueba la extensión de la imagen por la variable imgExtension
+          if (
+            $('#imagen_coberturas').val() != '' ||
+            imgExtension == 'jpg' ||
+            imgExtension == 'png' ||
+            imgExtension == 'jpeg'
+          ) {
+            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            console.log('Imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('No Imagen');
+          }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
         $.ajax({
-          data: dataInfo,
+          data: formData,
           url: '../app/control/despCoberturas.php',
           type: 'POST',
+          contentType: false,
+          processData: false,
           success: function(resp) {
             //*Acción a ejecutar si la respuesta existe
-            // console.log(action);
-            console.log($('#comboBoxIndiceCobertura').val());
+            console.log(resp);
+            console.log(formData);
+            console.log($('#combo_indice_cobertura').val());
             console.log($('#lbl_id_cobertura').text());
             switch (resp) {
               case '1':
-                $('#modal-mantenedor-cobertura').modal('close');
+                $('#modal_mantenedor_cobertura').modal('close');
                 swal('Listo', 'Los datos han sido ingresados', 'success');
                 cargarMantenedorCoberturas();
                 // *La función se ejecutó correctamente

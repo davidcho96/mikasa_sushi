@@ -8,7 +8,8 @@ class Cobertura extends connection{
     private $descripcion;
 	private $idIndice;
 	private $idEstado;
-    private $precioAdicional;
+	private $precioAdicional;
+	private $imgUrl;
 
 	public function getIdCobertura(){
 		return $this->idCobertura;
@@ -57,6 +58,14 @@ class Cobertura extends connection{
 	public function setPrecioAdicional($precioAdicional){
 		$this->precioAdicional = $precioAdicional;
 	}
+
+	public function getImgUrl(){
+		return $this->imgUrl;
+	}
+
+	public function setImgUrl($imgUrl){
+		$this->imgUrl = $imgUrl;
+	}
     
     public function cargarCoberturas(){
         try{
@@ -67,7 +76,7 @@ class Cobertura extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($id, $nombre, $descripcion, $idIndice, $indice, $precioAdicional, $estado, $idEstado);
+            $stmt->bind_result($id, $nombre, $descripcion, $idIndice, $indice, $precioAdicional, $estado, $idEstado, $imgUrl);
             $datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -79,7 +88,8 @@ class Cobertura extends connection{
                         "Indice"=>$indice,
 						"Precio"=>$precioAdicional,
 						"Estado"=>$estado,
-						"idEstado"=>$idEstado
+						"IdEstado"=>$idEstado,
+						"ImgUrl"=>$imgUrl
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -123,7 +133,7 @@ class Cobertura extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($id, $descripcion, $indice, $precioAdicional, $estado, $nombre);
+            $stmt->bind_result($id, $descripcion, $indice, $precioAdicional, $estado, $nombre, $imgUrl);
 			$datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -133,7 +143,8 @@ class Cobertura extends connection{
                         "Descripcion"=>utf8_encode($descripcion),
                         "Indice"=>$indice,
 						"Precio"=>$precioAdicional,
-						"Estado"=>$estado
+						"Estado"=>$estado,
+						"ImgUrl"=>$imgUrl
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -149,9 +160,9 @@ class Cobertura extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call actualizarDatosCoberturas(?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call actualizarDatosCoberturas(?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('issisis', $this->getIdCobertura(), $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $correo);
+			$stmt->bind_param('issisiss', $this->getIdCobertura(), $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta
@@ -171,9 +182,9 @@ class Cobertura extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call ingresarCoberturas(?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call ingresarCoberturas(?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('ssiiis', $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $correo);
+			$stmt->bind_param('ssiiiss', $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta

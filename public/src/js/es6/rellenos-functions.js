@@ -153,6 +153,7 @@ function eliminarRellenoM(id) {
 
 // *Al presionar el botón de editar del producto se cargarán los datos en los campos permitiendo editar los valores actuales
 function actualizarRellenoM(id) {
+  $('#accion_rellenos').text('Actualizar Relleno');
   $('#modal-mantenedor-relleno').modal('open');
   var action = 'CargarModalRelleno';
   //*Se envían datos del form y action, al controlador mediante ajax

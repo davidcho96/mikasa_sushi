@@ -8,18 +8,17 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="screen" href="dist/css/style.min.css">
     <link rel="shortcut icon" type="image/png" href="dist/img/m-logo.ico" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
 </head>
 <body>
     <?php require 'templates/nav-admin.php' ?>
 
-    <div class="title-mantenedor">
+    <div class="title_mantenedor">
         <h1>Gestión agregados Mikasa</h1>
-        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" href="#modal-actualizar-agregado"><i class="material-icons">add</i></a>
+        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" id="abrir_modal_agregado" href="#modal_mantenedor_agregado"><i class="material-icons">add</i></a>
     </div>
     <div class="">
         <label>Estado en carta</label>
-        <select name="comboBoxEstadoElemento" id="comboBoxEstadoElementoFiltro" class="browser-default">
+        <select name="combo_estado_elemento_filtro" id="combo_estado_agregados_filtro" class="browser-default">
             <option value="">Todos</option>
         </select>
         <div class="input-field">
@@ -28,13 +27,13 @@
         </div>
     </div>
 
-    <div id="agregadosCarga" class="row"></div>
+    <div id="agregados_carga" class="row"></div>
 
-    <div id="modal-actualizar-agregado" class="modal">
+    <div id="modal_mantenedor_agregado" class="modal">
         <div class="modal-content">
-            <h5 class="center">Actualizar Agregado</h5>
-            <form action="" name="form-actualizar-agregado" id="form-actualizar-agregado">
-            <label id="lbl_id" class="lbl_id"></label>
+            <h5 class="center" id="accion_agregados">Ingresar Agregado</h5>
+            <form action="" name="form_mantenedor_agregado" id="form_mantenedor_agregado">
+            <label id="lbl_id" class="lbl-id"></label>
                 <div class="input-field">
                     <input id="txt_nombre" name="txt_nombre" type="text">
                     <label for="txt_nombre">Nombre</label>
@@ -44,40 +43,51 @@
                     <label for="txt_descripcion">Descripción</label>
                 </div>
                 <div class="input-field">
-                    <input id="txt_precioAgregado" name="txt_precioAgregado" type="number">
-                    <label for="txt_precioAgregado">Precio</label>
+                    <input id="txt_precio_agregado" name="txt_precio_agregado" type="number">
+                    <label for="txt_precio_agregado">Precio</label>
                 </div>
                 <div class="input-field">
-                    <input id="txt_descuentoAgregado" name="txt_descuentoAgregado" type="number">
-                    <label for="txt_descuentoAgregado">Descuento (%)</label>
-                    <p>Precio Descuento: <p id="precio_descuentoAgregado"></p></p>
+                    <input id="txt_descuento_agregado" name="txt_descuento_agregado" type="number">
+                    <label for="txt_descuento_agregado">Descuento (%)</label>
+                    <p>Precio Descuento: <p id="precio_descuento_agregado"></p></p>
                 </div>
-                <div class="">
-                    <label>Estado en carta</label>
-                    <select name="comboBoxEstadoElemento" id="comboBoxEstadoElementoForm" class="browser-default">
+                <div class="file-field input-field">
+                    <div class="btn black">
+                        <span>Imagen</span>
+                        <input type="file" name="imagen_agregados" id="imagen_agregados" accept="image/x-png,image/jpg,image/jpeg">
+                    </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path" type="text" id="imagen_agregados_text" name="imagen_agregados_text">
+                        </div>
+                </div>
+                <div class="input-field">
+                    <label class="active">Estado en carta</label>
+                    <select name="combo_estado_elemento" id="combo_estado_elemento_form" class="browser-default">
                         
                     </select>
                 </div>
                 <div class="center">
-                    <input type="submit" class="btn black" id="btn_mant_agregados" value="Confirmar">
+                    <input type="submit" class="btn black" id="submit_mantenedor_agregados" value="Confirmar">
                     <button id="cancelar_actualizar_agregados" class="btn red">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
     <script src="dist/js/script.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
     <!-- <script src="src/js/es6/agregados-functions.js"></script> -->
     <script>
         $(document).ready(function(){
             cargarComboEstadoElemento();
             cargarMantenedorAgregados();
-            $('#modal-actualizar-agregado').modal({
-            onCloseEnd: function() {
-            $('#form-actualizar-agregado')[0].reset();
-            $('#lbl_id').text('');
-            $('#precio_descuentoAgregado').text('');
-            }
-        });
+            $('#modal_mantenedor_agregado').modal({
+                onCloseEnd: function() {
+                $('#form_mantenedor_agregado')[0].reset();
+                $('#lbl_id').text('');
+                $('#precio_descuentoAgregado').text('');
+                $('#accion_agregados').text('Ingresar Agregado');
+                }
+            });
         });
     </script>
 </body>

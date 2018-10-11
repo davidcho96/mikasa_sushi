@@ -19,7 +19,7 @@
 
     <div class="">
         <label>Estado en carta</label>
-        <select name="comboBoxEstadoElemento" id="comboBoxEstadoRellenosFiltro" class="browser-default">
+        <select name="combo_estado_elemento_filtro" id="combo_estado_rellenos_filtro" class="browser-default">
         </select>
         <div class="input-field">
             <label for="txt_buscar_rellenos">Buscar Rellenos</label>
@@ -31,7 +31,7 @@
 
     <div id="modal-mantenedor-relleno" class="modal">
         <div class="modal-content">
-            <h5 class="center">Actualizar Agregado</h5>
+            <h5 class="center" id="accion_rellenos">Ingresar Relleno</h5>
             <form action="" name="form-actualizar-relleno" id="form-actualizar-relleno">
             <label id="lbl_id_rellenos" class=""></label>
                 <div class="input-field">
@@ -78,6 +78,7 @@
                 onCloseEnd: function() {
                 $('#form-actualizar-relleno')[0].reset();
                 $('#lbl_id_rellenos').text('');
+                $('#accion_rellenos').text('Ingresar Relleno');
                 }
             });
         });

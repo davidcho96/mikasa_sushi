@@ -75,7 +75,7 @@
         <!-- Contenido derecha -->
         <div class="content-info-login">
             <div class="form-login">
-                <form action="" id="form-login-cliente" name="form-login-cliente">
+                <form action="" id="form_login_cliente" name="form_login_cliente">
                     <h5 class="">Ingresar a mi cuenta</h5>
                     <p>Bienvenido. Por favor ingresa con tu cuenta.</p>
                     <div class="input-div">

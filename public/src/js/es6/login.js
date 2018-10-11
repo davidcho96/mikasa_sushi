@@ -1,7 +1,7 @@
 'use strict';
 
 // *Login clientes
-$('#form-login-cliente').validate({
+$('#form_login_cliente').validate({
   //*configuración de jquery validata para la validación de campos
   errorClass: 'invalid red-text',
   validClass: 'valid',
@@ -45,7 +45,7 @@ $('#form-login-cliente').validate({
     var action = 'LoginCliente';
     //*Se envían datos del form y action, al controlador mediante ajax
     $.ajax({
-      data: `${$('#form-login-cliente').serialize()}&action=${action}`,
+      data: `${$('#form_login_cliente').serialize()}&action=${action}`,
       url: '../app/control/despCliente.php',
       type: 'POST',
       success: function(resp) {

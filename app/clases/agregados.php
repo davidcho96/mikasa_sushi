@@ -9,6 +9,7 @@ class Agregados extends connection{
     private $precio;
 	private $descuento;
 	private $estado;
+	private $imgUrl;
 
     public function getIdAgregados(){
 		return $this->idAgregados;
@@ -57,6 +58,14 @@ class Agregados extends connection{
 	public function setIdEstado($estado){
 		$this->estado = $estado;
 	}
+
+	public function getImgUrl(){
+		return $this->imgUrl;
+	}
+
+	public function setImgUrl($imgUrl){
+		$this->imgUrl = $imgUrl;
+	}
     
     public function CargarMantenedorAgregados(){
         try{
@@ -67,7 +76,7 @@ class Agregados extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($id, $nombre, $descripcion, $precio, $descuento, $idEstado);
+            $stmt->bind_result($id, $nombre, $descripcion, $precio, $descuento, $idEstado, $imgUrl);
             $datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -77,7 +86,8 @@ class Agregados extends connection{
 						"Descripcion"=>$descripcion,
 						"Precio"=>$precio,
 						"Descuento"=>$descuento,
-						"Estado"=>$idEstado
+						"Estado"=>$idEstado,
+						"ImgUrl"=>$imgUrl
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -98,7 +108,7 @@ class Agregados extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-			$stmt->bind_result($id, $nombre, $descripcion, $precio, $descuento, $idEstado);
+			$stmt->bind_result($id, $nombre, $descripcion, $precio, $descuento, $idEstado, $imgUrl);
 			$datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -108,7 +118,8 @@ class Agregados extends connection{
 						"Descripcion"=>$descripcion,
 						"Precio"=>$precio,
 						"Descuento"=>$descuento,
-						"Estado"=>$idEstado
+						"Estado"=>$idEstado,
+						"ImgUrl"=>$imgUrl
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -145,9 +156,9 @@ class Agregados extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call actualizarDatosAgregados(?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call actualizarDatosAgregados(?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('issiiis', $this->getIdAgregados(), $this->getNombre(), $this->getDescripcion(), $this->getPrecio(), $this->getDescuento(), $this->getIdEstado(), $correo);
+			$stmt->bind_param('issiiiss', $this->getIdAgregados(), $this->getNombre(), $this->getDescripcion(), $this->getPrecio(), $this->getDescuento(), $this->getIdEstado(), $this->getImgUrl(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta
@@ -167,9 +178,9 @@ class Agregados extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call ingresarAgregados(?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call ingresarAgregados(?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('ssiiis', $this->getNombre(), $this->getDescripcion(), $this->getPrecio(), $this->getDescuento(), $this->getIdEstado(), $correo);
+			$stmt->bind_param('ssiiiss', $this->getNombre(), $this->getDescripcion(), $this->getPrecio(), $this->getDescuento(), $this->getIdEstado(), $this->getImgUrl(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta

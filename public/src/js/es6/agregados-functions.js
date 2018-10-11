@@ -7,6 +7,7 @@ function cargarMantenedorAgregados(estado, caracter) {
     url: '../app/control/despAgregados.php',
     type: 'POST',
     success: function(respuesta) {
+      console.log('respuesta exitosa');
       // *----------------------------------------------------------------------
       // *Se filtra el array obtenido en base a los parámetros obtenidos
       var arrFilter = '';
@@ -37,8 +38,7 @@ function cargarMantenedorAgregados(estado, caracter) {
             }%</p></div>`;
             cargaHtml +=
               '<div class="card-image waves-effect waves-block waves-light">';
-            cargaHtml +=
-              '<img class="activator" src="https://www.tusushiya.cl/wp-content/uploads/2018/06/wasabi_paste.jpg">';
+            cargaHtml += `<img class="activator" src="uploads/${item.ImgUrl}">`;
             cargaHtml += '</div>';
             cargaHtml += '<div class="card-content">';
             cargaHtml += `<span class="card-title activator grey-text text-darken-4">${
@@ -74,7 +74,7 @@ function cargarMantenedorAgregados(estado, caracter) {
             cargaHtml += '</div>';
           });
 
-          $('#agregadosCarga').html(cargaHtml);
+          $('#agregados_carga').html(cargaHtml);
           break;
       }
     },
@@ -146,8 +146,8 @@ function cargarComboEstadoElemento() {
           item.Descripcion
         }</option>`;
       });
-      $('select[name="comboBoxEstadoElemento"]').html(cargaHtml);
-      $('#comboBoxEstadoElementoFiltro').html(cargaHtmlFiltro);
+      $('select[name="combo_estado_elemento"]').html(cargaHtml);
+      $('select[name="combo_estado_elemento_filtro"]').html(cargaHtmlFiltro);
     },
     error: function() {
       alert('Lo sentimos ha ocurrido un error');
@@ -157,7 +157,8 @@ function cargarComboEstadoElemento() {
 
 // *Al presionar el botón de editar del producto se cargarán los datos en los campos permitiendo editar los valores actuales
 function actualizarAgregadoM(id) {
-  $('#modal-actualizar-agregado').modal('open');
+  $('#modal_mantenedor_agregado').modal('open');
+  $('#accion_agregados').text('Actualizar Agregado');
   var action = 'CargarModalAgregado';
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
@@ -168,7 +169,6 @@ function actualizarAgregadoM(id) {
     url: '../app/control/despAgregados.php',
     type: 'POST',
     success: function(respuesta) {
-      // alert(respuesta);
       var arr = JSON.parse(respuesta);
       $.each(arr, function(indice, item) {
         // *Los label adquieren la clase active para no quedar sobre el texto definido en val
@@ -177,13 +177,14 @@ function actualizarAgregadoM(id) {
         $('#txt_nombre').val(item.Nombre);
         $(`label[for='txt_descripcion']`).addClass('active');
         $('#txt_descripcion').val(item.Descripcion);
-        $(`label[for='txt_precioAgregado']`).addClass('active');
-        $('#txt_precioAgregado').val(item.Precio);
-        $(`label[for='txt_descuentoAgregado']`).addClass('active');
-        $('#txt_descuentoAgregado').val(item.Descuento);
-        $('#precio_descuentoAgregado').text(`$
+        $(`label[for='txt_precio_agregado']`).addClass('active');
+        $('#txt_precio_agregado').val(item.Precio);
+        $(`label[for='txt_descuento_agregado']`).addClass('active');
+        $('#txt_descuento_agregado').val(item.Descuento);
+        $('#precio_descuento_agregado').text(`$
           ${item.Precio - (item.Precio / 100) * item.Descuento}`);
-        $('#comboBoxEstadoElementoForm').val(item.Estado);
+        $('#imagen_agregados_text').val(item.ImgUrl);
+        $('#combo_estado_elemento_form').val(item.Estado);
       });
     },
     error: function() {
@@ -193,26 +194,28 @@ function actualizarAgregadoM(id) {
 }
 
 // *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
-$('#txt_descuentoAgregado').keyup(function() {
+$('#txt_descuento_agregado').keyup(function() {
   var precioFinalDescuento =
-    $('#txt_precioAgregado').val() -
-    ($('#txt_precioAgregado').val() / 100) * $('#txt_descuentoAgregado').val();
+    $('#txt_precio_agregado').val() -
+    ($('#txt_precio_agregado').val() / 100) *
+      $('#txt_descuento_agregado').val();
   if (precioFinalDescuento == 'NaN') {
-    $('#precio_descuentoAgregado').text('0');
+    $('#precio_descuento_agregado').text('0');
   } else {
-    $('#precio_descuentoAgregado').text('$ ' + precioFinalDescuento);
+    $('#precio_descuento_agregado').text('$ ' + precioFinalDescuento);
   }
 });
 
 // *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
-$('#txt_descuentoAgregado').change(function() {
+$('#txt_descuento_agregado').change(function() {
   var precioFinalDescuento =
-    $('#txt_precioAgregado').val() -
-    ($('#txt_precioAgregado').val() / 100) * $('#txt_descuentoAgregado').val();
+    $('#txt_precio_agregado').val() -
+    ($('#txt_precio_agregado').val() / 100) *
+      $('#txt_descuento_agregado').val();
   if (precioFinalDescuento == 'NaN') {
-    $('#precio_descuentoAgregado').text('0');
+    $('#precio_descuento_agregado').text('0');
   } else {
-    $('#precio_descuentoAgregado').text('$ ' + precioFinalDescuento);
+    $('#precio_descuento_agregado').text('$ ' + precioFinalDescuento);
   }
 });
 
@@ -220,10 +223,10 @@ $('#txt_descuentoAgregado').change(function() {
 // *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
 $('#cancelar_actualizar_agregados').on('click', function(evt) {
   evt.preventDefault();
-  $('#modal-actualizar-agregado').modal('close');
+  $('#modal_mantenedor_agregado').modal('close');
 });
 
-var validarFormActualizarAgregados = $('#form-actualizar-agregado').validate({
+var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
   errorClass: 'invalid red-text',
   validClass: 'valid',
   errorElement: 'div',
@@ -245,20 +248,27 @@ var validarFormActualizarAgregados = $('#form-actualizar-agregado').validate({
       minlength: 3,
       maxlength: 1000
     },
-    txt_precioAgregado: {
+    txt_precio_agregado: {
       required: true,
       min: 0,
       max: 1000000,
       digits: true
     },
-    txt_descuentoAgregado: {
+    txt_descuento_agregado: {
       required: true,
       min: 0,
       max: 100,
       digits: true
     },
-    comboBoxEstadoElemento: {
+    combo_estado_elemento: {
       required: true
+    },
+    imagen_agregados: {
+      // required: true,
+      extension: 'jpeg|jpg|png'
+    },
+    imagen_agregados_text: {
+      // required: true
     }
   },
   messages: {
@@ -272,20 +282,27 @@ var validarFormActualizarAgregados = $('#form-actualizar-agregado').validate({
       minlength: 'Mínimo 3 caracteres',
       maxlength: 'Máximo 1000 caracteres'
     },
-    txt_precioAgregado: {
+    txt_precio_agregado: {
       required: 'Campo requerido *',
       min: 'El valor mínimo es 0',
       max: 'Valor máximo 1000000',
       digits: 'Ingresa solo números'
     },
-    txt_descuentoAgregado: {
+    txt_descuento_agregado: {
       required: 'Campo requerido *',
       min: 'El porcentaje mínimo es 0',
       max: 'El porcentaje máximo es 100',
       digits: 'Ingresa sólo números'
     },
-    comboBoxEstadoElemento: {
+    combo_estado_elemento: {
       required: 'Selecciona una opción'
+    },
+    imagen_agregados: {
+      // required: '',
+      extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
+    },
+    imagen_agregados_text: {
+      // required: 'Selecciona una imagen'
     }
   },
   invalidHandler: function(form) {
@@ -297,6 +314,7 @@ var validarFormActualizarAgregados = $('#form-actualizar-agregado').validate({
     });
   },
   submitHandler: function(form) {
+    // *Sweet alert para mostrar mensaje de confirmación de acción
     swal({
       title: '¿Estás seguro?',
       type: 'warning',
@@ -307,49 +325,66 @@ var validarFormActualizarAgregados = $('#form-actualizar-agregado').validate({
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.value) {
-        // var action = 'ActualizarDatosAgregados';
-        var dataInfo = '';
+        // *imgExtension obtiene la extensión de la imagen
+        var imgExtension = $('#imagen_agregados')
+          .val()
+          .substr(
+            $('#imagen_agregados')
+              .val()
+              .lastIndexOf('.') + 1
+          );
+        // *La variable formData inicializa el formulario al cual se le pasan los datos usando append
+        var formData = new FormData();
+        formData.append('nombre', $('#txt_nombre').val());
+        formData.append('descripcion', $('#txt_descripcion').val());
+        formData.append('precio', $('#txt_precio_agregado').val());
+        formData.append('descuento', $('#txt_descuento_agregado').val());
+        formData.append('estado', $('#combo_estado_elemento_form').val());
+
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
-        // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
+        // *Dependiendo de la acción se anexan más datos al formulario (formData)
+
         if ($('#lbl_id').text() == '') {
-          console.log('ascas');
           let action = 'IngresarAgregados';
-          dataInfo = {
-            nombre: $('#txt_nombre').val(),
-            descripcion: $('#txt_descripcion').val(),
-            precio: $('#txt_precioAgregado').val(),
-            descuento: $('#txt_descuentoAgregado').val(),
-            estado: $('#comboBoxEstadoElementoForm').val(),
-            action: action
-          };
-          $('#btn_mant_agregados').val('Ingresar Agregado');
+          formData.append('action', action);
+          if ($('#imagen_agregados').val() != '') {
+            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            console.log('imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('no imagen');
+          }
         } else {
           let actionUpdate = 'ActualizarDatosAgregados';
-          dataInfo = {
-            id: $('#lbl_id').text(),
-            nombre: $('#txt_nombre').val(),
-            descripcion: $('#txt_descripcion').val(),
-            precio: $('#txt_precioAgregado').val(),
-            descuento: $('#txt_descuentoAgregado').val(),
-            estado: $('#comboBoxEstadoElementoForm').val(),
-            action: actionUpdate
-          };
-          $('#btn_mant_agregados').val('Actualizar Agregado');
+          formData.append('id', $('#lbl_id').text());
+          formData.append('action', actionUpdate);
+          // *Se comprueba la extensión de la imagen por la variable imgExtension
+          if (
+            $('#imagen_agregados').val() != '' ||
+            imgExtension == 'jpg' ||
+            imgExtension == 'png' ||
+            imgExtension == 'jpeg'
+          ) {
+            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            console.log('Imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('No Imagen');
+          }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
         $.ajax({
-          data: dataInfo,
+          data: formData,
           url: '../app/control/despAgregados.php',
           type: 'POST',
+          contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+          processData: false,
           success: function(resp) {
             //*Acción a ejecutar si la respuesta existe
-            // console.log(action);
-            console.log(resp);
-            console.log($('#lbl_id').text());
             switch (resp) {
               case '1':
-                $('#modal-actualizar-agregado').modal('close');
+                $('#modal_mantenedor_agregado').modal('close');
                 swal('Listo', 'Los datos han sido ingresados', 'success');
                 cargarMantenedorAgregados();
                 // *La función se ejecutó correctamente
@@ -370,7 +405,7 @@ var validarFormActualizarAgregados = $('#form-actualizar-agregado').validate({
   }
 });
 
-$('#comboBoxEstadoElementoFiltro').change(function(item) {
+$('#combo_estado_agregados_filtro').change(function(item) {
   cargarMantenedorAgregados(
     $(this)
       .find('option:selected')
@@ -384,9 +419,9 @@ $('#comboBoxEstadoElementoFiltro').change(function(item) {
   */
 });
 
-$('#txt_buscar_agregados').keyup(function(item) {
+$('#combo_estado_agregados_filtro').keyup(function(item) {
   cargarMantenedorAgregados(
-    $('#comboBoxEstadoElementoFiltro')
+    $('#combo_estado_agregados_filtro')
       .find('option:selected')
       .text(),
     $(this).val()
@@ -394,3 +429,5 @@ $('#txt_buscar_agregados').keyup(function(item) {
   // *La función de carga de los datos se ejecuta al presionar la tecla y pasa como parámetros el valor ingresado en la caja de texto
   // *y además el valor seleccionado del combobox
 });
+
+//! Añadir función para validar extensión de imagen

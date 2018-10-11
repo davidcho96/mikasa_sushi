@@ -14,26 +14,26 @@
     <?php require 'templates/nav-admin.php' ?>
     <div class="title-mantenedor">
         <h1>Gestión Coberturas Mikasa</h1>
-        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" href="#modal-mantenedor-cobertura"><i class="material-icons">add</i></a>
+        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" href="#modal_mantenedor_cobertura"><i class="material-icons">add</i></a>
     </div>
 
     <div class="">
         <label>Estado en carta</label>
-        <select name="comboBoxEstadoElemento" id="comboBoxEstadoCoberturasFiltro" class="browser-default">
+        <select name="combo_estado_elemento_filtro" id="combo_estado_coberturas_filtro" class="browser-default">
         </select>
         <div class="input-field">
-            <label for="txt_buscar_coberturas">Buscar Coberturas</label>
+            <label for="txt_buscar_coberturas">Buscar Cobertura</label>
             <input type="text" id="txt_buscar_coberturas">
         </div>
     </div>
 
     <div id="coberturasCarga" class="row"></div>
 
-    <div id="modal-mantenedor-cobertura" class="modal">
+    <div id="modal_mantenedor_cobertura" class="modal">
         <div class="modal-content">
-            <h5 class="center">Actualizar Agregado</h5>
-            <form action="" name="form-actualizar-cobertura" id="form-actualizar-cobertura">
-            <label id="lbl_id_cobertura" class=""></label>
+            <h5 class="center" id="accion_coberturas">Ingresar Agregado</h5>
+            <form action="" name="form_mantenedor_cobertura" id="form_mantenedor_cobertura">
+            <label id="lbl_id_cobertura" class="lbl-id"></label>
                 <div class="input-field">
                     <input id="txt_nombre" name="txt_nombre" type="text">
                     <label for="txt_nombre">Nombre</label>
@@ -43,41 +43,53 @@
                     <label for="txt_descripcion">Descripción</label>
                 </div>
                 <div class="input-field">
-                    <input id="txt_precioCobertura" name="txt_precioCobertura" type="number">
-                    <label for="txt_precioCobertura">Precio</label>
+                    <input id="txt_precio_cobertura" name="txt_precio_cobertura" type="number">
+                    <label for="txt_precio_cobertura">Precio</label>
                 </div>
                 <div class="input-field">
                     <label class="active">Estado en carta</label>
-                    <select name="comboBoxEstadoElemento" id="comboBoxEstadoCobertura" class="browser-default">
+                    <select name="combo_estado_elemento" id="combo_estado_cobertura" class="browser-default">
                         
                     </select>
                 </div>
                 <div class="input-field">
                     <label class="active">Índice de elección</label>
-                    <select name="comboBoxIndiceCobertura" id="comboBoxIndiceCobertura" class="browser-default">
+                    <select name="combo_indice_cobertura" id="combo_indice_cobertura" class="browser-default">
                         
                     </select>
                 </div>
+                <div class="file-field input-field">
+                    <div class="btn black">
+                        <span>Imagen</span>
+                        <input type="file" name="imagen_coberturas" id="imagen_coberturas" accept="image/x-png,image/jpg,image/jpeg">
+                    </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path" type="text" id="imagen_coberturas_text" name="imagen_coberturas_text">
+                        </div>
+                </div>
                 <div class="center">
-                    <input type="submit" class="btn black" id="btn_mant_cobertura" value="Confirmar">
-                    <button id="cancelar_actualizar_cobertura" class="btn red">Cancelar</button>
+                    <input type="submit" class="btn black" id="btn_mantenedor_cobertura" value="Confirmar">
+                    <button id="cancelar_mantenedor_cobertura" class="btn red">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script src="dist/js/script.min.js"></script>
-    <script src="src/js/es6/coberturas-functions.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+
+    <!-- <script src="src/js/es6/coberturas-functions.js"></script> -->
     <script>
         $(document).ready(function(){
             cargarComboEstadoElemento()
             cargarMantenedorCoberturas();
             cargarIndiceCobertura();
-            $('#modal-mantenedor-cobertura').modal({
+            $('#modal_mantenedor_cobertura').modal({
                 dismissible: true,
                 onCloseEnd: function() {
-                $('#form-actualizar-cobertura')[0].reset();
+                $('#form_mantenedor_cobertura')[0].reset();
                 $('#lbl_id_cobertura').text('');
+                $('#accion_coberturas').text('Ingresar Cobertura');
                 }
             });
         });
