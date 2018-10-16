@@ -219,6 +219,32 @@ $('#txt_descuento_agregado').change(function() {
   }
 });
 
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_precio_agregado').keyup(function() {
+  var precioFinalDescuento =
+    $('#txt_precio_agregado').val() -
+    ($('#txt_precio_agregado').val() / 100) *
+      $('#txt_descuento_agregado').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_agregado').text('0');
+  } else {
+    $('#precio_descuento_agregado').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_precio_agregado').change(function() {
+  var precioFinalDescuento =
+    $('#txt_precio_agregado').val() -
+    ($('#txt_precio_agregado').val() / 100) *
+      $('#txt_descuento_agregado').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_agregado').text('0');
+  } else {
+    $('#precio_descuento_agregado').text('$ ' + precioFinalDescuento);
+  }
+});
+
 // *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
 // *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
 $('#cancelar_actualizar_agregados').on('click', function(evt) {
@@ -378,7 +404,7 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
           data: formData,
           url: '../app/control/despAgregados.php',
           type: 'POST',
-          contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+          contentType: false,
           processData: false,
           success: function(resp) {
             //*Acción a ejecutar si la respuesta existe

@@ -76,7 +76,7 @@ function cargarMantenedorCoberturas(estado, caracter) {
             cargaHtml += '</div>';
           });
 
-          $('#coberturasCarga').html(cargaHtml);
+          $('#coberturas_carga').html(cargaHtml);
           break;
       }
     },
@@ -139,6 +139,13 @@ function eliminarCoberturaM(id) {
               break;
             case '2':
               swal('Error', 'El producto no pudo ser eliminado', 'error');
+              break;
+            case '3':
+              swal(
+                'Error',
+                'El producto no puede ser eliminado ya que un tipo de cobertura lo contiene',
+                'error'
+              );
               break;
           }
         },
@@ -222,7 +229,7 @@ $('#cancelar_mantenedor_cobertura').on('click', function(evt) {
   $('#modal_mantenedor_cobertura').modal('close');
 });
 
-var validarFormActualizarAgregados = $('#form_mantenedor_cobertura').validate({
+var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
   errorClass: 'invalid red-text',
   validClass: 'valid',
   errorElement: 'div',
@@ -314,7 +321,6 @@ var validarFormActualizarAgregados = $('#form_mantenedor_cobertura').validate({
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.value) {
-        console.log('ascasc');
         // *imgExtension obtiene la extensión de la imagen
         var imgExtension = $('#imagen_coberturas')
           .val()
@@ -332,7 +338,7 @@ var validarFormActualizarAgregados = $('#form_mantenedor_cobertura').validate({
         formData.append('estado', $('#combo_estado_cobertura').val());
         formData.append('indice', $('#combo_indice_cobertura').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
-        // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
+        // *Si no contiene valor se interpreta que se ingresará una nueva 'cobertura'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
         if ($('#lbl_id_cobertura').text() == '') {
           let action = 'IngresarCobertura';
@@ -397,3 +403,110 @@ var validarFormActualizarAgregados = $('#form_mantenedor_cobertura').validate({
     });
   }
 });
+// *--------------------------------------------------------------------
+// *Se carga el total de indices en la tabla indicesrelleno sin contar el id 1 correspondiente a 'Nunguno'
+function cargarTotalIndiceCoberturas() {
+  var action = 'CargarTotalIndiceCoberturas';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: `action=${action}`,
+    url: '../app/control/despIndiceCobertura.php',
+    type: 'POST',
+    success: function(respuesta) {
+      switch (respuesta) {
+        case 'error':
+          console.log(
+            'Lo sentimos ha ocurrido un error al cargar la cantidad de indices de cobertura'
+          );
+          break;
+        default:
+          cargaHtml += `<p>${respuesta}</p>`;
+          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="sumarIndiceCobertura()"><i class="fa fa-plus"></i></a>`;
+          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceCobertura()"><i class="fa fa-minus"></i></a>`;
+          $('#indice_cobertura_carga').html(cargaHtml);
+          break;
+      }
+    }
+  });
+}
+
+// *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
+function restarIndiceCobertura() {
+  var action = 'RestarIndiceCoberturas';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  swal({
+    title: '¿Estás seguro?',
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Si',
+    cancelButtonText: 'Cancelar'
+  }).then(result => {
+    if (result.value) {
+      $.ajax({
+        data: `action=${action}`,
+        url: '../app/control/despIndiceCobertura.php',
+        type: 'POST',
+        success: function(respuesta) {
+          console.log(respuesta);
+          switch (respuesta) {
+            case '1':
+              console.log('Eliminación exitosa');
+              cargarTotalIndiceCoberturas();
+              cargarMantenedorCoberturas();
+              cargarIndiceCobertura();
+              swal('Listo', 'Se ha restado un índice', 'success');
+              break;
+            case '2':
+              swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+              console.log('Eliminación erróneo');
+              break;
+          }
+        }
+      });
+    }
+  });
+}
+
+// *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
+function sumarIndiceCobertura() {
+  var action = 'AgregarIndiceCoberturas';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  swal({
+    title: '¿Estás seguro?',
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Si',
+    cancelButtonText: 'Cancelar'
+  }).then(result => {
+    if (result.value) {
+      $.ajax({
+        data: `action=${action}`,
+        url: '../app/control/despIndiceCobertura.php',
+        type: 'POST',
+        success: function(respuesta) {
+          console.log(respuesta);
+          switch (respuesta) {
+            case '1':
+              console.log('Agregación exitosa');
+              cargarTotalIndiceCoberturas();
+              cargarMantenedorCoberturas();
+              cargarIndiceCobertura();
+              swal('Listo', 'Se ha sumado un índice', 'success');
+              break;
+            case '2':
+              swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+              console.log('Agregación errónea');
+              break;
+          }
+        }
+      });
+    }
+  });
+}

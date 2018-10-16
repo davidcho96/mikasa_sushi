@@ -92,13 +92,10 @@
                                 <a href="mantenedor-tipo-pago.php">Tipo Pago</a>
                             </li>
                             <li>
-                                <a href="#!">Second</a>
+                                <a href="mantenedor-tipo-cobertura.php">Tipo Cobertura</a>
                             </li>
                             <li>
-                                <a href="#!">Third</a>
-                            </li>
-                            <li>
-                                <a href="#!">Fourth</a>
+                                <a href="mantenedor-tipo-promo.php">Tipo Promo</a>
                             </li>
                         </ul>
                     </div>

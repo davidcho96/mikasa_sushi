@@ -12,8 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $indiceRellenos = new IndiceRellenos();
 
     switch($_REQUEST['action']){
-        case 'CargarIndiceRellenos';
+        case 'CargarIndiceRellenos':
             echo $indiceRellenos->cargarIndiceRellenos();
+        break;
+        case 'CargarTotalIndiceRellenos':
+            echo $indiceRellenos->cargarIndiceRellenosTotal();
+        break;
+        case 'RestarIndiceRellenos':
+            echo $indiceRellenos->eliminarIndiceRelleno($_SESSION['user'][1]);
+        break;
+        case 'AgregarIndiceRelleno': 
+            echo $indiceRellenos->agregarIndiceRelleno($_SESSION['user'][1]);
         break;
     }
 }

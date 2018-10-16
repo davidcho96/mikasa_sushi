@@ -115,8 +115,9 @@ class Cobertura extends connection{
 				return $result;
 			}
 			else{
-				return 3;
+				return 2;
 			}
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
@@ -172,6 +173,8 @@ class Cobertura extends connection{
 			}else{
 				return 3;//*error de BD
 			}
+
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
@@ -194,6 +197,8 @@ class Cobertura extends connection{
 			}else{
 				return 3;//*error de BD
 			}
+
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}

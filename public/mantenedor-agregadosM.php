@@ -84,7 +84,7 @@
                 onCloseEnd: function() {
                 $('#form_mantenedor_agregado')[0].reset();
                 $('#lbl_id').text('');
-                $('#precio_descuentoAgregado').text('');
+                $('#precio_descuento_agregado').text('');
                 $('#accion_agregados').text('Ingresar Agregado');
                 }
             });

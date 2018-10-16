@@ -34,6 +34,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $precio = $validate->int($_POST['precio'], 1000000, 0);
             $idIndice = $_POST['indice'];
             $idEstado = $_POST['estado'];
+            if(empty($_FILES["imagenUrl"]["name"])){
+                $fileText = 'Misma';
+            }else{
+                $target_dir = "../../public/uploads/";
+                $target_file = $target_dir . basename($_FILES["imagenUrl"]["name"]);
+                $uploadOk = 1;
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+                //*Comprueba si la imagen es real
+                $check = getimagesize($_FILES["imagenUrl"]["tmp_name"]);
+                if($check !== false) {
+                    $uploadOk = 1;
+                } else {
+                    $uploadOk = 0;
+                }
+                //*Comprueba el formato de la imagen
+                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
+                    $uploadOk = 0;
+                }
+                if ($uploadOk == 0) {
+                    return '2';
+                } else {
+                    move_uploaded_file($_FILES["imagenUrl"]["tmp_name"], $target_file);
+                    $fileText = basename($_FILES['imagenUrl']['name']);
+                }
+            }
 
             $rellenos->setIdRelleno($id);
             $rellenos->setNombre($nombre);
@@ -41,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rellenos->setIdIndice($idIndice);
             $rellenos->setPrecioAdicional($precio);
             $rellenos->setIdEstado($idEstado);
+            $rellenos->setImgUrl($fileText);
 
             echo $rellenos->actualizarDatos($_SESSION['user'][1]);
         }
@@ -54,13 +81,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $idIndice = $_POST['indice'];
             $idEstado = $_POST['estado'];
 
+            if(empty($_FILES["imagenUrl"]["name"])){
+                $fileText = 'default_food.jpg';
+            }else{
+                $target_dir = "../../public/uploads/";
+                $target_file = $target_dir . basename($_FILES["imagenUrl"]["name"]);
+                $uploadOk = 1;
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+                //*Comprueba si la imagen es real
+                $check = getimagesize($_FILES["imagenUrl"]["tmp_name"]);
+                if($check !== false) {
+                    $uploadOk = 1;
+                } else {
+                    $uploadOk = 0;
+                }
+                //*Comprueba el formato de la imagen
+                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
+                    $uploadOk = 0;
+                }
+                if ($uploadOk == 0) {
+                    return '2';
+                } else {
+                    move_uploaded_file($_FILES["imagenUrl"]["tmp_name"], $target_file);
+                    $fileText = basename($_FILES['imagenUrl']['name']);
+                }
+            }
+
             $rellenos->setNombre($nombre);
             $rellenos->setDescripcion($descripcion);
             $rellenos->setPrecioAdicional($precio);
             $rellenos->setIdIndice($idIndice);
             $rellenos->setIdEstado($idEstado);
+            $rellenos->setImgUrl($fileText);
 
             echo $rellenos->ingresarRellenos($_SESSION['user'][1]);
+
         }
         break;
     }

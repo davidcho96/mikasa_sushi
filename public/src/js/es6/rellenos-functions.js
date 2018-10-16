@@ -7,10 +7,8 @@ function cargarMantenedorRellenos(estado, caracter) {
     url: '../app/control/despRellenos.php',
     type: 'POST',
     success: function(respuesta) {
-      // console.log(respuesta);
       // *----------------------------------------------------------------------
       // *Se filtra el array obtenido en base a los parámetros obtenidos
-      var arrFilter = '';
       var arr = JSON.parse(respuesta);
       // *Se parsea la respuesta json obtenida
       if (estado == null || estado == 'Todos') {
@@ -35,8 +33,7 @@ function cargarMantenedorRellenos(estado, caracter) {
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml +=
               '<div class="card-image waves-effect waves-block waves-light">';
-            cargaHtml +=
-              '<img class="activator" src="https://www.tusushiya.cl/wp-content/uploads/2018/06/wasabi_paste.jpg">';
+            cargaHtml += `<img class="activator" src="uploads/${item.ImgUrl}">`;
             cargaHtml += '</div>';
             cargaHtml += '<div class="card-content">';
             cargaHtml += `<span class="card-title activator grey-text text-darken-4">${
@@ -77,7 +74,7 @@ function cargarMantenedorRellenos(estado, caracter) {
             cargaHtml += '</div>';
           });
 
-          $('#rellenosCarga').html(cargaHtml);
+          $('#rellenos_carga').html(cargaHtml);
           break;
       }
     },
@@ -87,8 +84,8 @@ function cargarMantenedorRellenos(estado, caracter) {
   });
 }
 
-$('#comboBoxEstadoRellenosFiltro').change(function(item) {
-  cargarMantenedorCoberturas(
+$('#combo_estado_rellenos_filtro').change(function(item) {
+  cargarMantenedorRellenos(
     $(this)
       .find('option:selected')
       .text(),
@@ -102,8 +99,8 @@ $('#comboBoxEstadoRellenosFiltro').change(function(item) {
 });
 
 $('#txt_buscar_rellenos').keyup(function(item) {
-  cargarMantenedorCoberturas(
-    $('#comboBoxEstadoRellenosFiltro')
+  cargarMantenedorRellenos(
+    $('#combo_estado_rellenos_filtro')
       .find('option:selected')
       .text(),
     $(this).val()
@@ -154,7 +151,7 @@ function eliminarRellenoM(id) {
 // *Al presionar el botón de editar del producto se cargarán los datos en los campos permitiendo editar los valores actuales
 function actualizarRellenoM(id) {
   $('#accion_rellenos').text('Actualizar Relleno');
-  $('#modal-mantenedor-relleno').modal('open');
+  $('#modal_mantenedor_relleno').modal('open');
   var action = 'CargarModalRelleno';
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
@@ -174,10 +171,11 @@ function actualizarRellenoM(id) {
         $('#txt_nombre').val(item.Nombre);
         $(`label[for='txt_descripcion']`).addClass('active');
         $('#txt_descripcion').val(item.Descripcion);
-        $(`label[for='txt_precioRelleno']`).addClass('active');
-        $('#txt_precioRelleno').val(item.Precio);
-        $('#comboBoxEstadoRelleno').val(item.Estado);
-        $('#comboBoxIndiceRelleno').val(item.Indice);
+        $(`label[for='txt_precio_relleno']`).addClass('active');
+        $('#txt_precio_relleno').val(item.Precio);
+        $('#combo_estado_relleno').val(item.Estado);
+        $('#combo_indice_relleno').val(item.Indice);
+        $('#imagen_rellenos_text').val(item.ImgUrl);
       });
     },
     error: function() {
@@ -191,7 +189,6 @@ function cargarIndiceRelleno() {
   var action = 'CargarIndiceRellenos';
   $('select').formSelect();
   var cargaHtml = '';
-  var cargaHtmlFiltro = '';
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: `action=${action}`,
@@ -207,7 +204,7 @@ function cargarIndiceRelleno() {
           item.Descripcion
         }</option>`;
       });
-      $('#comboBoxIndiceRelleno').html(cargaHtml);
+      $('#combo_indice_relleno').html(cargaHtml);
     },
     error: function() {
       alert('Lo sentimos ha ocurrido un error');
@@ -217,12 +214,12 @@ function cargarIndiceRelleno() {
 
 // *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
 // *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
-$('#cancelar_actualizar_relleno').on('click', function(evt) {
+$('#cancelar_mantenedor_relleno').on('click', function(evt) {
   evt.preventDefault();
-  $('#modal-mantenedor-relleno').modal('close');
+  $('#modal_mantenedor_relleno').modal('close');
 });
 
-var validarFormActualizarAgregados = $('#form-actualizar-relleno').validate({
+var validarFormRelleno = $('#form_mantenedor_relleno').validate({
   errorClass: 'invalid red-text',
   validClass: 'valid',
   errorElement: 'div',
@@ -244,16 +241,16 @@ var validarFormActualizarAgregados = $('#form-actualizar-relleno').validate({
       minlength: 3,
       maxlength: 1000
     },
-    txt_precioRelleno: {
+    txt_precio_relleno: {
       required: true,
       min: 0,
       max: 1000000,
       digits: true
     },
-    comboBoxEstadoElemento: {
+    combo_estado_elemento: {
       required: true
     },
-    comboBoxIndiceCobertura: {
+    combo_indice_relleno: {
       required: true
     }
   },
@@ -268,17 +265,24 @@ var validarFormActualizarAgregados = $('#form-actualizar-relleno').validate({
       minlength: 'Mínimo 3 caracteres',
       maxlength: 'Máximo 1000 caracteres'
     },
-    txt_precioRelleno: {
+    txt_precio_relleno: {
       required: 'Campo requerido *',
       min: 'El valor mínimo es 0',
       max: 'Valor máximo 1000000',
       digits: 'Ingresa solo números'
     },
-    comboBoxEstadoElemento: {
+    combo_estado_elemento: {
       required: 'Selecciona una opción'
     },
-    comboBoxIndiceCobertura: {
+    combo_indice_relleno: {
       required: 'Selecciona una opción'
+    },
+    imagen_rellenos: {
+      // required: '',
+      extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
+    },
+    imagen_rellenos_text: {
+      // required: 'Selecciona una imagen'
     }
   },
   invalidHandler: function(form) {
@@ -300,47 +304,64 @@ var validarFormActualizarAgregados = $('#form-actualizar-relleno').validate({
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.value) {
-        // var action = 'ActualizarDatosAgregados';
-        var dataInfo = '';
+        // *imgExtension obtiene la extensión de la imagen
+        var imgExtension = $('#imagen_rellenos')
+          .val()
+          .substr(
+            $('#imagen_rellenos')
+              .val()
+              .lastIndexOf('.') + 1
+          );
+        // *La variable formData inicializa el formulario al cual se le pasan los datos usando append
+        var formData = new FormData();
+        formData.append('nombre', $('#txt_nombre').val());
+        formData.append('descripcion', $('#txt_descripcion').val());
+        formData.append('precio', $('#txt_precio_relleno').val());
+        formData.append('estado', $('#combo_estado_relleno').val());
+        formData.append('indice', $('#combo_indice_relleno').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
-        // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
-        // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
+        // *Si no contiene valor se interpreta que se ingresará un nuevo 'relleno'
+        // *Dependiendo de la acción se anexan más datos al formulario (formData)
         if ($('#lbl_id_rellenos').text() == '') {
           let action = 'IngresarRelleno';
-          dataInfo = {
-            nombre: $('#txt_nombre').val(),
-            descripcion: $('#txt_descripcion').val(),
-            precio: $('#txt_precioRelleno').val(),
-            estado: $('#comboBoxEstadoRelleno').val(),
-            indice: $('#comboBoxIndiceRelleno').val(),
-            action: action
-          };
+          formData.append('action', action);
+          if ($('#imagen_rellenos').val() != '') {
+            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            console.log('imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('no imagen');
+          }
         } else {
           let actionUpdate = 'ActualizarDatosRelleno';
-          dataInfo = {
-            id: $('#lbl_id_rellenos').text(),
-            nombre: $('#txt_nombre').val(),
-            descripcion: $('#txt_descripcion').val(),
-            precio: $('#txt_precioRelleno').val(),
-            estado: $('#comboBoxEstadoRelleno').val(),
-            indice: $('#comboBoxIndiceRelleno').val(),
-            action: actionUpdate
-          };
-          //!Cambiar texto botón
+          formData.append('id', $('#lbl_id_rellenos').text());
+          formData.append('action', actionUpdate);
+          // *Se comprueba la extensión de la imagen por la variable imgExtension
+          if (
+            $('#imagen_rellenos').val() != '' ||
+            imgExtension == 'jpg' ||
+            imgExtension == 'png' ||
+            imgExtension == 'jpeg'
+          ) {
+            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            console.log('Imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('No Imagen');
+          }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
         $.ajax({
-          data: dataInfo,
+          data: formData,
           url: '../app/control/despRellenos.php',
           type: 'POST',
+          contentType: false,
+          processData: false,
           success: function(resp) {
             //*Acción a ejecutar si la respuesta existe
-            console.log(resp);
-            // console.log($('#comboBoxIndiceCobertura').val());
-            // console.log($('#lbl_id_cobertura').text());
             switch (resp) {
               case '1':
-                $('#modal-mantenedor-relleno').modal('close');
+                $('#modal_mantenedor_relleno').modal('close');
                 swal('Listo', 'Los datos han sido ingresados', 'success');
                 cargarMantenedorRellenos();
                 // *La función se ejecutó correctamente
@@ -360,3 +381,110 @@ var validarFormActualizarAgregados = $('#form-actualizar-relleno').validate({
     });
   }
 });
+
+// *Se carga el total de indices en la tabla indicesrelleno sin contar el id 1 correspondiente a 'Nunguno'
+function cargarTotalIndiceRellenos() {
+  var action = 'CargarTotalIndiceRellenos';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: `action=${action}`,
+    url: '../app/control/despIndiceRelleno.php',
+    type: 'POST',
+    success: function(respuesta) {
+      switch (respuesta) {
+        case 'error':
+          console.log(
+            'Lo sentimos ha ocurrido un error al cargar la cantidad de indices de relleno'
+          );
+          break;
+        default:
+          cargaHtml += `<p>${respuesta}</p>`;
+          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="sumarIndiceRelleno()"><i class="fa fa-plus"></i></a>`;
+          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceRelleno()"><i class="fa fa-minus"></i></a>`;
+          $('#indice_relleno_carga').html(cargaHtml);
+          break;
+      }
+    }
+  });
+}
+
+// *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
+function restarIndiceRelleno() {
+  var action = 'RestarIndiceRellenos';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  swal({
+    title: '¿Estás seguro?',
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Si',
+    cancelButtonText: 'Cancelar'
+  }).then(result => {
+    if (result.value) {
+      $.ajax({
+        data: `action=${action}`,
+        url: '../app/control/despIndiceRelleno.php',
+        type: 'POST',
+        success: function(respuesta) {
+          console.log(respuesta);
+          switch (respuesta) {
+            case '1':
+              console.log('Eliminación exitosa');
+              cargarTotalIndiceRellenos();
+              cargarMantenedorRellenos();
+              cargarIndiceRelleno();
+              swal('Listo', 'Se ha restado un índice', 'success');
+              break;
+            case '2':
+              swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+              console.log('Eliminación erróneo');
+              break;
+          }
+        }
+      });
+    }
+  });
+}
+
+// *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
+function sumarIndiceRelleno() {
+  var action = 'AgregarIndiceRelleno';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  swal({
+    title: '¿Estás seguro?',
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Si',
+    cancelButtonText: 'Cancelar'
+  }).then(result => {
+    if (result.value) {
+      $.ajax({
+        data: `action=${action}`,
+        url: '../app/control/despIndiceRelleno.php',
+        type: 'POST',
+        success: function(respuesta) {
+          console.log(respuesta);
+          switch (respuesta) {
+            case '1':
+              console.log('Agregación exitosa');
+              cargarTotalIndiceRellenos();
+              cargarMantenedorRellenos();
+              cargarIndiceRelleno();
+              swal('Listo', 'Se ha restado un índice', 'success');
+              break;
+            case '2':
+              swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+              console.log('Agregación errónea');
+              break;
+          }
+        }
+      });
+    }
+  });
+}

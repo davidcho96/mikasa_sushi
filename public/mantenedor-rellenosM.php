@@ -8,13 +8,13 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="screen" href="dist/css/style.min.css">
     <link rel="shortcut icon" type="image/png" href="dist/img/m-logo.ico" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css">
 </head>
 <body>
     <?php require 'templates/nav-admin.php' ?>
     <div class="title-mantenedor">
         <h1>Gestión Rellenos Mikasa</h1>
-        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" href="#modal-mantenedor-relleno"><i class="material-icons">add</i></a>
+        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" href="#modal_mantenedor_relleno"><i class="material-icons">add</i></a>
     </div>
 
     <div class="">
@@ -26,14 +26,14 @@
             <input type="text" id="txt_buscar_rellenos">
         </div>
     </div>
+    <div id="indice_relleno_carga" class='indices-carga'></div>
+    <div id="rellenos_carga" class="row"></div>
 
-    <div id="rellenosCarga" class="row"></div>
-
-    <div id="modal-mantenedor-relleno" class="modal">
+    <div id="modal_mantenedor_relleno" class="modal">
         <div class="modal-content">
             <h5 class="center" id="accion_rellenos">Ingresar Relleno</h5>
-            <form action="" name="form-actualizar-relleno" id="form-actualizar-relleno">
-            <label id="lbl_id_rellenos" class=""></label>
+            <form action="" name="form_mantenedor_relleno" id="form_mantenedor_relleno">
+            <label id="lbl_id_rellenos" class="lbl-id"></label>
                 <div class="input-field">
                     <input id="txt_nombre" name="txt_nombre" type="text">
                     <label for="txt_nombre">Nombre</label>
@@ -43,40 +43,49 @@
                     <label for="txt_descripcion">Descripción</label>
                 </div>
                 <div class="input-field">
-                    <input id="txt_precioRelleno" name="txt_precioRelleno" type="number">
-                    <label for="txt_precioRelleno">Precio</label>
+                    <input id="txt_precio_relleno" name="txt_precio_relleno" type="number">
+                    <label for="txt_precio_relleno">Precio</label>
                 </div>
                 <div class="input-field">
                     <label class="active">Estado en carta</label>
-                    <select name="comboBoxEstadoElemento" id="comboBoxEstadoRelleno" class="browser-default">
+                    <select name="combo_estado_elemento" id="combo_estado_relleno" class="browser-default">
                         
                     </select>
                 </div>
                 <div class="input-field">
                     <label class="active">Índice de elección</label>
-                    <select name="comboBoxIndiceRelleno" id="comboBoxIndiceRelleno" class="browser-default">
+                    <select name="combo_indice_relleno" id="combo_indice_relleno" class="browser-default">
                         
                     </select>
                 </div>
+                <div class="file-field input-field">
+                    <div class="btn black">
+                        <span>Imagen</span>
+                        <input type="file" name="imagen_rellenos" id="imagen_rellenos" accept="image/x-png,image/jpg,image/jpeg">
+                    </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path" type="text" id="imagen_rellenos_text" name="imagen_rellenos_text">
+                        </div>
+                </div>
                 <div class="center">
                     <input type="submit" class="btn black" id="btn_mant_relleno" value="Confirmar">
-                    <button id="cancelar_actualizar_relleno" class="btn red">Cancelar</button>
+                    <button id="cancelar_mantenedor_relleno" class="btn red">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script src="dist/js/script.min.js"></script>
-    <script src="src/js/es6/rellenos-functions.js"></script>
     <script>
         $(document).ready(function(){
             cargarComboEstadoElemento()
             cargarMantenedorRellenos();
             cargarIndiceRelleno();
-            $('#modal-mantenedor-relleno').modal({
+            cargarTotalIndiceRellenos();
+            $('#modal_mantenedor_relleno').modal({
                 dismissible: true,
                 onCloseEnd: function() {
-                $('#form-actualizar-relleno')[0].reset();
+                $('#form_mantenedor_relleno')[0].reset();
                 $('#lbl_id_rellenos').text('');
                 $('#accion_rellenos').text('Ingresar Relleno');
                 }

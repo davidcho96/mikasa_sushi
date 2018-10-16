@@ -15,9 +15,6 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 	private $telefono;
 	private $codRecuperacion;
 
-    // public function __construct(){
-    //     // $this->connect();
-    // }
 
     public function getIdCliente(){
 		return $this->idCliente;
@@ -90,7 +87,8 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 	public function setCodRecuperacion($codigo){
 		$this->codRecuperacion = $codigo;
 	}
-
+	
+	// *Generará un código random que será utilizado posteriormente para recuperar la contraseña
 	public function randomCode(){
 		$caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789'; //* Caracteres posibles
 		$code = '';
@@ -108,8 +106,8 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
 			$codRestauracionHash = $this->randomCode();
-			$estado = 1; //* El estado es 1 por defecto
-			// !Falta generar el cod de restauracion
+			//* El estado es 1 por defecto
+			$estado = 1; 
 			$telefono = 'NULL';
 			//*Se encripta la contraseña para ser almacenada en la BD
 			$password_hash = password_hash($this->getPassword(), PASSWORD_DEFAULT, ['cost'=>12]);
@@ -146,6 +144,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 		}
 	}
 	
+	// *Se ejecutará para realizar el login en el sistema 
 	public function login(){
 		try{
 			$db = connection::getInstance();
@@ -162,6 +161,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 			if($stmt->fetch()>0){
 				if($result != 'error'){
 					$passHash = $result;
+					// *Desencripta la contraseña almacenada para ser comparada con la ingresada en el form del login
 					if(password_verify($this->getPassword(), $passHash)){
 						return 1; //*Login exitoso
 					}else {
@@ -177,10 +177,13 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
+
+	// *Obtendrá los datos del usuario registrado para poder editar la información de su perfil
 	public function cargarDatosPerfil(){
 		try{
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
+			// *Prepara la query
 			$stmt=$conn->prepare('call obtenerDatosEditarPerfil(?,
 			@out_value)');
 			//*Se pasan los parámetros a la consulta
@@ -209,47 +212,62 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 		}
 	}
 
+	// *Actualizará la información del usuario logueado
 	public function actualizarDatosPerfil(){
 		try{
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
+			// *Prepara la query
 			$stmt=$conn->prepare('call actualizarPerfil (?, ?, ?, ?, @out_value)');
+			// *Se le pasan los parámetros
 			$stmt->bind_param('ssss', $this->getNombre(), $this->getApellidos(),  $this->getCorreo(), $this->getTelefono());
+			// *Ejecuta la query preparada
 			$stmt->execute();
+			// *Obtiene el resultado
 			$stmt->bind_result($result);
+			// *Envía el resultado
 			if($stmt->fetch()>0){
 				echo $result;
 			}else{
+				// *Error en la ejecución
 				echo '2';
 			}
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
 
+	// *Comprueba que el campo pass actual coincide con la pas almacenada en BD
 	public function confirmarPass(){
 		try{
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
-			$stmt=$conn->prepare('call loginCliente (?, @out_value)');
 			//*Se reutiliza el procedimiento para obtener la password
+			$stmt=$conn->prepare('call loginCliente (?, @out_value)');
+			// *Se pasan los parámetros
 			$stmt->bind_param('s', $this->getCorreo());
+			// *Ejecuta la query
 			$stmt->execute();
+			// *Obtiene el resultado de la query
 			$stmt->bind_result($result);
 			if($stmt->fetch()>0){
 				if ($result == 'error') {
-					echo '1';
+					// *Retorna '1' el valor de error
+					echo '1'; 
 				}else{
 					$passHash = $result;
+					// *Se desencripta la query para ser comparada con la ingresada en el form
 					if(password_verify($this->getPassword(), $passHash)){
 						echo '1'; //*Si coincide
 					}else {
-						echo '3';
+						echo '3'; //*No coincide
 					}
 				}
 			}else{
 				echo '2';
 			}
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
@@ -257,18 +275,25 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 
 	public function cambiarPass(){
 		try{
+			// *Se encripta la pass para ser ingresada en la BD
 			$password_ = password_hash($this->getPassword(), PASSWORD_DEFAULT, ['cost'=>12]);
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
+			// *Se prepara la query 
 			$stmt=$conn->prepare('call actualizarPassCliente (?, ?, @out_value)');
+			// *Se pasan los valores a la query
 			$stmt->bind_param('ss', $password_, $this->getCorreo());
+			// *Se ejecuta la query
 			$stmt->execute();
+			// *Se obtiene el resultado de la query
 			$stmt->bind_result($result);
 			if($stmt->fetch()>0){
 				echo $result;
 			}else{
+				// *Error
 				echo '2';
 			}
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
@@ -278,6 +303,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 		try{
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
+			// *Se prepara la query
 			$stmt=$conn->prepare('call listarClientes2()');
 			//*Se pasan los parámetros a la consulta
 			// $stmt->bind_param('s', $this->getCorreo());
@@ -287,6 +313,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 			$stmt->bind_result($nombre, $apellidos, $correo, $telefono);
 			$datos = array();
 			// if($stmt->fetch()>0){
+				// *Los resultado se ingresan en un array para ser enviados al lado del cliente
 				while($stmt->fetch()){
 					$datos[]=array(
 						"Nombre"=>$nombre,
@@ -296,6 +323,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 					);
 				}
 				return json_encode($datos);
+				// *Transforma el array en string
 			// }else{
 				// return 'error';
 			// }

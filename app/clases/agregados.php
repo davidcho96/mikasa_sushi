@@ -66,7 +66,8 @@ class Agregados extends connection{
 	public function setImgUrl($imgUrl){
 		$this->imgUrl = $imgUrl;
 	}
-    
+	
+	// *Obtendrá los datos de la BD para mostrarlos en el mantenedor correspondiente
     public function CargarMantenedorAgregados(){
         try{
             $db = connection::getInstance();
@@ -79,6 +80,7 @@ class Agregados extends connection{
             $stmt->bind_result($id, $nombre, $descripcion, $precio, $descuento, $idEstado, $imgUrl);
             $datos = array();
 			// if($stmt->fetch()>0){
+				// *Los resultados se añaden a un array para ser procesado y mostrados en pantalla
 				while($stmt->fetch()){
 					$datos[]=array(
                         "IdAgregado"=>$id,
@@ -90,6 +92,8 @@ class Agregados extends connection{
 						"ImgUrl"=>$imgUrl
 					);
 				}
+
+				// *Transforma el array en string
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
                 $stmt->free_result();
         }catch(Exception $error){
@@ -111,6 +115,7 @@ class Agregados extends connection{
 			$stmt->bind_result($id, $nombre, $descripcion, $precio, $descuento, $idEstado, $imgUrl);
 			$datos = array();
 			// if($stmt->fetch()>0){
+				// *Los datos serán añadidos a un array para ser procesados y mostrados en pantalla
 				while($stmt->fetch()){
 					$datos[]=array(
 						"Id"=>$id,
@@ -122,12 +127,16 @@ class Agregados extends connection{
 						"ImgUrl"=>$imgUrl
 					);
 				}
+
+				// *Transforma el array en string
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
                 $stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
+
+	// *Eliminará el agregado que tenga el id obtenido por el método get
 	public function EliminarAgregado($correo){
 		try{
 			$db = connection::getInstance();
@@ -144,13 +153,16 @@ class Agregados extends connection{
 				return $result;
 			}
 			else{
-				return 3;
+				// *Indica que el elemento no puede ser eliminado debido  que está relacionado a otra tabla
+				return 3; 
 			}
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
 
+	// *Actualizará los datos del agregado que tenga el id obtenido por el método get
 	public function actualizarDatos($correo){
 		try{
 			$db = connection::getInstance();
@@ -168,11 +180,14 @@ class Agregados extends connection{
 			}else{
 				return 3;//*error de BD
 			}
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
 
+
+	// *Ingresará un nuevo agregado en la BD
 	public function ingresarAgregados($correo){
 		try{
 			$db = connection::getInstance();
@@ -190,6 +205,35 @@ class Agregados extends connection{
 			}else{
 				return 3;//*error de BD
 			}
+			$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	// *Cargará los datos de los agregados en un combobox
+	public function CargarComboAgregados(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			//*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call cargarComboAgregados()');
+			//* Se ejecuta
+			$stmt->execute();
+			//* Resultados obtenidos de la consulta
+			$stmt->bind_result($id, $nombre);
+			$datos = array();
+			// if($stmt->fetch()>0){
+				while($stmt->fetch()){
+					$datos[]=array(
+						"IdAgregado"=>$id,
+						"Nombre"=>$nombre
+					);
+				}
+
+				// *Transforma el array en string
+				return json_encode($datos, JSON_UNESCAPED_UNICODE);
+				$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}

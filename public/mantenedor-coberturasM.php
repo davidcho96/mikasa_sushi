@@ -27,7 +27,8 @@
         </div>
     </div>
 
-    <div id="coberturasCarga" class="row"></div>
+    <div id="indice_cobertura_carga" class='indices-carga'></div>
+    <div id="coberturas_carga" class="row"></div>
 
     <div id="modal_mantenedor_cobertura" class="modal">
         <div class="modal-content">
@@ -81,9 +82,10 @@
     <!-- <script src="src/js/es6/coberturas-functions.js"></script> -->
     <script>
         $(document).ready(function(){
-            cargarComboEstadoElemento()
+            cargarComboEstadoElemento();
             cargarMantenedorCoberturas();
             cargarIndiceCobertura();
+            cargarTotalIndiceCoberturas();
             $('#modal_mantenedor_cobertura').modal({
                 dismissible: true,
                 onCloseEnd: function() {

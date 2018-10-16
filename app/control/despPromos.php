@@ -1,6 +1,6 @@
 <?php
 
-require_once '../clases/coberturas.php';
+require_once '../clases/promos.php';
 require_once '../clases/inputValidate.php';
 
 session_start();
@@ -9,77 +9,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $validate = new Input();
     //*Se instancia la clase para la validación de campos
 
-    $coberturas = new Cobertura();
+    $promos = new Promos();
 
     switch($_REQUEST['action']){
-        case 'CargarMantenedorCoberturas';
-            echo $coberturas->cargarCoberturas();
+        case 'CargarMantenedorPromosCliente';
+            echo $promos->CargarMantenedorPromosCliente();
         break;
-        case 'EliminarCobertura':
-            if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL'){
-                $coberturas->setIdCobertura($_POST['id']);
-                echo $coberturas->EliminarCobertura($_SESSION['user'][1]);
-            }
-        break;
-        case 'CargarModalCobertura':
-            $coberturas->setIdCobertura($_POST['id']);
-            echo $coberturas->ObtenerInformacionCobertura();
-        break;
-        case 'ActualizarDatosCobertura':
-        if($validate->check(['nombre', 'descripcion', 'precio', 'estado', 'indice'], $_REQUEST)){
-            $id = $_POST['id'];
+        case 'IngresarPromoCliente':
+        if($validate->check(['nombre', 'cantidad', 'precio', 'descuento', 'estado'], $_REQUEST)){
             $nombre = $validate->str($_POST['nombre'], '100', '3');
-            $descripcion = $validate->str($_POST['descripcion'], '1000', '3');
+            $cantidad = $validate->str($_POST['cantidad'], '140', '0');
             $precio = $validate->int($_POST['precio'], 1000000, 0);
-            $idIndice = $_POST['indice'];
+            $descuento = $validate->int($_POST['descuento'], 100, 0);
             $idEstado = $_POST['estado'];
-            if(empty($_FILES["imagenUrl"]["name"])){
-                $fileText = 'Misma';
-            }else{
-                $target_dir = "../../public/uploads/";
-                $target_file = $target_dir . basename($_FILES["imagenUrl"]["name"]);
-                $uploadOk = 1;
-                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+            $idTipoPromo = $_POST['tipopromo'];
+            $arrayagregados = json_decode(stripslashes($_POST['agregados']));
 
-                //*Comprueba si la imagen es real
-                $check = getimagesize($_FILES["imagenUrl"]["tmp_name"]);
-                if($check !== false) {
-                    $uploadOk = 1;
-                } else {
-                    $uploadOk = 0;
-                }
-                //*Comprueba el formato de la imagen
-                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
-                    $uploadOk = 0;
-                }
-                if ($uploadOk == 0) {
-                    return '2';
-                } else {
-                    move_uploaded_file($_FILES["imagenUrl"]["tmp_name"], $target_file);
-                    $fileText = basename($_FILES['imagenUrl']['name']);
-                }
-            }
-
-            $coberturas->setIdCobertura($id);
-            $coberturas->setNombre($nombre);
-            $coberturas->setDescripcion($descripcion);
-            $coberturas->setIdIndice($idIndice);
-            $coberturas->setPrecioAdicional($precio);
-            $coberturas->setIdEstado($idEstado);
-            $coberturas->setImgUrl($fileText);
-
-            echo $coberturas->actualizarDatos($_SESSION['user'][1]);
-        }
-        break;
-
-        case 'IngresarCobertura':
-        if($validate->check(['nombre', 'descripcion', 'precio', 'indice', 'estado'], $_REQUEST)){
-            $nombre = $validate->str($_POST['nombre'], '100', '3');
-            $descripcion = $validate->str($_POST['descripcion'], '1000', '3');
-            $precio = $validate->int($_POST['precio'], 1000000, 0);
-            $idIndice = $_POST['indice'];
-            $idEstado = $_POST['estado'];
-
+            // *Si la imagen no existe se añade una por defecto
             if(empty($_FILES["imagenUrl"]["name"])){
                 $fileText = 'default_food.jpg';
             }else{
@@ -106,20 +52,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $fileText = basename($_FILES['imagenUrl']['name']);
                 }
             }
-
-            $coberturas->setNombre($nombre);
-            $coberturas->setDescripcion($descripcion);
-            $coberturas->setPrecioAdicional($precio);
-            $coberturas->setIdIndice($idIndice);
-            $coberturas->setIdEstado($idEstado);
-            $coberturas->setImgUrl($fileText);
-
-            echo $coberturas->ingresarCoberturas($_SESSION['user'][1]);
+            
+            
+            $promos->setNombre($nombre);
+            $promos->setPrecio($precio);
+            $promos->setDescuento($descuento);
+            $promos->setIdTipoPromo($idTipoPromo);
+            $promos->setIdTipoPreparacion(1);
+            $promos->setIdEstadoElemento($idEstado);
+            $promos->setImgUrl($fileText);
+            $promos->setCantidad($cantidad);
+            $promos->setAgregados($arrayagregados);
+            
+            echo $promos->ingresarPromoCliente($_SESSION['user'][1]);
         }
-        break; 
+        break;
 
-        case 'CargarChecboxCoberturas';
-            echo $coberturas->cargarCoberturas();
+        case 'EliminarPromo':
+            if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL'){
+                $promos->setIdPromo($_POST['id']);
+                echo $promos->EliminarPromo($_SESSION['user'][1]);
+            }
+        break;
+        case 'CargarModalPromoCliente':
+            $promos->setIdPromo($_POST['id']);
+            echo $promos->ObtenerInformacionPromoCliente();
+        break;
+
+        case 'ActualizarDatosPromoCliente';
+        if($validate->check(['nombre', 'cantidad', 'precio', 'descuento', 'estado'], $_REQUEST)){
+            $id = $_POST['id'];
+            $nombre = $validate->str($_POST['nombre'], '100', '3');
+            $cantidad = $validate->str($_POST['cantidad'], '140', '0');
+            $precio = $validate->int($_POST['precio'], 1000000, 0);
+            $descuento = $validate->int($_POST['descuento'], 100, 0);
+            $idEstado = $_POST['estado'];
+            $idTipoPromo = $_POST['tipopromo'];
+            $arrayagregados = json_decode(stripslashes($_POST['agregados']));
+
+            // *Si la imagen no existe se añade una por defecto
+            if(empty($_FILES["imagenUrl"]["name"])){
+                $fileText = 'default_food.jpg';
+            }else{
+                $target_dir = "../../public/uploads/";
+                $target_file = $target_dir . basename($_FILES["imagenUrl"]["name"]);
+                $uploadOk = 1;
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+                //*Comprueba si la imagen es real
+                $check = getimagesize($_FILES["imagenUrl"]["tmp_name"]);
+                if($check !== false) {
+                    $uploadOk = 1;
+                } else {
+                    $uploadOk = 0;
+                }
+                //*Comprueba el formato de la imagen
+                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
+                    $uploadOk = 0;
+                }
+                if ($uploadOk == 0) {
+                    return '2';
+                } else {
+                    move_uploaded_file($_FILES["imagenUrl"]["tmp_name"], $target_file);
+                    $fileText = basename($_FILES['imagenUrl']['name']);
+                }
+            }
+            
+            $promos->setIdPromo($id);
+            $promos->setNombre($nombre);
+            $promos->setPrecio($precio);
+            $promos->setDescuento($descuento);
+            $promos->setIdTipoPromo($idTipoPromo);
+            $promos->setIdTipoPreparacion(1);
+            $promos->setIdEstadoElemento($idEstado);
+            $promos->setImgUrl($fileText);
+            $promos->setCantidad($cantidad);
+            $promos->setAgregados($arrayagregados);
+            
+            echo $promos->ActualizarDatosPromoCliente($_SESSION['user'][1]);
+        }
         break;
     }
 }

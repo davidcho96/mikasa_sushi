@@ -1,10 +1,10 @@
-function CargarTablaTipoPago() {
-  var action = 'CargarMantenedorTipoPago';
+function CargarTablaTipoPromo() {
+  var action = 'CargarMantenedorTipoPromo';
   var cargaHtml = '';
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: `action=${action}`,
-    url: '../app/control/despTipoPago.php',
+    url: '../app/control/despTipoPromo.php',
     type: 'POST',
     success: function(respuesta) {
       var arr = JSON.parse(respuesta);
@@ -22,17 +22,17 @@ function CargarTablaTipoPago() {
             cargaHtml += '<tr>';
             cargaHtml += '<td>' + item.Descripcion + '</td>';
             cargaHtml +=
-              "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='actualizarTipoPago(" +
-              item.IdTipoPago +
+              "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='actualizarTipoPromo(" +
+              item.IdTipoPromo +
               ")'><i class='material-icons'>edit</i></a></td>";
             cargaHtml +=
-              "<td><a class='btn-floating btn-medium waves-effect waves-light red' onclick='eliminarTipoPago(" +
-              item.IdTipoPago +
+              "<td><a class='btn-floating btn-medium waves-effect waves-light red' onclick='eliminarTipoPromo(" +
+              item.IdTipoPromo +
               ")'><i class='material-icons'>delete</i></a></td>";
             cargaHtml += '</tr>';
           });
 
-          $('#body_tabla_tipo_pago').html(cargaHtml);
+          $('#body_tabla_tipo_promo').html(cargaHtml);
           break;
       }
     },
@@ -43,11 +43,11 @@ function CargarTablaTipoPago() {
 }
 
 // *Función para filtrar los datos en la tabla
-$('#txt_buscar_tipo_pago').on('keyup', function() {
+$('#txt_buscar_tipo_promo').on('keyup', function() {
   var caracterFiltro = $(this)
     .val()
     .toLowerCase();
-  $('#tabla_tipo_pago tr').filter(function() {
+  $('#body_tabla_tipo_promo tr').filter(function() {
     $(this).toggle(
       $(this)
         .text()
@@ -58,8 +58,8 @@ $('#txt_buscar_tipo_pago').on('keyup', function() {
 });
 
 // *La función recibe el id del elemento y ejecuta la query en BD
-function eliminarTipoPago(id) {
-  var action = 'EliminarTipoPago';
+function eliminarTipoPromo(id) {
+  var action = 'EliminarTipoPromo';
   swal({
     title: '¿Estás seguro?',
     type: 'warning',
@@ -75,17 +75,24 @@ function eliminarTipoPago(id) {
           action: action,
           id: id
         },
-        url: '../app/control/despTipoPago.php',
+        url: '../app/control/despTipoPromo.php',
         type: 'POST',
         success: function(resp) {
           console.log(resp);
           switch (resp) {
             case '1':
               swal('Listo', 'El elemento fue eliminado', 'success');
-              CargarTablaTipoPago();
+              CargarTablaTipoPromo();
               break;
             case '2':
               swal('Error', 'El elemento no pudo ser eliminado', 'error');
+              break;
+            case '3':
+              swal(
+                'Error',
+                'El elemento no pudo ser eliminado ya que una promo es de este tipo',
+                'error'
+              );
               break;
           }
         },
@@ -98,24 +105,24 @@ function eliminarTipoPago(id) {
 }
 
 // *Al presionar el botón de editar del producto se cargarán los datos en los campos permitiendo editar los valores actuales
-function actualizarTipoPago(id) {
-  $('#accion_tipo_pago').text('Actualizar Tipo Pago');
-  $('#modal_mantenedor_tipo_pago').modal('open');
-  var action = 'CargarModalTipoPago';
+function actualizarTipoPromo(id) {
+  $('#accion_tipo_promo').text('Actualizar Tipo Promo');
+  $('#modal_mantenedor_tipo_promo').modal('open');
+  var action = 'CargarModalTipoPromo';
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
       id: id,
       action: action
     },
-    url: '../app/control/despTipoPago.php',
+    url: '../app/control/despTipoPromo.php',
     type: 'POST',
     success: function(respuesta) {
-      $('#accion_tipo_pago').text('Actualizar Tipo Pago');
+      $('#accion_tipo_promo').text('Actualizar Tipo Promo');
       var arr = JSON.parse(respuesta);
       $.each(arr, function(indice, item) {
         // *Los label adquieren la clase active para no quedar sobre el texto definido en val
-        $('#lbl_id_tipo_pago').text(item.IdTipoPago);
+        $('#lbl_id_tipo_promo').text(item.IdTipoPromo);
         $("label[for='txt_nombre']").addClass('active');
         $('#txt_nombre').val(item.Descripcion);
       });
@@ -128,12 +135,12 @@ function actualizarTipoPago(id) {
 
 // *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
 // *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
-$('#cancelar_mantenedor_tipo_pago').on('click', function(evt) {
+$('#cancelar_mantenedor_tipo_promo').on('click', function(evt) {
   evt.preventDefault();
-  $('#modal_mantenedor_tipo_pago').modal('close');
+  $('#modal_mantenedor_tipo_promo').modal('close');
 });
 
-var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_pago').validate({
+var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_promo').validate({
   errorClass: 'invalid red-text',
   validClass: 'valid',
   errorElement: 'div',
@@ -180,18 +187,18 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_pago').validate({
         // var action = 'ActualizarDatosAgregados';
         var dataInfo = '';
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
-        // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
+        // *Si no contiene valor se interpreta que se ingresará una nueva 'promo'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
-        if ($('#lbl_id_tipo_pago').text() == '') {
-          let action = 'IngresarTipoPago';
+        if ($('#lbl_id_tipo_promo').text() == '') {
+          let action = 'IngresarTipoPromo';
           dataInfo = {
             nombre: $('#txt_nombre').val(),
             action: action
           };
         } else {
-          let actionUpdate = 'ActualizarTipoPago';
+          let actionUpdate = 'ActualizarTipoPromo';
           dataInfo = {
-            id: $('#lbl_id_tipo_pago').text(),
+            id: $('#lbl_id_tipo_promo').text(),
             nombre: $('#txt_nombre').val(),
             action: actionUpdate
           };
@@ -199,16 +206,16 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_pago').validate({
         //*Se envían datos del form y action, al controlador mediante ajax
         $.ajax({
           data: dataInfo,
-          url: '../app/control/despTipoPago.php',
+          url: '../app/control/despTipoPromo.php',
           type: 'POST',
           success: function(resp) {
             //*Acción a ejecutar si la respuesta existe
             console.log(resp);
             switch (resp) {
               case '1':
-                $('#modal_mantenedor_tipo_pago').modal('close');
+                $('#modal_mantenedor_tipo_promo').modal('close');
                 swal('Listo', 'Los datos han sido ingresados', 'success');
-                CargarTablaTipoPago();
+                CargarTablaTipoPromo();
                 // *La función se ejecutó correctamente
                 break;
               case '2':

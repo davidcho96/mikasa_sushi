@@ -15,5 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CargarIndiceCoberturas';
             echo $indiceCoberturas->cargarIndiceCoberturas();
         break;
+        case 'CargarTotalIndiceCoberturas':
+            echo $indiceCoberturas->cargarIndiceCoberturasTotal();
+        break;
+        case 'RestarIndiceCoberturas':
+            echo $indiceCoberturas->eliminarIndiceCobertura($_SESSION['user'][1]);
+        break;
+        case 'AgregarIndiceCoberturas': 
+            echo $indiceCoberturas->agregarIndiceCobertura($_SESSION['user'][1]);
+        break;
     }
 }

@@ -34,6 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $precio = $validate->int($_POST['precio'], 1000000, 0);
                 $descuento = $validate->int($_POST['descuento'], 100, 0);
                 $idEstado = $_POST['estado'];
+
+                // *Si la imagen no existe se añade una por defecto 
                 if(empty($_FILES["imagenUrl"]["name"])){
                     $fileText = 'Misma';
                 }else{
@@ -81,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $descuento = $validate->int($_POST['descuento'], 100, 0);
             $idEstado = $_POST['estado'];
 
+            // *Si la imagen no existe se añade una por defecto
             if(empty($_FILES["imagenUrl"]["name"])){
                 $fileText = 'default_food.jpg';
             }else{
@@ -118,6 +121,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             echo $agregados->ingresarAgregados($_SESSION['user'][1]);
         }
+        break;
+        // *Ejecuta la función que obtendrá los datos para cargar el combobox
+        case 'CargarComboAgregados':
+                echo $agregados->CargarComboAgregados();
         break;
     }
 }
