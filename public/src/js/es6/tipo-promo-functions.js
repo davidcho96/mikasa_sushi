@@ -60,46 +60,74 @@ $('#txt_buscar_tipo_promo').on('keyup', function() {
 // *La función recibe el id del elemento y ejecuta la query en BD
 function eliminarTipoPromo(id) {
   var action = 'EliminarTipoPromo';
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.value) {
-      $.ajax({
-        data: {
-          action: action,
-          id: id
-        },
-        url: '../app/control/despTipoPromo.php',
-        type: 'POST',
-        success: function(resp) {
-          console.log(resp);
-          switch (resp) {
-            case '1':
-              swal('Listo', 'El elemento fue eliminado', 'success');
-              CargarTablaTipoPromo();
-              break;
-            case '2':
-              swal('Error', 'El elemento no pudo ser eliminado', 'error');
-              break;
-            case '3':
-              swal(
-                'Error',
-                'El elemento no pudo ser eliminado ya que una promo es de este tipo',
-                'error'
-              );
-              break;
-          }
-        },
-        error: function() {
-          alert('Lo sentimos ha habido un error inesperado');
-        }
-      });
+  var actionGetDatos = 'ComprobarVinculacionTipoPromo';
+  $.ajax({
+    data: `action=${actionGetDatos}&id=${id}`,
+    url: '../app/control/despTipoPromo.php',
+    type: 'POST',
+    success: function(respuestaDatosVinculados) {
+      switch (respuestaDatosVinculados) {
+        case '1':
+          swal({
+            title: '¿Estás seguro?',
+            text:
+              'Al ser eliminada esta tipo promo ya no podrá ser seleccionado para ser vinculada a una promo.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'Cancelar'
+          }).then(result => {
+            if (result.value) {
+              $.ajax({
+                data: {
+                  action: action,
+                  id: id
+                },
+                url: '../app/control/despTipoPromo.php',
+                type: 'POST',
+                success: function(resp) {
+                  console.log(resp);
+                  switch (resp) {
+                    case '1':
+                      swal('Listo', 'El elemento fue eliminado', 'success');
+                      CargarTablaTipoPromo();
+                      break;
+                    case '2':
+                      swal(
+                        'Error',
+                        'El elemento no pudo ser eliminado',
+                        'error'
+                      );
+                      break;
+                    case '3':
+                      swal(
+                        'Error',
+                        'El elemento no pudo ser eliminado ya que al menos una promo es de este tipo',
+                        'error'
+                      );
+                      break;
+                  }
+                },
+                error: function() {
+                  alert('Lo sentimos ha habido un error inesperado');
+                }
+              });
+            }
+          });
+          break;
+        default:
+          swal(
+            'Error',
+            `El producto no pudo ser eliminado ya que está vinculado a las promos '${respuestaDatosVinculados}'`,
+            'error'
+          );
+          break;
+      }
+    },
+    error: function() {
+      swal('Error', 'El producto no pudo ser eliminado', 'error');
     }
   });
 }
@@ -109,6 +137,9 @@ function actualizarTipoPromo(id) {
   $('#accion_tipo_promo').text('Actualizar Tipo Promo');
   $('#modal_mantenedor_tipo_promo').modal('open');
   var action = 'CargarModalTipoPromo';
+  var mensajeHtml =
+    '<div class="mensaje-precaucion" id="mensaje_precaucion_tipo_promo"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_tipo_promo').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {

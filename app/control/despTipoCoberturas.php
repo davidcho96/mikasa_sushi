@@ -61,5 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CargarComboTipoCoberturas':
                 echo $tipocoberturas->CargarComboTipoCoberturas();
         break;
+        case 'ComprobarVinculacionTipoCobertura':
+            $tipocoberturas->setIdTipoCobertura($_POST['id']);
+            echo $tipocoberturas->comprobarVinculacionTipoCobertura();
+        break;
     }
 }

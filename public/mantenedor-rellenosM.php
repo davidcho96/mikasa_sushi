@@ -27,10 +27,15 @@
         </div>
     </div>
     <div id="indice_relleno_carga" class='indices-carga'></div>
+    <div id="mensaje_no_indice_rellenos"></div>
+    <div id="mensaje_no_carta_rellenos"></div>
     <div id="rellenos_carga" class="row"></div>
 
     <div id="modal_mantenedor_relleno" class="modal">
         <div class="modal-content">
+
+            <div id="content_mensaje_precaucion_rellenos"></div>
+
             <h5 class="center" id="accion_rellenos">Ingresar Relleno</h5>
             <form action="" name="form_mantenedor_relleno" id="form_mantenedor_relleno">
             <label id="lbl_id_rellenos" class="lbl-id"></label>
@@ -88,6 +93,7 @@
                 $('#form_mantenedor_relleno')[0].reset();
                 $('#lbl_id_rellenos').text('');
                 $('#accion_rellenos').text('Ingresar Relleno');
+                $('#mensaje_precaucion_rellenos').remove();
                 }
             });
         });

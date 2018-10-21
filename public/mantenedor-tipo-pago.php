@@ -38,6 +38,9 @@
 
     <div id="modal_mantenedor_tipo_pago" class="modal">
         <div class="modal-content">
+
+            <div id="content_mensaje_precaucion_tipo_pago"></div>
+
             <h5 class="center" id="accion_tipo_pago">Ingresar Tipo Pago</h5>
             <form action="" name="form_mantenedor_tipo_pago" id="form_mantenedor_tipo_pago">
             <label id="lbl_id_tipo_pago" class="lbl-id"></label>
@@ -64,6 +67,7 @@
                 $('#form_mantenedor_tipo_pago')[0].reset();
                 $('#lbl_id_tipo_pago').text('');
                 $('#accion_tipo_pago').text('Ingresar Tipo Pago');
+                $('#mensaje_precaucion_tipo_pago').remove();
                 }
             });
     });

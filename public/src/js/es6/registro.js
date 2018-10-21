@@ -17,13 +17,13 @@ $('#form_registro').validate({
     txt_nombre: {
       required: true,
       minlength: 3,
-      maxlength: 45,
+      maxlength: 100,
       lettersonly: true
     },
     txt_apellidos: {
       required: true,
       minlength: 3,
-      maxlength: 45,
+      maxlength: 100,
       lettersonly: true
     },
     txt_email: {
@@ -33,7 +33,7 @@ $('#form_registro').validate({
     txt_password: {
       required: true,
       minlength: 10,
-      maxlength: 100
+      maxlength: 200
     }
   },
   messages: {
@@ -41,12 +41,12 @@ $('#form_registro').validate({
     txt_nombre: {
       required: 'Campo requerido *',
       minlength: 'Ingresa un nombre válido',
-      maxlength: 'Máximo permitido 45 caracteres'
+      maxlength: 'Máximo permitido 100 caracteres'
     },
     txt_apellidos: {
       required: 'Campo requerido *',
       minlength: 'Ingresa un apellido válido',
-      maxlength: 'Máximo permitido 45 caracteres'
+      maxlength: 'Máximo permitido 100 caracteres'
     },
     txt_email: {
       required: 'Campo requerido *',
@@ -54,7 +54,8 @@ $('#form_registro').validate({
     },
     txt_password: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres'
+      minlength: 'Mínimo 10 caracteres',
+      maxlength: 'Máximo 200 caracteres'
     }
   },
   invalidHandler: function(form) {

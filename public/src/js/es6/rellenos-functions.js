@@ -1,6 +1,9 @@
 function cargarMantenedorRellenos(estado, caracter) {
   var action = 'CargarMantenedorRellenos';
   var cargaHtml = '';
+  // *Los arrays almacenarán los datos de aquellas coberturas que no puedan ser seleccionados por el cliente
+  var arrayIndiceNingunoRellenos = [];
+  var arrayNoEnCartaRellenos = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: `action=${action}`,
@@ -29,6 +32,14 @@ function cargarMantenedorRellenos(estado, caracter) {
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arr, function(indice, item) {
+            // *Si el item tiene como indice el valor ninguno este se insertará en el array indicado
+            if (item.Indice == 'Ninguno') {
+              arrayIndiceNingunoRellenos.push(item.Nombre);
+            }
+            // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
+            if (item.idEstado == 2) {
+              arrayNoEnCartaRellenos.push(item.Nombre);
+            }
             cargaHtml += '<div class="col s12 m4 l4">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml +=
@@ -43,12 +54,15 @@ function cargarMantenedorRellenos(estado, caracter) {
             cargaHtml += `<span class="grey-text text-darken-4">Precio Adicional: $${
               item.Precio
             }</span>`;
-            if (item.Indice != null) {
+            // *Si el indice es igual a 'Ninguno' el texto se marca en rojo
+            if (item.Indice != 'Ninguno') {
               cargaHtml += `<span class="grey-text text-darken-4">Opción de elección: ${
                 item.Indice
               }</span>`;
             } else {
-              cargaHtml += `<span class="grey-text text-darken-4">Opción de elección: Ninguno</span>`;
+              cargaHtml += `<span class="red-text text-darken-4">Opción de elección: ${
+                item.Indice
+              }</span>`;
             }
             cargaHtml += '</div>';
             cargaHtml += '<div class="divider"></div>';
@@ -73,7 +87,31 @@ function cargarMantenedorRellenos(estado, caracter) {
             cargaHtml += '</div>';
             cargaHtml += '</div>';
           });
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayIndiceNingunoRellenos.length > 0) {
+            var htmlNoIndice = `<div class="mensaje-precaucion-indice" id="mensaje_indice_rellenos"><p><b>Atención!:</b> Existen ${
+              arrayIndiceNingunoRellenos.length
+            } rellenos (${arrayIndiceNingunoRellenos.join(
+              ', '
+            )}) que no poseen un índice de selección. Recuerda que estos no podrán ser elegidos por el cliente.</p></div>`;
+            $('#mensaje_no_indice_rellenos').html(htmlNoIndice);
+          } else {
+            $('#mensaje_indice_rellenos').remove();
+          }
 
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayNoEnCartaRellenos.length > 0) {
+            var htmlNoEnCarta = `<div class="mensaje-precaucion-indice" id="mensaje_indice_no_carta_rellenos"><p><b>Atención!:</b> Existen ${
+              arrayNoEnCartaRellenos.length
+            } rellenos (${arrayNoEnCartaRellenos.join(
+              ', '
+            )}) que no están en carta. Recuerda que estos no podrán ser elegidos por el cliente.</p></div>`;
+            $('#mensaje_no_carta_rellenos').html(htmlNoEnCarta);
+          } else {
+            $('#mensaje_indice_no_carta_rellenos').remove();
+          }
+
+          // *Se cargan los datos de la bd en la pantalla
           $('#rellenos_carga').html(cargaHtml);
           break;
       }
@@ -114,6 +152,8 @@ function eliminarRellenoM(id) {
   var action = 'EliminarRelleno';
   swal({
     title: '¿Estás seguro?',
+    text:
+      'Al ser eliminada este relleno ya no podrá ser seleccionado para ser adquirido.',
     type: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -153,6 +193,9 @@ function actualizarRellenoM(id) {
   $('#accion_rellenos').text('Actualizar Relleno');
   $('#modal_mantenedor_relleno').modal('open');
   var action = 'CargarModalRelleno';
+  var mensajeHtml =
+    '<div class="mensaje-precaucion" id="mensaje_precaucion_rellenos"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_rellenos').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -327,10 +370,8 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
           formData.append('action', action);
           if ($('#imagen_rellenos').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-            console.log('imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('no imagen');
           }
         } else {
           let actionUpdate = 'ActualizarDatosRelleno';
@@ -344,10 +385,8 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
             imgExtension == 'jpeg'
           ) {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-            console.log('Imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('No Imagen');
           }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
@@ -369,8 +408,6 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
               case '2':
                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
                 break;
-              default:
-              // console.log(resp);
             }
           },
           error: function() {
@@ -411,38 +448,49 @@ function cargarTotalIndiceRellenos() {
 
 // *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
 function restarIndiceRelleno() {
-  var action = 'RestarIndiceRellenos';
-  var cargaHtml = '';
-  //*Se envían datos del form y action, al controlador mediante ajax
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.value) {
-      $.ajax({
-        data: `action=${action}`,
-        url: '../app/control/despIndiceRelleno.php',
-        type: 'POST',
-        success: function(respuesta) {
-          console.log(respuesta);
-          switch (respuesta) {
-            case '1':
-              console.log('Eliminación exitosa');
-              cargarTotalIndiceRellenos();
-              cargarMantenedorRellenos();
-              cargarIndiceRelleno();
-              swal('Listo', 'Se ha restado un índice', 'success');
-              break;
-            case '2':
-              swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-              console.log('Eliminación erróneo');
-              break;
-          }
+  var actionGetDatosVinculadosRellenos = 'ObtenerDatosVinculadosIndiceRelleno';
+  $.ajax({
+    data: `action=${actionGetDatosVinculadosRellenos}`,
+    url: '../app/control/despIndiceRelleno.php',
+    type: 'POST',
+    success: function(respuestaDatosVinculados) {
+      var action = 'RestarIndiceRellenos';
+      //*Se envían datos del form y action, al controlador mediante ajax
+      swal({
+        title: '¿Estás seguro?',
+        text: `Existen ${respuestaDatosVinculados} rellenos vinculados a este índice, al elimnarlo estos no podrán ser seleccionados por el cliente.`,
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si',
+        cancelButtonText: 'Cancelar'
+      }).then(result => {
+        if (result.value) {
+          $.ajax({
+            data: `action=${action}`,
+            url: '../app/control/despIndiceRelleno.php',
+            type: 'POST',
+            success: function(respuesta) {
+              switch (respuesta) {
+                case '1':
+                  // *Eliminación exitosa
+                  cargarTotalIndiceRellenos();
+                  cargarMantenedorRellenos();
+                  cargarIndiceRelleno();
+                  swal(
+                    'Listo',
+                    `Se ha restado un índice, ${respuestaDatosVinculados} rellenos han quedado sin índice de selección, por lo tanto no podràn ser seleccionadas por el cliente.`,
+                    'success'
+                  );
+                  break;
+                case '2':
+                  // *Error al eliminar
+                  swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                  break;
+              }
+            }
+          });
         }
       });
     }
@@ -469,18 +517,17 @@ function sumarIndiceRelleno() {
         url: '../app/control/despIndiceRelleno.php',
         type: 'POST',
         success: function(respuesta) {
-          console.log(respuesta);
           switch (respuesta) {
             case '1':
-              console.log('Agregación exitosa');
+              // *Ingreso exitoso
               cargarTotalIndiceRellenos();
               cargarMantenedorRellenos();
               cargarIndiceRelleno();
               swal('Listo', 'Se ha restado un índice', 'success');
               break;
             case '2':
+              // *Ingreso erróneo
               swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-              console.log('Agregación errónea');
               break;
           }
         }

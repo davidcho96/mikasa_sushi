@@ -140,8 +140,8 @@ class Cobertura extends connection{
 				while($stmt->fetch()){
 					$datos[]=array(
                         "IdCobertura"=>$id,
-						"Nombre"=>utf8_encode($nombre),
-                        "Descripcion"=>utf8_encode($descripcion),
+						"Nombre"=>$nombre,
+                        "Descripcion"=>$descripcion,
                         "Indice"=>$indice,
 						"Precio"=>$precioAdicional,
 						"Estado"=>$estado,
@@ -196,6 +196,28 @@ class Cobertura extends connection{
 				return $result;
 			}else{
 				return 3;//*error de BD
+			}
+
+			$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function comprobarVinculacionCoberturas(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			//*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call comprobarVinculacionCoberturas(?)');
+			// *Se pasan los parámetros
+			$stmt->bind_param('i', $this->getIdCobertura());
+			//* Se ejecuta
+			$stmt->execute();
+			//* Resultados obtenidos de la consulta
+			$stmt->bind_result($result);
+			if($stmt->fetch()>0){
+				echo $result;
 			}
 
 			$stmt->free_result();

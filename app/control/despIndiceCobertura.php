@@ -24,5 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'AgregarIndiceCoberturas': 
             echo $indiceCoberturas->agregarIndiceCobertura($_SESSION['user'][1]);
         break;
+        case 'ObtenerDatosVinculadosIndiceCobertura':
+            echo $indiceCoberturas->obtenerDatosVinculadosIndiceCobertura();
+        break;
     }
 }

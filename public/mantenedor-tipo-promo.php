@@ -38,6 +38,9 @@
 
     <div id="modal_mantenedor_tipo_promo" class="modal">
         <div class="modal-content">
+
+            <div id="content_mensaje_precaucion_tipo_promo"></div>
+
             <h5 class="center" id="accion_tipo_promo">Ingresar Tipo Promo</h5>
             <form action="" name="form_mantenedor_tipo_promo" id="form_mantenedor_tipo_promo">
             <label id="lbl_id_tipo_promo" class="lbl-id"></label>
@@ -64,6 +67,7 @@
                 $('#form_mantenedor_tipo_promo')[0].reset();
                 $('#lbl_id_tipo_promo').text('');
                 $('#accion_tipo_promo').text('Ingresar Tipo Promo');
+                $('#mensaje_precaucion_tipo_promo').remove();
                 }
             });
     });

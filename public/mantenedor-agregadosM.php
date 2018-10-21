@@ -27,10 +27,15 @@
         </div>
     </div>
 
+    <div id="mensaje_no_carta_agregados"></div>
+
     <div id="agregados_carga" class="row"></div>
 
     <div id="modal_mantenedor_agregado" class="modal">
         <div class="modal-content">
+
+            <div id="content_mensaje_precaucion_agregados"></div>
+
             <h5 class="center" id="accion_agregados">Ingresar Agregado</h5>
             <form action="" name="form_mantenedor_agregado" id="form_mantenedor_agregado">
             <label id="lbl_id" class="lbl-id"></label>
@@ -41,6 +46,10 @@
                 <div class="input-field">
                     <textarea id="txt_descripcion" class="materialize-textarea" name="txt_descripcion"></textarea>
                     <label for="txt_descripcion">Descripción</label>
+                </div>
+                <div class="input-field">
+                    <input id="txt_unidades" name="txt_unidades" type="number">
+                    <label for="txt_unidades">Unidades</label>
                 </div>
                 <div class="input-field">
                     <input id="txt_precio_agregado" name="txt_precio_agregado" type="number">
@@ -86,6 +95,7 @@
                 $('#lbl_id').text('');
                 $('#precio_descuento_agregado').text('');
                 $('#accion_agregados').text('Ingresar Agregado');
+                $('#mensaje_precaucion_agregados').remove();
                 }
             });
         });

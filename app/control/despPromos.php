@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'IngresarPromoCliente':
         if($validate->check(['nombre', 'cantidad', 'precio', 'descuento', 'estado'], $_REQUEST)){
             $nombre = $validate->str($_POST['nombre'], '100', '3');
-            $cantidad = $validate->str($_POST['cantidad'], '140', '0');
+            $cantidad = $validate->str($_POST['cantidad'], '200', '0');
             $precio = $validate->int($_POST['precio'], 1000000, 0);
             $descuento = $validate->int($_POST['descuento'], 100, 0);
             $idEstado = $_POST['estado'];
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $promos->setPrecio($precio);
             $promos->setDescuento($descuento);
             $promos->setIdTipoPromo($idTipoPromo);
-            $promos->setIdTipoPreparacion(1);
+            $promos->setIdTipoPreparacion(2);
             $promos->setIdEstadoElemento($idEstado);
             $promos->setImgUrl($fileText);
             $promos->setCantidad($cantidad);
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if($validate->check(['nombre', 'cantidad', 'precio', 'descuento', 'estado'], $_REQUEST)){
             $id = $_POST['id'];
             $nombre = $validate->str($_POST['nombre'], '100', '3');
-            $cantidad = $validate->str($_POST['cantidad'], '140', '0');
+            $cantidad = $validate->str($_POST['cantidad'], '200', '0');
             $precio = $validate->int($_POST['precio'], 1000000, 0);
             $descuento = $validate->int($_POST['descuento'], 100, 0);
             $idEstado = $_POST['estado'];
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // *Si la imagen no existe se añade una por defecto
             if(empty($_FILES["imagenUrl"]["name"])){
-                $fileText = 'default_food.jpg';
+                $fileText = 'Misma';
             }else{
                 $target_dir = "../../public/uploads/";
                 $target_file = $target_dir . basename($_FILES["imagenUrl"]["name"]);
@@ -130,6 +130,120 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $promos->setAgregados($arrayagregados);
             
             echo $promos->ActualizarDatosPromoCliente($_SESSION['user'][1]);
+        }
+        break;
+
+        case 'IngresarPromoChef':
+        if($validate->check(['nombre', 'cantidad', 'precio', 'descuento', 'estado'], $_REQUEST)){
+            $nombre = $validate->str($_POST['nombre'], '100', '3');
+            $cantidad = $validate->str($_POST['cantidad'], '200', '0');
+            $precio = $validate->int($_POST['precio'], 1000000, 0);
+            $descuento = $validate->int($_POST['descuento'], 100, 0);
+            $idEstado = $_POST['estado'];
+            $idTipoPromo = $_POST['tipopromo'];
+            $arrayagregados = json_decode(stripslashes($_POST['agregados']));
+            $arraytipocoberturas = json_decode(stripslashes($_POST['tipocoberturas']));
+
+            // *Si la imagen no existe se añade una por defecto
+            if(empty($_FILES["imagenUrl"]["name"])){
+                $fileText = 'default_food.jpg';
+            }else{
+                $target_dir = "../../public/uploads/";
+                $target_file = $target_dir . basename($_FILES["imagenUrl"]["name"]);
+                $uploadOk = 1;
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+                //*Comprueba si la imagen es real
+                $check = getimagesize($_FILES["imagenUrl"]["tmp_name"]);
+                if($check !== false) {
+                    $uploadOk = 1;
+                } else {
+                    $uploadOk = 0;
+                }
+                //*Comprueba el formato de la imagen
+                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
+                    $uploadOk = 0;
+                }
+                if ($uploadOk == 0) {
+                    return '2';
+                } else {
+                    move_uploaded_file($_FILES["imagenUrl"]["tmp_name"], $target_file);
+                    $fileText = basename($_FILES['imagenUrl']['name']);
+                }
+            }
+            
+            
+            $promos->setNombre($nombre);
+            $promos->setPrecio($precio);
+            $promos->setDescuento($descuento);
+            $promos->setIdTipoPromo($idTipoPromo);
+            $promos->setIdTipoPreparacion(1);
+            $promos->setIdEstadoElemento($idEstado);
+            $promos->setImgUrl($fileText);
+            $promos->setCantidad($cantidad);
+            $promos->setAgregados($arrayagregados);
+            $promos->setTipoCoberturas($arraytipocoberturas);
+            
+            echo $promos->ingresarPromoChef($_SESSION['user'][1]);
+        }
+        break;
+        case 'CargarModalPromoChef':
+            $promos->setIdPromo($_POST['id']);
+            echo $promos->ObtenerInformacionPromoChef();
+        break;
+        case 'ActualizarDatosPromoChef':
+        if($validate->check(['nombre', 'cantidad', 'precio', 'descuento', 'estado'], $_REQUEST)){
+            $id = $_POST['id'];
+            $nombre = $validate->str($_POST['nombre'], '100', '3');
+            $cantidad = $validate->str($_POST['cantidad'], '200', '0');
+            $precio = $validate->int($_POST['precio'], 1000000, 0);
+            $descuento = $validate->int($_POST['descuento'], 100, 0);
+            $idEstado = $_POST['estado'];
+            $idTipoPromo = $_POST['tipopromo'];
+            $arrayagregados = json_decode(stripslashes($_POST['agregados']));
+            $arraytipocoberturas = json_decode(stripslashes($_POST['tipocoberturas']));
+
+            // *Si la imagen no existe se añade una por defecto
+            if(empty($_FILES["imagenUrl"]["name"])){
+                $fileText = 'Misma';
+            }else{
+                $target_dir = "../../public/uploads/";
+                $target_file = $target_dir . basename($_FILES["imagenUrl"]["name"]);
+                $uploadOk = 1;
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+                //*Comprueba si la imagen es real
+                $check = getimagesize($_FILES["imagenUrl"]["tmp_name"]);
+                if($check !== false) {
+                    $uploadOk = 1;
+                } else {
+                    $uploadOk = 0;
+                }
+                //*Comprueba el formato de la imagen
+                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
+                    $uploadOk = 0;
+                }
+                if ($uploadOk == 0) {
+                    return '2';
+                } else {
+                    move_uploaded_file($_FILES["imagenUrl"]["tmp_name"], $target_file);
+                    $fileText = basename($_FILES['imagenUrl']['name']);
+                }
+            }
+            
+            $promos->setIdPromo($id);
+            $promos->setNombre($nombre);
+            $promos->setPrecio($precio);
+            $promos->setDescuento($descuento);
+            $promos->setIdTipoPromo($idTipoPromo);
+            $promos->setIdTipoPreparacion(1);
+            $promos->setIdEstadoElemento($idEstado);
+            $promos->setImgUrl($fileText);
+            $promos->setCantidad($cantidad);
+            $promos->setAgregados($arrayagregados);
+            $promos->setTipoCoberturas($arraytipocoberturas);
+            
+            echo $promos->actualizarDatosPromoChef($_SESSION['user'][1]);
         }
         break;
     }

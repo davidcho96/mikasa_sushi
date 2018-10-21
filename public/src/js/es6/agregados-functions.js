@@ -1,6 +1,7 @@
 function cargarMantenedorAgregados(estado, caracter) {
   var action = 'CargarMantenedorAgregados';
   var cargaHtml = '';
+  var arrayNoEnCarta = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: `action=${action}`,
@@ -31,6 +32,11 @@ function cargarMantenedorAgregados(estado, caracter) {
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arrFilter, function(indice, item) {
+            // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
+            if (item.IdEstado == 2) {
+              arrayNoEnCarta.push(item.Nombre);
+            }
+
             cargaHtml += '<div class="col s12 m4 l4">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += `<div class="descuento"><p class="center-align">-${
@@ -43,7 +49,9 @@ function cargarMantenedorAgregados(estado, caracter) {
             cargaHtml += '<div class="card-content">';
             cargaHtml += `<span class="card-title activator grey-text text-darken-4">${
               item.Nombre
-            }<i class="material-icons right">more_vert</i></span>`;
+            } ${
+              item.Unidades
+            }u<i class="material-icons right">more_vert</i></span>`;
             cargaHtml += '<div class="precios-productos">';
             cargaHtml += `<span class="grey-text text-darken-4">Precio normal: $${
               item.Precio
@@ -74,6 +82,18 @@ function cargarMantenedorAgregados(estado, caracter) {
             cargaHtml += '</div>';
           });
 
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayNoEnCarta.length > 0) {
+            var htmlNoEnCarta = `<div class="mensaje-precaucion-indice" id="mensaje_indice_no_carta_agregados"><p><b>Atención!:</b> Existen ${
+              arrayNoEnCarta.length
+            } agregados (${arrayNoEnCarta.join(
+              ', '
+            )}) que no están en carta. Recuerda que estos no podrán ser adquiridos por el cliente.</p></div>`;
+            $('#mensaje_no_carta_agregados').html(htmlNoEnCarta);
+          } else {
+            $('#mensaje_indice_no_carta_agregados').remove();
+          }
+
           $('#agregados_carga').html(cargaHtml);
           break;
       }
@@ -87,38 +107,73 @@ function cargarMantenedorAgregados(estado, caracter) {
 // *La función recibe el id del elemento y ejecuta la query en BD
 function eliminarAgregadoM(id) {
   var action = 'EliminarAgregado';
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.value) {
-      $.ajax({
-        data: {
-          action: action,
-          id: id
-        },
-        url: '../app/control/despAgregados.php',
-        type: 'POST',
-        success: function(resp) {
-          switch (resp) {
-            case '1':
-              swal('Listo', 'El producto fue eliminado', 'success');
-              cargarMantenedorAgregados();
-              break;
-            case '2':
-              swal('Error', 'El producto no pudo ser eliminado', 'error');
-              break;
-          }
-        },
-        error: function() {
-          alert('Lo sentimos ha habido un error inesperado');
-        }
-      });
+  var actionGetDatos = 'ComprobarVinculacionAgregados';
+  $.ajax({
+    data: `action=${actionGetDatos}&id=${id}`,
+    url: '../app/control/despAgregados.php',
+    type: 'POST',
+    success: function(respuestaDatosVinculados) {
+      switch (respuestaDatosVinculados) {
+        case '1':
+          swal({
+            title: '¿Estás seguro?',
+            text:
+              'Al ser eliminada esta cobertura ya no podrá ser seleccionada para ser adquirida, ni vinculada a una promo.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'Cancelar'
+          }).then(result => {
+            if (result.value) {
+              $.ajax({
+                data: {
+                  action: action,
+                  id: id
+                },
+                url: '../app/control/despAgregados.php',
+                type: 'POST',
+                success: function(resp) {
+                  switch (resp) {
+                    case '1':
+                      swal('Listo', 'El producto fue eliminado', 'success');
+                      cargarMantenedorAgregados();
+                      break;
+                    case '2':
+                      swal(
+                        'Error',
+                        'El producto no pudo ser eliminado',
+                        'error'
+                      );
+                      break;
+                    case '3':
+                      swal(
+                        'Error',
+                        'El producto no puede ser eliminado ya que una promo lo contiene',
+                        'error'
+                      );
+                      break;
+                  }
+                },
+                error: function() {
+                  alert('Lo sentimos ha habido un error inesperado');
+                }
+              });
+            }
+          });
+          break;
+        default:
+          swal(
+            'Error',
+            `El producto no pudo ser eliminado ya que está vinculado a las promos '${respuestaDatosVinculados}'`,
+            'error'
+          );
+          break;
+      }
+    },
+    error: function() {
+      swal('Error', 'El producto no pudo ser eliminado', 'error');
     }
   });
 }
@@ -160,6 +215,9 @@ function actualizarAgregadoM(id) {
   $('#modal_mantenedor_agregado').modal('open');
   $('#accion_agregados').text('Actualizar Agregado');
   var action = 'CargarModalAgregado';
+  var mensajeHtml =
+    '<div class="mensaje-precaucion" id="mensaje_precaucion_agregados"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_agregados').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -177,6 +235,8 @@ function actualizarAgregadoM(id) {
         $('#txt_nombre').val(item.Nombre);
         $(`label[for='txt_descripcion']`).addClass('active');
         $('#txt_descripcion').val(item.Descripcion);
+        $(`label[for='txt_unidades']`).addClass('active');
+        $('#txt_unidades').val(item.Unidades);
         $(`label[for='txt_precio_agregado']`).addClass('active');
         $('#txt_precio_agregado').val(item.Precio);
         $(`label[for='txt_descuento_agregado']`).addClass('active');
@@ -274,6 +334,11 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
       minlength: 3,
       maxlength: 1000
     },
+    txt_unidades: {
+      required: true,
+      min: 1,
+      max: 200
+    },
     txt_precio_agregado: {
       required: true,
       min: 0,
@@ -307,6 +372,11 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
       required: 'Campo requerido *',
       minlength: 'Mínimo 3 caracteres',
       maxlength: 'Máximo 1000 caracteres'
+    },
+    txt_unidades: {
+      required: 'Campo requerido *',
+      min: 'El valor mínimo es 1',
+      max: 'Valor máximo 1000000'
     },
     txt_precio_agregado: {
       required: 'Campo requerido *',
@@ -363,6 +433,7 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
         var formData = new FormData();
         formData.append('nombre', $('#txt_nombre').val());
         formData.append('descripcion', $('#txt_descripcion').val());
+        formData.append('unidades', $('#txt_unidades').val());
         formData.append('precio', $('#txt_precio_agregado').val());
         formData.append('descuento', $('#txt_descuento_agregado').val());
         formData.append('estado', $('#combo_estado_elemento_form').val());

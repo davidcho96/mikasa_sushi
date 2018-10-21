@@ -17,15 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
             //!Falta validar campos que podrán quedar vacíos
                 if($validate->check(['txt_nombre', 'txt_apellidos', 'txt_email', 'txt_password'], $_REQUEST)){
                     
-                    $nombre = $validate->str($_POST['txt_nombre'], '45', '3');
+                    $nombre = $validate->str($_POST['txt_nombre'], '100', '3');
                     //*Llama al método str, y pasa parámetros (*campo, *maxLength, *minLength)
 
-                    $apellidos=$validate->str($_POST['txt_apellidos'], '45', '3');
+                    $apellidos=$validate->str($_POST['txt_apellidos'], '100', '3');
 
                     $correo=$validate->email($_POST['txt_email']);
                     //*El método email solo valida que el formato del campo sea email
 
-                    $password= $validate->pass($_POST['txt_password'], '100', '10');
+                    $password= $validate->pass($_POST['txt_password'], '200', '10');
                     //*Recibe la acción a ejecutar
 
                     //*Setea parámetros en la clase Cliente
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     $correo=$validate->email($_POST['txt_email']);
                     //*El método email solo valida que el formato del campo sea email
 
-                    $password= $validate->pass($_POST['txt_password'], '100', '1');
+                    $password= $validate->pass($_POST['txt_password'], '200', '1');
                     //*Recibe la acción a ejecutar
 
                     //*Setea parámetros en la clase Cliente
@@ -104,10 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     if($validate->check(['txt_nombre', 'txt_apellidos'], $_REQUEST)){
                         $correo=$validate->email($_SESSION['user'][1]);
                         
-                        $nombre = $validate->str($_POST['txt_nombre'], '45', '3');
+                        $nombre = $validate->str($_POST['txt_nombre'], '100', '3');
                         //*Llama al método str, y pasa parámetros (*campo, *maxLength, *minLength)
                         
-                        $apellidos=$validate->str($_POST['txt_apellidos'], '45', '3');
+                        $apellidos=$validate->str($_POST['txt_apellidos'], '100', '3');
 
                         if ($_POST['txt_telefono'] == '') {
                             $telefono = 'NULL';
@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
             case'ConfirmarPassCliente':
             if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL') {
                 if($validate->check(['txt_pass_actual'], $_REQUEST)){
-                    $password= $validate->pass($_POST['txt_pass_actual'], '100', '10');
+                    $password= $validate->pass($_POST['txt_pass_actual'], '200', '10');
                     $correo=$validate->email($_SESSION['user'][1]);
                     $cliente->setCorreo($correo);
                     $cliente->setPassword($password);
@@ -157,8 +157,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
 
             case 'CambiarPassCliente':
             if($validate->check(['txt_pass_nueva', 'txt_pass_confirmar'], $_REQUEST)){ 
-                $password1= $validate->pass($_POST['txt_pass_nueva'], '100', '10');
-                $password2= $validate->pass($_POST['txt_pass_confirmar'], '100', '10'); 
+                $password1= $validate->pass($_POST['txt_pass_nueva'], '200', '10');
+                $password2= $validate->pass($_POST['txt_pass_confirmar'], '200', '10'); 
 
                 $correoUser=$validate->email($_SESSION['user'][1]);
 

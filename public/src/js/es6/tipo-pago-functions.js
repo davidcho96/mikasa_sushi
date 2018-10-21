@@ -62,6 +62,8 @@ function eliminarTipoPago(id) {
   var action = 'EliminarTipoPago';
   swal({
     title: '¿Estás seguro?',
+    text:
+      'Al ser eliminada este tipo de pago ya no podrá ser seleccionado para ser vinculado a una compra.',
     type: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -102,6 +104,9 @@ function actualizarTipoPago(id) {
   $('#accion_tipo_pago').text('Actualizar Tipo Pago');
   $('#modal_mantenedor_tipo_pago').modal('open');
   var action = 'CargarModalTipoPago';
+  var mensajeHtml =
+    '<div class="mensaje-precaucion" id="mensaje_precaucion_tipo_pago"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_tipo_pago').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -148,14 +153,16 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_pago').validate({
     txt_nombre: {
       required: true,
       minlength: 3,
-      maxlength: 1000
+      maxlength: 1000,
+      lettersonly: true
     }
   },
   messages: {
     txt_nombre: {
       required: 'Campo requerido *',
       minlength: 'Mínimo 3 caracteres',
-      maxlength: 'Máximo 1000 caracteres'
+      maxlength: 'Máximo 1000 caracteres',
+      lettersonly: 'Solo letras'
     }
   },
   invalidHandler: function(form) {

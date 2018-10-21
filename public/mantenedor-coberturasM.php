@@ -28,10 +28,16 @@
     </div>
 
     <div id="indice_cobertura_carga" class='indices-carga'></div>
-    <div id="coberturas_carga" class="row"></div>
+    <div id="mensaje_no_indice_cobertura"></div>
+    <div id="mensaje_no_carta_cobertura"></div>
+    <div id="coberturas_carga" class="row">
+    </div>
 
     <div id="modal_mantenedor_cobertura" class="modal">
         <div class="modal-content">
+
+            <div id="content_mensaje_precaucion_coberturas"></div>
+
             <h5 class="center" id="accion_coberturas">Ingresar Agregado</h5>
             <form action="" name="form_mantenedor_cobertura" id="form_mantenedor_cobertura">
             <label id="lbl_id_cobertura" class="lbl-id"></label>
@@ -92,6 +98,7 @@
                 $('#form_mantenedor_cobertura')[0].reset();
                 $('#lbl_id_cobertura').text('');
                 $('#accion_coberturas').text('Ingresar Cobertura');
+                $('#mensaje_precaucion_coberturas').remove();
                 }
             });
         });

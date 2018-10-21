@@ -90,6 +90,9 @@ function actualizarTipoCobertura(nombre, id) {
   $("label[for='txt_nombre']").addClass('active');
   $('#txt_nombre').val(nombre);
   var action = 'CargarModalTipoCobertura';
+  var mensajeHtml =
+    '<div class="mensaje-precaucion" id="mensaje_precaucion_tipo_cobertura"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_tipo_cobertura').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -225,46 +228,67 @@ $('#form_mantenedor_tipo_coberturas').validate({
 // *La función recibe el id del elemento y ejecuta la query en BD
 function eliminarTipoCobertura(id) {
   var action = 'EliminarTipoCobertura';
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.value) {
-      $.ajax({
-        data: {
-          action: action,
-          id: id
-        },
-        url: '../app/control/despTipoCoberturas.php',
-        type: 'POST',
-        success: function(resp) {
-          console.log(resp);
-          switch (resp) {
-            case '1':
-              swal('Listo', 'El producto fue eliminado', 'success');
-              CargarTablaTipoCobertura();
-              break;
-            // case '2':
-            //   swal('Error', 'El producto no pudo ser eliminado', 'error');
-            //   break;
-            case '3':
-              swal(
-                'Error',
-                'El producto no puede ser eliminado ya que una promo la contiene',
-                'error'
-              );
-              break;
-          }
-        },
-        error: function() {
-          alert('Lo sentimos ha habido un error inesperado');
-        }
-      });
+  var actionGetDatos = 'ComprobarVinculacionTipoCobertura';
+  $.ajax({
+    data: `action=${actionGetDatos}&id=${id}`,
+    url: '../app/control/despTipoCoberturas.php',
+    type: 'POST',
+    success: function(respuestaDatosVinculados) {
+      switch (respuestaDatosVinculados) {
+        case '1':
+          swal({
+            title: '¿Estás seguro?',
+            text:
+              'Al ser eliminada este tipo de cobertura ya no podrá ser seleccionado para ser adquirido, o asociado a una promo.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'Cancelar'
+          }).then(result => {
+            if (result.value) {
+              $.ajax({
+                data: {
+                  action: action,
+                  id: id
+                },
+                url: '../app/control/despTipoCoberturas.php',
+                type: 'POST',
+                success: function(resp) {
+                  console.log(resp);
+                  switch (resp) {
+                    case '1':
+                      swal('Listo', 'El producto fue eliminado', 'success');
+                      CargarTablaTipoCobertura();
+                      break;
+                    case '3':
+                      swal(
+                        'Error',
+                        'El producto no puede ser eliminado ya que una promo la contiene',
+                        'error'
+                      );
+                      break;
+                  }
+                },
+                error: function() {
+                  alert('Lo sentimos ha habido un error inesperado');
+                }
+              });
+            }
+          });
+          break;
+        default:
+          swal(
+            'Error',
+            `El producto no pudo ser eliminado ya que está vinculado a las promos '${respuestaDatosVinculados}'`,
+            'error'
+          );
+          break;
+      }
+    },
+    error: function() {
+      swal('Error', 'El producto no pudo ser eliminado', 'error');
     }
   });
 }

@@ -13,6 +13,7 @@ class Promos extends connection{
     private $imgUrl;
     private $cantidad;
     private $agregados = array();
+    private $tipocoberturas = array();
 
 	public function getIdPromo(){
 		return $this->idPromo;
@@ -94,6 +95,14 @@ class Promos extends connection{
 		$this->agregados = $agregados;
     }
     
+    public function getTipoCoberturas(){
+		return $this->tipocoberturas;
+	}
+
+	public function setTipoCoberturas($tipocoberturas){
+		$this->tipocoberturas = $tipocoberturas;
+    }
+
     public function CargarMantenedorPromosCliente(){
         try{
             $db = connection::getInstance();
@@ -103,7 +112,7 @@ class Promos extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($idPromo, $nombre, $precio, $descuento, $idTipoPromo, $tipoPromo, $idTipoPreparacion, $tipoElaboracion, $imgUrl, $estado);
+            $stmt->bind_result($idPromo, $nombre, $precio, $descuento, $idTipoPromo, $tipoPromo, $idTipoPreparacion, $tipoElaboracion, $imgUrl, $estado, $idEstado);
             $datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -117,7 +126,8 @@ class Promos extends connection{
 						"IdTipoPreparacion"=>$idTipoPreparacion,
                         "TipoPreparacion"=>$tipoElaboracion,
                         "ImgUrl"=>$imgUrl,
-                        "Estado"=>$estado
+                        "Estado"=>$estado,
+                        "IdEstado"=>$idEstado
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -269,6 +279,175 @@ class Promos extends connection{
                 }
             }
             $conn->commit();
+            if($errorFor == 0){
+                $conn->rollback();
+                echo '2';
+            }else{
+                $conn->commit();
+                echo '1';
+            }
+
+            $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+    }
+
+    // *----------------Promos Chef
+
+    public function ingresarPromoChef($correo){
+        try{
+            $errorFor = 0;
+            $null = null;
+            $db = connection::getInstance();
+            $conn = $db->getConnection();
+            mysqli_autocommit($conn, FALSE);
+            //*Se prepara el procedimiento almacenado
+            $stmt = $conn->prepare('CALL agregarPromo(?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
+            $stmt->bind_param("siiiiisis", $this->getNombre(), $this->getPrecio(), $this->getDescuento(), $this->getIdTipoPromo(), $this->getIdTipoPreparacion(), $this->getIdEstadoElemento(), $this->getImgUrl(), $this->getCantidad(), $correo);
+            // ------------------------------------------------------------------------
+            if($stmt->execute()){
+                $arrayAgregados = $this->getAgregados();
+                $arrayTipoCoberturas = $this->getTipoCoberturas();
+                if(empty($arrayAgregados) || $arrayAgregados == '' || $arrayAgregados == NULL){
+                    $errorFor = 1;
+                }else{
+                    foreach ($arrayAgregados as $key=>$valor) {
+                        $stmt2 = $conn->prepare("CALL agregarDetallePromo(?, ?, ?, ?, @out_value)");
+                        $stmt2->bind_param("iiis", $null, $valor[1], $valor[0], $correo);
+                        if($stmt2->execute()){
+                            $errorFor = 1;
+                            $stmt2->free_result();
+                        }else {
+                            $conn->rollback();
+                            $stmt2->free_result();
+                        }
+                    }
+                }
+                if(empty($arrayTipoCoberturas) || $arrayTipoCoberturas == '' || $arrayTipoCoberturas == NULL){
+                    $errorFor = 1;
+                }else{
+                    foreach ($arrayTipoCoberturas as $key=>$valor) {
+                        $stmt3 = $conn->prepare("CALL agregarDetallePromo(?, ?, ?, ?, @out_value)");
+                        $stmt3->bind_param("iiis",  $valor[0], $valor[1], $null, $correo);
+                        if($stmt3->execute()){
+                            $errorFor = 1;
+                            $stmt3->free_result();
+                        }else {
+                            $conn->rollback();
+                            $stmt3->free_result();
+                        }
+                    }
+                }
+            }
+
+            $conn->commit();
+            if($errorFor == 0){
+                $conn->rollback();
+                echo '2';
+            }else{
+                $conn->commit();
+                echo '1';
+            }
+
+            $stmt->free_result();
+        }catch(Exception $error){
+            echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+        }
+    }
+
+    public function ObtenerInformacionPromoChef(){
+        try{
+            $db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call obtenerDatosPromoChef(?)');
+			//* Se pasa el id para obtener la información
+			$stmt->bind_param('i', $this->getIdPromo());
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+			$stmt->bind_result($nombre, $cantidad, $precio, $descuento, $idTipoPromo, $IdTipoElaboracion, $idEstado, $imgUrl, $agregados, $idAgregados, $cantidadesAgregados, $tipoCoberturas, $idTipoCoberturas, $cantidadesTipoCoberturas);
+			$datos = array();
+			// if($stmt->fetch()>0){
+				while($stmt->fetch()){
+					$datos[]=array(
+						"Nombre"=>$nombre,
+						"Cantidad"=>$cantidad,
+						"Precio"=>$precio,
+                        "Descuento"=>$descuento,
+                        "IdTipoPromo"=>$idTipoPromo,
+                        "IdTipoElaboracion"=>$IdTipoElaboracion,
+                        "ImgUrl"=>$imgUrl,
+						"IdEstado"=>$idEstado,
+                        "Agregados"=>$agregados,
+                        "IdAgregados"=>$idAgregados,
+                        "CantidadesAgregados"=>$cantidadesAgregados,
+                        "TipoCoberturas"=>$tipoCoberturas,
+                        "IdTipoCoberturas"=>$idTipoCoberturas,
+                        "CantidadesTipoCoberturas"=>$cantidadesTipoCoberturas
+					);
+				}
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+        }catch(Exception $error){
+            echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+        }
+    }
+
+    public function actualizarDatosPromoChef($correo){
+        try{
+            // *Se ejecutan 2 querys
+            // *La primera elimina los datos de la tabla detalle para luego añadir los nuevos además de actualizar los datos
+            // *La segunda ingresa los nuevos datos a la tabla detalle
+            $null = null;
+            $errorFor = 0; //*Estado de ejecución de las querys
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            mysqli_autocommit($conn, FALSE);
+			$stmt=$conn->prepare('call eliminarDetallePromoCliente(?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
+			//*Se pasan los parámetros
+			$stmt->bind_param('isiiiiiss', $this->getIdPromo(), $this->getNombre(), $this->getPrecio(), $this->getDescuento(), $this->getCantidad(), $this->getIdEstadoElemento(), $this->getIdTipoPromo(), $this->getImgUrl(), $correo);
+            //* Se ejecuta
+            
+            //* Resultados obtenidos de la consulta
+            // ------------------------------------------------------------------------------
+            if($stmt->execute()){
+                $arrayAgregados = $this->getAgregados();
+                $arrayTipoCoberturas = $this->getTipoCoberturas();
+                if(empty($arrayAgregados) || $arrayAgregados == '' || $arrayAgregados == NULL){
+                    $errorFor = 1;
+                }else{
+                    foreach ($arrayAgregados as $key=>$valor) {
+                        $stmt2 = $conn->prepare("CALL actualizarDetallePromoChef(?, ?, ?, ?, ?, @out_value)");
+                        $stmt2->bind_param("iiiis", $valor[1], $null, $valor[0],  $this->getIdPromo(), $correo);
+                        if($stmt2->execute()){
+                            $errorFor = 1;
+                            $stmt2->free_result();
+                        }else {
+                            $conn->rollback();
+                            $stmt2->free_result();
+                        }
+                    }
+                }
+
+                if(empty($arrayTipoCoberturas) || $arrayTipoCoberturas == '' || $arrayTipoCoberturas == NULL){
+                    $errorFor = 1;
+                }else{
+                    foreach ($arrayTipoCoberturas as $key=>$valor) {
+                        $stmt3 = $conn->prepare("CALL actualizarDetallePromoChef(?, ?, ?, ?, ?, @out_value)");
+                        $stmt3->bind_param("iiiis",  $valor[1], $valor[0], $null,  $this->getIdPromo(), $correo);
+                        if($stmt3->execute()){
+                            $errorFor = 1;
+                            $stmt3->free_result();
+                        }else {
+                            $conn->rollback();
+                            $stmt3->free_result();
+                        }
+                    }
+                }
+            }
             if($errorFor == 0){
                 $conn->rollback();
                 echo '2';

@@ -189,5 +189,27 @@ class TipoCoberturas extends connection {
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
+    }
+    
+    public function comprobarVinculacionTipoCobertura(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			//*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call comprobarVinculacionTipoCobertura(?)');
+			// *Se pasan los parámetros
+			$stmt->bind_param('i', $this->getIdTipoCobertura());
+			//* Se ejecuta
+			$stmt->execute();
+			//* Resultados obtenidos de la consulta
+			$stmt->bind_result($result);
+			if($stmt->fetch()>0){
+				echo $result;
+			}
+
+			$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
 	}
 }

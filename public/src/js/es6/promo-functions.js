@@ -1,6 +1,7 @@
 function cargarMantenedorPromosCliente(estado, caracter) {
   var action = 'CargarMantenedorPromosCliente';
   var cargaHtml = '';
+  var arrayNoEnCarta = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: `action=${action}`,
@@ -20,6 +21,11 @@ function cargarMantenedorPromosCliente(estado, caracter) {
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arr, function(indice, item) {
+            // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
+            if (item.IdEstado == 2) {
+              arrayNoEnCarta.push(item.Nombre);
+            }
+
             cargaHtml += '<div class="col s12 m4 l4">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += `<div class="descuento"><p class="center-align">-${
@@ -42,9 +48,17 @@ function cargarMantenedorPromosCliente(estado, caracter) {
             cargaHtml += '</div>';
             cargaHtml += '<div class="divider"></div>';
             cargaHtml += '<div class="btn-mant-productos">';
-            cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="actualizarPromoCliente(${
-              item.IdPromo
-            })"><i class="material-icons">edit</i></a>`;
+
+            if (item.IdTipoPreparacion == 2) {
+              cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="actualizarPromoCliente(${
+                item.IdPromo
+              })"><i class="material-icons">edit</i></a>`;
+            } else if (item.IdTipoPreparacion == 1) {
+              cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="actualizarPromoChef(${
+                item.IdPromo
+              })"><i class="material-icons">edit</i></a>`;
+            }
+
             cargaHtml += `<h5 class="grey-text text-darken-4">${
               item.Estado
             }</h5>`;
@@ -62,6 +76,18 @@ function cargarMantenedorPromosCliente(estado, caracter) {
             cargaHtml += '</div>';
             cargaHtml += '</div>';
           });
+
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayNoEnCarta.length > 0) {
+            var htmlNoEnCarta = `<div class="mensaje-precaucion-indice" id="mensaje_indice_no_carta_promos"><p><b>Atención!:</b> Existen ${
+              arrayNoEnCarta.length
+            } promos (${arrayNoEnCarta.join(
+              ', '
+            )}) que no están en carta. Recuerda que estos no podrán ser adquiridos por el cliente.</p></div>`;
+            $('#mensaje_no_carta_promos').html(htmlNoEnCarta);
+          } else {
+            $('#mensaje_indice_no_carta_promos').remove();
+          }
 
           $('#mant_arma_tu_promo_carga').html(cargaHtml);
           break;
@@ -153,15 +179,23 @@ function cargarComboTipoPromo() {
 // *---------------------------------------------------------------------------
 // * Añade un agregado a la lista de la promo
 $('#btn_add_agregados_promo_cliente').click(function() {
-  var listaHtml = `<li id-agregado='${$(
-    '#combo_agregados_promo_form'
-  ).val()}' cantidad-agregado='${$('#txt_cantidad_agregados').val()}'>${$(
-    '#txt_cantidad_agregados'
-  ).val()} - ${$(
-    '#combo_agregados_promo_form option:selected'
-  ).text()} <a id="eliminar_lista_agregados" href="#">Eliminar<a/></li>`;
+  if ($('#txt_cantidad_agregados_chef').val() < 1) {
+    M.toast({
+      html: 'Debes ingresar una cantidad válida.',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  } else {
+    var listaHtml = `<li id-agregado='${$(
+      '#combo_agregados_promo_form'
+    ).val()}' cantidad-agregado='${$('#txt_cantidad_agregados').val()}'>${$(
+      '#txt_cantidad_agregados'
+    ).val()} - ${$(
+      '#combo_agregados_promo_form option:selected'
+    ).text()} <a id="eliminar_lista_agregados" href="#">Eliminar<a/></li>`;
 
-  $('#lista_agregados_adicionales').append(listaHtml);
+    $('#lista_agregados_adicionales').append(listaHtml);
+  }
 });
 
 // *Elimina el agregado de la lista de la promo
@@ -175,15 +209,23 @@ $('body').on('click', '#eliminar_lista_agregados', function() {
 
 // * Añade un agregado a la lista de la promo
 $('#btn_add_agregados_promo_chef').click(function() {
-  var listaHtml = `<li id-agregado-chef='${$(
-    '#combo_agregados_promo_chef_form'
-  ).val()}' cantidad-agregado-chef='${$(
-    '#txt_cantidad_agregados_chef'
-  ).val()}'>${$('#txt_cantidad_agregados_chef').val()} - ${$(
-    '#combo_agregados_promo_form_chef option:selected'
-  ).text()} <a id="eliminar_lista_agregados_chef" href="#">Eliminar<a/></li>`;
+  if ($('#txt_cantidad_agregados_chef').val() < 1) {
+    M.toast({
+      html: 'Debes ingresar una cantidad válida.',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  } else {
+    var listaHtml = `<li id-agregado-chef='${$(
+      '#combo_agregados_promo_form_chef'
+    ).val()}' cantidad-agregado-chef='${$(
+      '#txt_cantidad_agregados_chef'
+    ).val()}'>${$('#txt_cantidad_agregados_chef').val()} - ${$(
+      '#combo_agregados_promo_form_chef option:selected'
+    ).text()} <a id="eliminar_lista_agregados_chef" href="#">Eliminar<a/></li>`;
 
-  $('#lista_agregados_adicionales_chef').append(listaHtml);
+    $('#lista_agregados_adicionales_chef').append(listaHtml);
+  }
 });
 
 // *Elimina el agregado de la lista de la promo
@@ -195,22 +237,57 @@ $('body').on('click', '#eliminar_lista_agregados_chef', function() {
 
 // * Añade un tipo de cobertura a la lista de la promo
 $('#btn_add_tipo_coberturas_promo_chef').click(function() {
-  var listaHtml = `<li id-tipo-cobertura='${$(
-    '#combo_agregados_promo_chef_form'
-  ).val()}' cantidad-tipo-cobertura='${$(
-    '#txt_cantidad_tipo_coberturas_chef'
-  ).val()}'>${$('#txt_cantidad_tipo_coberturas_chef').val()} - ${$(
-    '#combo_tipo_coberturas_promo_form_chef option:selected'
-  ).text()} <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>`;
+  var total;
+  if (obtenerTotalListaTipoCoberturas() != null) {
+    total = obtenerTotalListaTipoCoberturas();
+  } else {
+    total = 0;
+  }
 
-  $('#lista_tipo_coberturas_chef').append(listaHtml);
+  console.log(obtenerTotalListaTipoCoberturas());
+  if ($('#txt_cantidad_tipo_coberturas_chef').val() < 10) {
+    M.toast({
+      html: 'Debes ingresar una cantidad válida (mínimo 10).',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  } else if (total < 200) {
+    var listaHtml = `<li id-tipo-cobertura-chef='${$(
+      '#combo_tipo_coberturas_promo_form_chef'
+    ).val()}' cantidad-tipo-cobertura-chef='${$(
+      '#txt_cantidad_tipo_coberturas_chef'
+    ).val()}'>${$('#txt_cantidad_tipo_coberturas_chef').val()} - ${$(
+      '#combo_tipo_coberturas_promo_form_chef option:selected'
+    ).text()} <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>`;
+
+    $('#lista_tipo_coberturas_chef').append(listaHtml);
+  } else {
+    M.toast({
+      html: 'Haz sobre pasado las 200 piezas.',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  }
+
+  var valor;
+  if (obtenerTotalListaTipoCoberturas() != null) {
+    valor = obtenerTotalListaTipoCoberturas();
+    $('#txt_cantidad_piezas_chef').val(valor);
+  }
 });
 
-// *Elimina el agregado de la lista de la promo
+// *Elimina el tipo cobertura de la lista de la promo
 $('body').on('click', '#eliminar_lista_tipo_cobertura_chef', function() {
   $(this)
     .closest('li')
     .remove();
+  if (obtenerTotalListaTipoCoberturas() != null) {
+    valor = obtenerTotalListaTipoCoberturas();
+    $('#txt_cantidad_piezas_chef').val(valor);
+  } else {
+    $('#txt_cantidad_piezas_chef').val(0);
+  }
+  // $('#txt_cantidad_piezas_chef').val(obtenerTotalListaTipoCoberturas());
 });
 
 // *-------------------------------------------------------------------------------------------------
@@ -235,7 +312,7 @@ $('#form_mantenedor_promo_cliente').validate({
     txt_cantidad_piezas: {
       required: true,
       min: 10,
-      max: 140,
+      max: 200,
       digits: true
     },
     txt_precio_promo: {
@@ -273,7 +350,7 @@ $('#form_mantenedor_promo_cliente').validate({
     txt_cantidad_piezas: {
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 10',
-      max: 'La cantidad máxima es 140',
+      max: 'La cantidad máxima es 200',
       digits: 'Ingresa solo números'
     },
     txt_precio_promo: {
@@ -359,12 +436,7 @@ $('#form_mantenedor_promo_cliente').validate({
         if ($('#lbl_id_promo_cliente').text() == '') {
           let action = 'IngresarPromoCliente';
           formData.append('action', action);
-          if (
-            $('#imagen_promo').val() != '' ||
-            imgExtension == 'jpg' ||
-            imgExtension == 'png' ||
-            imgExtension == 'jpeg'
-          ) {
+          if ($('#imagen_promo').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
             console.log('imagen');
           } else {
@@ -377,7 +449,7 @@ $('#form_mantenedor_promo_cliente').validate({
           formData.append('action', actionUpdate);
           // *Se comprueba la extensión de la imagen por la variable imgExtension
           if (
-            $('#imagen_agregados').val() != '' ||
+            $('#imagen_promo').val() != '' ||
             imgExtension == 'jpg' ||
             imgExtension == 'png' ||
             imgExtension == 'jpeg'
@@ -424,6 +496,14 @@ $('#form_mantenedor_promo_cliente').validate({
 $('#cancelar_mantenedor_promo').on('click', function(evt) {
   evt.preventDefault();
   $('#modal_mantenedor_promo_cliente').modal('close');
+  // *Borra los datos de la lista
+});
+
+// *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
+// *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
+$('#cancelar_mantenedor_promo_chef').on('click', function(evt) {
+  evt.preventDefault();
+  $('#modal_mantenedor_promo_chef').modal('close');
   // *Borra los datos de la lista
 });
 
@@ -483,6 +563,8 @@ function eliminarPromoM(id) {
   var action = 'EliminarPromo';
   swal({
     title: '¿Estás seguro?',
+    text:
+      'Esta acción es irreversible, al eliminar la promo está ya no podrá ser adquirida en una compra.',
     type: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -502,11 +584,19 @@ function eliminarPromoM(id) {
           console.log(resp);
           switch (resp) {
             case '1':
-              swal('Listo', 'El elemento fue eliminado', 'success');
+              swal(
+                'Listo',
+                'El elemento fue eliminado exitosamente',
+                'success'
+              );
               cargarMantenedorPromosCliente();
               break;
             case '2':
-              swal('Error', 'El elemento no pudo ser eliminado', 'error');
+              swal(
+                'Error',
+                'Lo sentimos no cuentas con los permisos para realizar esta acción',
+                'error'
+              );
               break;
           }
         },
@@ -522,6 +612,9 @@ function actualizarPromoCliente(id) {
   $('#modal_mantenedor_promo_cliente').modal('open');
   $('#accion_promo_cliente').text('Actualizar Arma tu Promo');
   var action = 'CargarModalPromoCliente';
+  var mensajeHtml =
+    '<div class="mensaje-precaucion" id="mensaje_precaucion_promo_cliente"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#mensaje_precaucion_actualizar_promo_cliente').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -590,6 +683,7 @@ $('#txt_cantidad_agregados').blur(function() {
 });
 
 // *-------------------------------------------------------------------------------------------------
+
 // *Se validan y envian los datos del formulario promo a gusto del chef
 $('#form_mantenedor_promo_chef').validate({
   errorClass: 'invalid red-text',
@@ -611,7 +705,7 @@ $('#form_mantenedor_promo_chef').validate({
     txt_cantidad_piezas_chef: {
       required: true,
       min: 10,
-      max: 140,
+      max: 200,
       digits: true
     },
     txt_precio_promo_chef: {
@@ -631,6 +725,9 @@ $('#form_mantenedor_promo_chef').validate({
     },
     combo_tipo_promo: {
       required: true
+    },
+    'lista_tipo_coberturas_chef[]': {
+      required: true
     }
   },
   messages: {
@@ -642,7 +739,7 @@ $('#form_mantenedor_promo_chef').validate({
     txt_cantidad_piezas_chef: {
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 10',
-      max: 'La cantidad máxima es 140',
+      max: 'La cantidad máxima es 200',
       digits: 'Ingresa solo números'
     },
     txt_precio_promo_chef: {
@@ -696,31 +793,33 @@ $('#form_mantenedor_promo_chef').validate({
 
         // *Se añaden los tipo de coberturas a un array para luego ingresarlos a Bd
         $('#lista_tipo_coberturas_chef li').each(function() {
-          agregados.push([
-            $(this).attr('id-tipo-cobertura'),
-            $(this).attr('cantidad-tipo-cobertura')
+          tipocoberturas.push([
+            $(this).attr('id-tipo-cobertura-chef'),
+            $(this).attr('cantidad-tipo-cobertura-chef')
           ]);
         });
 
         agregados = JSON.stringify(agregados);
+        tipocoberturas = JSON.stringify(tipocoberturas);
 
         // *imgExtension obtiene la extensión de la imagen
-
-        var imgExtension = $('#imagen_promo')
+        console.log(agregados);
+        console.log(tipocoberturas);
+        var imgExtension = $('#imagen_promo_chef')
           .val()
           .substr(
-            $('#imagen_promo')
+            $('#imagen_promo_chef')
               .val()
               .lastIndexOf('.') + 1
           );
         // *La variable formData inicializa el formulario al cual se le pasan los datos usando append
         var formData = new FormData();
-        formData.append('nombre', $('#txt_nombre_promo').val());
-        formData.append('cantidad', $('#txt_cantidad_piezas').val());
-        formData.append('precio', $('#txt_precio_promo').val());
-        formData.append('descuento', $('#txt_descuento_promo').val());
-        formData.append('estado', $('#combo_estado_elemento_form').val());
-        formData.append('tipopromo', $('#combo_tipo_promo_form').val());
+        formData.append('nombre', $('#txt_nombre_promo_chef').val());
+        formData.append('cantidad', obtenerTotalListaTipoCoberturas());
+        formData.append('precio', $('#txt_precio_promo_chef').val());
+        formData.append('descuento', $('#txt_descuento_promo_chef').val());
+        formData.append('estado', $('#combo_estado_elemento_form_chef').val());
+        formData.append('tipopromo', $('#combo_tipo_promo_form_chef').val());
         formData.append('agregados', agregados);
         formData.append('tipocoberturas', tipocoberturas);
 
@@ -732,12 +831,12 @@ $('#form_mantenedor_promo_chef').validate({
           let action = 'IngresarPromoChef';
           formData.append('action', action);
           if (
-            $('#imagen_promo').val() != '' ||
+            $('#imagen_promo_chef').val() != '' ||
             imgExtension == 'jpg' ||
             imgExtension == 'png' ||
             imgExtension == 'jpeg'
           ) {
-            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            formData.append('imagenUrl', $('#imagen_promo_chef')[0].files[0]);
             console.log('imagen');
           } else {
             formData.append('imagenUrl', '');
@@ -749,19 +848,19 @@ $('#form_mantenedor_promo_chef').validate({
           formData.append('action', actionUpdate);
           // *Se comprueba la extensión de la imagen por la variable imgExtension
           if (
-            $('#imagen_agregados').val() != '' ||
+            $('#imagen_promo_chef').val() != '' ||
             imgExtension == 'jpg' ||
             imgExtension == 'png' ||
             imgExtension == 'jpeg'
           ) {
-            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            formData.append('imagenUrl', $('#imagen_promo_chef')[0].files[0]);
             console.log('Imagen');
           } else {
             formData.append('imagenUrl', '');
             console.log('No Imagen');
           }
         }
-
+        console.log(formData);
         $.ajax({
           data: formData,
           url: '../app/control/despPromos.php',
@@ -788,5 +887,241 @@ $('#form_mantenedor_promo_chef').validate({
         });
       }
     });
+  }
+});
+
+// *Validación de tipo coberturas
+
+function validarListaTipoCoberturasForm() {
+  if (($('#lista_tipo_coberturas_chef li').length = 0)) {
+    return false;
+  } else {
+    return true;
+  }
+}
+function obtenerTotalListaTipoCoberturas() {
+  var arrayTipoCoberturas = $('#lista_tipo_coberturas_chef li').toArray();
+  var totalCantidadTipoCoberturas = [];
+  if (arrayTipoCoberturas.length > 0) {
+    $.each(arrayTipoCoberturas, function() {
+      totalCantidadTipoCoberturas.push(
+        $(this).attr('cantidad-tipo-cobertura-chef')
+      );
+    });
+  }
+  if (totalCantidadTipoCoberturas.length > 0) {
+    var total = totalCantidadTipoCoberturas.reduce((a, b) => {
+      return parseInt(a) + parseInt(b);
+    });
+    console.log(total);
+    return total;
+  }
+}
+
+// $('#txt_cantidad_tipo_coberturas_chef').change(function() {
+//   var arrayTipoCoberturas = $('#lista_tipo_coberturas_chef li').toArray();
+//   var nuevoValor;
+//   if (arrayTipoCoberturas.length > 0) {
+//     nuevoValor =
+//       $('#txt_cantidad_piezas_chef').val() - obtenerTotalListaTipoCoberturas();
+//   }
+//   if ($(this).val() < 0) {
+//     $(this).val(0);
+//   }
+//   console.log(nuevoValor);
+//   if (
+//     $('#txt_cantidad_piezas_chef').val() >= 10 &&
+//     $(this).val() > nuevoValor
+//   ) {
+//     $('#txt_cantidad_tipo_coberturas_chef').val(nuevoValor);
+//   }
+// });
+
+// $('#txt_cantidad_piezas_chef').change(function() {
+//   if ($(this).val() < 10) {
+//     $(this).val(10);
+//   }
+//   console.log(obtenerTotalListaTipoCoberturas());
+//   if (obtenerTotalListaTipoCoberturas() != null) {
+//     var valor = obtenerTotalListaTipoCoberturas();
+//     if ($('#txt_cantidad_piezas_chef').val() < valor) {
+//       $('#txt_cantidad_piezas_chef').val(valor);
+//     }
+//     console.log(valor);
+//   }
+// });
+
+$('#txt_cantidad_piezas_chef').change(function() {
+  if (obtenerTotalListaTipoCoberturas() != null) {
+    valor = obtenerTotalListaTipoCoberturas();
+    $(this).val(valor);
+  } else {
+    $(this).val(0);
+  }
+});
+
+$('#txt_cantidad_agregados_chef').change(function() {
+  if ($(this).val() < 1) {
+    $(this).val(1);
+  }
+  if ($(this).val() > 200) {
+    $(this).val(200);
+  }
+});
+
+$('#txt_cantidad_tipo_coberturas_chef').change(function() {
+  if ($(this).val() < 10) {
+    $(this).val(10);
+  }
+  if ($(this).val() > 200) {
+    $(this).val(200);
+  }
+});
+
+$('#txt_cantidad_agregados').change(function() {
+  if ($(this).val() < 1) {
+    $(this).val(1);
+  }
+  if ($(this).val() > 200) {
+    $(this).val(200);
+  }
+});
+
+function actualizarPromoChef(id) {
+  console.log(id);
+  $('#modal_mantenedor_promo_chef').modal('open');
+  $('#accion_promo_chef').text('Actualizar Promo A Gusto del Chef');
+  var action = 'CargarModalPromoChef';
+  var mensajeHtml =
+    '<div class="mensaje-precaucion" id="mensaje_precaucion_promo_chef"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#mensaje_precaucion_actualizar_promo_chef').html(mensajeHtml);
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: {
+      id: id,
+      action: action
+    },
+    url: '../app/control/despPromos.php',
+    type: 'POST',
+    success: function(respuesta) {
+      console.log(respuesta);
+      var arr = JSON.parse(respuesta);
+      console.log(action);
+      $.each(arr, function(indice, item) {
+        // *Los label adquieren la clase active para no quedar sobre el texto definido en val
+        $('#lbl_id_promo_chef').text(`${id}`);
+        $("label[for='txt_nombre_promo_chef']").addClass('active');
+        $('#txt_nombre_promo_chef').val(item.Nombre);
+        $(`label[for='txt_cantidad_piezas_chef']`).addClass('active');
+        $('#txt_cantidad_piezas_chef').val(item.Cantidad);
+        $(`label[for='txt_precio_promo_chef]`).addClass('active');
+        $('#txt_precio_promo_chef').val(item.Precio);
+        $(`label[for='txt_descuento_promo_chef']`).addClass('active');
+        $('#txt_descuento_promo_chef').val(item.Descuento);
+        $('#precio_descuento_promo_chef').text(`$
+          ${item.Precio - (item.Precio / 100) * item.Descuento}`);
+        $('#imagen_promo_text_chef').val(item.ImgUrl);
+        $('#combo_estado_elemento_form_chef').val(item.IdEstado);
+        $('#combo_tipo_promo_form_chef').val(item.IdTipoPromo);
+        $(`label[for='txt_cantidad_agregados_chef]`).addClass('active');
+
+        if (item.Agregados != null) {
+          var arrayAgregados = item.Agregados.split(', ');
+          var arrayIdAgregados = item.IdAgregados.split(', ');
+          var arrayCantidadesAgregados = item.CantidadesAgregados.split(', ');
+
+          $.each(arrayAgregados, function(indice) {
+            var listaHtml = `<li id-agregado-chef='${
+              arrayIdAgregados[indice]
+            }' cantidad-agregado-chef='${arrayCantidadesAgregados[indice]}'>${
+              arrayCantidadesAgregados[indice]
+            } - ${
+              arrayAgregados[indice]
+            } <a id="eliminar_lista_agregados_chef" href="#">Eliminar<a/></li>`;
+
+            $('#lista_agregados_adicionales_chef').append(listaHtml);
+          });
+        } else {
+          console.log(item.Agregados);
+        }
+
+        if (item.TipoCoberturas != null) {
+          var arrayTipoCoberturas = item.TipoCoberturas.split(', ');
+          var arrayIdTipoCoberturas = item.IdTipoCoberturas.split(', ');
+          var arrayCantidadesTipoCoberturas = item.CantidadesTipoCoberturas.split(
+            ', '
+          );
+
+          $.each(arrayTipoCoberturas, function(indice) {
+            var listaHtml = `<li id-tipo-cobertura-chef='${
+              arrayIdTipoCoberturas[indice]
+            }' cantidad-tipo-cobertura-chef='${
+              arrayCantidadesTipoCoberturas[indice]
+            }'>${arrayCantidadesTipoCoberturas[indice]} - ${
+              arrayTipoCoberturas[indice]
+            } <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>`;
+
+            $('#lista_tipo_coberturas_chef').append(listaHtml);
+          });
+        } else {
+          console.log(item.Agregados);
+        }
+      });
+    },
+    error: function() {
+      alert('Lo sentimos ha ocurrido un problema');
+    }
+  });
+}
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_descuento_promo_chef').keyup(function() {
+  var precioFinalDescuento =
+    $('#txt_precio_promo_chef').val() -
+    ($('#txt_precio_promo_chef').val() / 100) *
+      $('#txt_descuento_promo_chef').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo_chef').text('0');
+  } else {
+    $('#precio_descuento_promo_chef').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_descuento_promo_chef').change(function() {
+  var precioFinalDescuento =
+    $('#txt_precio_promo_chef').val() -
+    ($('#txt_precio_promo_chef').val() / 100) *
+      $('#txt_descuento_promo_chef').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo_chef').text('0');
+  } else {
+    $('#precio_descuento_promo_chef').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_precio_promo_chef').keyup(function() {
+  var precioFinalDescuento =
+    $('#txt_precio_promo_chef').val() -
+    ($('#txt_precio_promo_chef').val() / 100) *
+      $('#txt_descuento_promo_chef').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo_chef').text('0');
+  } else {
+    $('#precio_descuento_promo_chef').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_precio_promo_chef').change(function() {
+  var precioFinalDescuento =
+    $('#txt_precio_promo_chef').val() -
+    ($('#txt_precio_promo_chef').val() / 100) *
+      $('#txt_descuento_promo_chef').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo_chef').text('0');
+  } else {
+    $('#precio_descuento_promo_chef').text('$ ' + precioFinalDescuento);
   }
 });

@@ -452,3 +452,26 @@ nav {
 .lbl-id {
   display: none;
 }
+
+/* Mensajes de precaución */
+
+.mensaje-precaucion {
+  background-color: #fdff6b;
+  padding: 3px;
+  border-radius: 5px;
+}
+
+.mensaje-precaucion p {
+  font-size: 13px;
+}
+
+.mensaje-precaucion-indice {
+  background-color: red;
+  color: white;
+  padding: 3px;
+  border-radius: 5px;
+}
+
+.mensaje-precaucion-indice p {
+  font-size: 13px;
+}

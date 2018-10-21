@@ -7,6 +7,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 function cargarMantenedorAgregados(estado, caracter) {
   var action = 'CargarMantenedorAgregados';
   var cargaHtml = '';
+  var arrayNoEnCarta = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: 'action=' + action,
@@ -35,6 +36,11 @@ function cargarMantenedorAgregados(estado, caracter) {
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arrFilter, function (indice, item) {
+            // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
+            if (item.IdEstado == 2) {
+              arrayNoEnCarta.push(item.Nombre);
+            }
+
             cargaHtml += '<div class="col s12 m4 l4">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += '<div class="descuento"><p class="center-align">-' + item.Descuento + '%</p></div>';
@@ -42,7 +48,7 @@ function cargarMantenedorAgregados(estado, caracter) {
             cargaHtml += '<img class="activator" src="uploads/' + item.ImgUrl + '">';
             cargaHtml += '</div>';
             cargaHtml += '<div class="card-content">';
-            cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + '<i class="material-icons right">more_vert</i></span>';
+            cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + ' ' + item.Unidades + 'u<i class="material-icons right">more_vert</i></span>';
             cargaHtml += '<div class="precios-productos">';
             cargaHtml += '<span class="grey-text text-darken-4">Precio normal: $' + item.Precio + '</span>';
             cargaHtml += '<span class="grey-text text-darken-4">Precio descuento: $' + (item.Precio - item.Precio / 100 * item.Descuento) + '</span>';
@@ -62,6 +68,14 @@ function cargarMantenedorAgregados(estado, caracter) {
             cargaHtml += '</div>';
           });
 
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayNoEnCarta.length > 0) {
+            var htmlNoEnCarta = '<div class="mensaje-precaucion-indice" id="mensaje_indice_no_carta_agregados"><p><b>Atenci\xF3n!:</b> Existen ' + arrayNoEnCarta.length + ' agregados (' + arrayNoEnCarta.join(', ') + ') que no est\xE1n en carta. Recuerda que estos no podr\xE1n ser adquiridos por el cliente.</p></div>';
+            $('#mensaje_no_carta_agregados').html(htmlNoEnCarta);
+          } else {
+            $('#mensaje_indice_no_carta_agregados').remove();
+          }
+
           $('#agregados_carga').html(cargaHtml);
           break;
       }
@@ -75,38 +89,60 @@ function cargarMantenedorAgregados(estado, caracter) {
 // *La función recibe el id del elemento y ejecuta la query en BD
 function eliminarAgregadoM(id) {
   var action = 'EliminarAgregado';
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(function (result) {
-    if (result.value) {
-      $.ajax({
-        data: {
-          action: action,
-          id: id
-        },
-        url: '../app/control/despAgregados.php',
-        type: 'POST',
-        success: function success(resp) {
-          switch (resp) {
-            case '1':
-              swal('Listo', 'El producto fue eliminado', 'success');
-              cargarMantenedorAgregados();
-              break;
-            case '2':
-              swal('Error', 'El producto no pudo ser eliminado', 'error');
-              break;
-          }
-        },
-        error: function error() {
-          alert('Lo sentimos ha habido un error inesperado');
-        }
-      });
+  var actionGetDatos = 'ComprobarVinculacionAgregados';
+  $.ajax({
+    data: 'action=' + actionGetDatos + '&id=' + id,
+    url: '../app/control/despAgregados.php',
+    type: 'POST',
+    success: function success(respuestaDatosVinculados) {
+      switch (respuestaDatosVinculados) {
+        case '1':
+          swal({
+            title: '¿Estás seguro?',
+            text: 'Al ser eliminada esta cobertura ya no podrá ser seleccionada para ser adquirida, ni vinculada a una promo.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'Cancelar'
+          }).then(function (result) {
+            if (result.value) {
+              $.ajax({
+                data: {
+                  action: action,
+                  id: id
+                },
+                url: '../app/control/despAgregados.php',
+                type: 'POST',
+                success: function success(resp) {
+                  switch (resp) {
+                    case '1':
+                      swal('Listo', 'El producto fue eliminado', 'success');
+                      cargarMantenedorAgregados();
+                      break;
+                    case '2':
+                      swal('Error', 'El producto no pudo ser eliminado', 'error');
+                      break;
+                    case '3':
+                      swal('Error', 'El producto no puede ser eliminado ya que una promo lo contiene', 'error');
+                      break;
+                  }
+                },
+                error: function error() {
+                  alert('Lo sentimos ha habido un error inesperado');
+                }
+              });
+            }
+          });
+          break;
+        default:
+          swal('Error', 'El producto no pudo ser eliminado ya que est\xE1 vinculado a las promos \'' + respuestaDatosVinculados + '\'', 'error');
+          break;
+      }
+    },
+    error: function error() {
+      swal('Error', 'El producto no pudo ser eliminado', 'error');
     }
   });
 }
@@ -146,6 +182,8 @@ function actualizarAgregadoM(id) {
   $('#modal_mantenedor_agregado').modal('open');
   $('#accion_agregados').text('Actualizar Agregado');
   var action = 'CargarModalAgregado';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_agregados"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_agregados').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -163,6 +201,8 @@ function actualizarAgregadoM(id) {
         $('#txt_nombre').val(item.Nombre);
         $('label[for=\'txt_descripcion\']').addClass('active');
         $('#txt_descripcion').val(item.Descripcion);
+        $('label[for=\'txt_unidades\']').addClass('active');
+        $('#txt_unidades').val(item.Unidades);
         $('label[for=\'txt_precio_agregado\']').addClass('active');
         $('#txt_precio_agregado').val(item.Precio);
         $('label[for=\'txt_descuento_agregado\']').addClass('active');
@@ -245,6 +285,11 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
       minlength: 3,
       maxlength: 1000
     },
+    txt_unidades: {
+      required: true,
+      min: 1,
+      max: 200
+    },
     txt_precio_agregado: {
       required: true,
       min: 0,
@@ -278,6 +323,11 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
       required: 'Campo requerido *',
       minlength: 'Mínimo 3 caracteres',
       maxlength: 'Máximo 1000 caracteres'
+    },
+    txt_unidades: {
+      required: 'Campo requerido *',
+      min: 'El valor mínimo es 1',
+      max: 'Valor máximo 1000000'
     },
     txt_precio_agregado: {
       required: 'Campo requerido *',
@@ -328,6 +378,7 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
         var formData = new FormData();
         formData.append('nombre', $('#txt_nombre').val());
         formData.append('descripcion', $('#txt_descripcion').val());
+        formData.append('unidades', $('#txt_unidades').val());
         formData.append('precio', $('#txt_precio_agregado').val());
         formData.append('descuento', $('#txt_descuento_agregado').val());
         formData.append('estado', $('#combo_estado_elemento_form').val());
@@ -337,8 +388,8 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
         // *Dependiendo de la acción se anexan más datos al formulario (formData)
 
         if ($('#lbl_id').text() == '') {
-          var action = 'IngresarAgregados';
-          formData.append('action', action);
+          var _action = 'IngresarAgregados';
+          formData.append('action', _action);
           if ($('#imagen_agregados').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
             console.log('imagen');
@@ -411,13 +462,15 @@ $('#combo_estado_agregados_filtro').keyup(function (item) {
 function cargarMantenedorCoberturas(estado, caracter) {
   var action = 'CargarMantenedorCoberturas';
   var cargaHtml = '';
+  // *Los arrays almacenarán los datos de aquellas coberturas que no puedan ser seleccionados por el cliente
+  var arrayIndiceNinguno = [];
+  var arrayNoEnCarta = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: 'action=' + action,
     url: '../app/control/despCoberturas.php',
     type: 'POST',
     success: function success(respuesta) {
-      // console.log(respuesta);
       // *----------------------------------------------------------------------
       // *Se filtra el array obtenido en base a los parámetros obtenidos
       var arrFilter = '';
@@ -439,6 +492,15 @@ function cargarMantenedorCoberturas(estado, caracter) {
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arrFilter, function (indice, item) {
+            // *Si el item tiene como indice el valor ninguno este se insertará en el array indicado
+            if (item.Indice == 'Ninguno') {
+              arrayIndiceNinguno.push(item.Nombre);
+            }
+            // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
+            if (item.IdEstado == 2) {
+              arrayNoEnCarta.push(item.Nombre);
+            }
+
             cargaHtml += '<div class="col s12 m4 l4">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
@@ -448,17 +510,18 @@ function cargarMantenedorCoberturas(estado, caracter) {
             cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + '<i class="material-icons right">more_vert</i></span>';
             cargaHtml += '<div class="precios-productos">';
             cargaHtml += '<span class="grey-text text-darken-4">Precio Adicional: $' + item.Precio + '</span>';
-            if (item.Indice != null) {
-              cargaHtml += '<span class="grey-text text-darken-4">Opci\xF3n de elecci\xF3n: ' + item.Indice + '</span>';
+            // *Si el indice es igual a 'Ninguno' el texto se marca en rojo
+            if (item.Indice != 'Ninguno') {
+              cargaHtml += '<span class="grey-text text-darken-4" indice-cobertura="' + item.Indice + '">Opci\xF3n de elecci\xF3n: ' + item.Indice + '</span>';
             } else {
-              cargaHtml += '<span class="grey-text text-darken-4">Opci\xF3n de elecci\xF3n: Ninguno</span>';
+              cargaHtml += '<span class="red-text" indice-cobertura="' + item.Indice + '">Opci\xF3n de elecci\xF3n: ' + item.Indice + '</span>';
             }
             cargaHtml += '</div>';
             cargaHtml += '<div class="divider"></div>';
             cargaHtml += '<div class="btn-mant-productos">';
-            cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="actualizarCoberturaM(' + item.IdCobertura + ')"><i class="material-icons">edit</i></a>';
+            cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light blue" name="indice_cobertura" onclick="actualizarCoberturaM(' + item.IdCobertura + ')"><i class="material-icons">edit</i></a>';
             cargaHtml += '<h5 class="grey-text text-darken-4">' + item.Estado + '</h5>';
-            cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light red" onclick="eliminarCoberturaM(' + item.IdCobertura + ')"><i class="material-icons">delete</i></a>';
+            cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light red" name="indice_cobertura" onclick="eliminarCoberturaM(' + item.IdCobertura + ')"><i class="material-icons">delete</i></a>';
             cargaHtml += '</div>';
             cargaHtml += '</div>';
             cargaHtml += '<div class="card-reveal">';
@@ -469,7 +532,24 @@ function cargarMantenedorCoberturas(estado, caracter) {
             cargaHtml += '</div>';
           });
 
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayIndiceNinguno.length > 0) {
+            var htmlNoIndice = '<div class="mensaje-precaucion-indice" id="mensaje_indice_coberturas"><p><b>Atenci\xF3n!:</b> Existen ' + arrayIndiceNinguno.length + ' coberturas (' + arrayIndiceNinguno.join(', ') + ') que no poseen un \xEDndice de selecci\xF3n. Recuerda que estos no podr\xE1n ser elegidos por el cliente.</p></div>';
+            $('#mensaje_no_indice_cobertura').html(htmlNoIndice);
+          } else {
+            $('#mensaje_indice_coberturas').remove();
+          }
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayNoEnCarta.length > 0) {
+            var htmlNoEnCarta = '<div class="mensaje-precaucion-indice" id="mensaje_indice_no_carta_coberturas"><p><b>Atenci\xF3n!:</b> Existen ' + arrayNoEnCarta.length + ' coberturas (' + arrayNoEnCarta.join(', ') + ') que no est\xE1n en carta. Recuerda que estos no podr\xE1n ser elegidos por el cliente.</p></div>';
+            $('#mensaje_no_carta_cobertura').html(htmlNoEnCarta);
+          } else {
+            $('#mensaje_indice_no_carta_coberturas').remove();
+          }
+
+          // *Se cargan los datos de la bd en la pantalla
           $('#coberturas_carga').html(cargaHtml);
+
           break;
       }
     },
@@ -497,41 +577,60 @@ $('#txt_buscar_coberturas').keyup(function (item) {
 // *La función recibe el id del elemento y ejecuta la query en BD
 function eliminarCoberturaM(id) {
   var action = 'EliminarCobertura';
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(function (result) {
-    if (result.value) {
-      $.ajax({
-        data: {
-          action: action,
-          id: id
-        },
-        url: '../app/control/despCoberturas.php',
-        type: 'POST',
-        success: function success(resp) {
-          switch (resp) {
-            case '1':
-              swal('Listo', 'El producto fue eliminado', 'success');
-              cargarMantenedorCoberturas();
-              break;
-            case '2':
-              swal('Error', 'El producto no pudo ser eliminado', 'error');
-              break;
-            case '3':
-              swal('Error', 'El producto no puede ser eliminado ya que un tipo de cobertura lo contiene', 'error');
-              break;
-          }
-        },
-        error: function error() {
-          alert('Lo sentimos ha habido un error inesperado');
-        }
-      });
+  var actionGetDatos = 'ComprobarVinculacionCoberturas';
+  $.ajax({
+    data: 'action=' + actionGetDatos + '&id=' + id,
+    url: '../app/control/despCoberturas.php',
+    type: 'POST',
+    success: function success(respuestaDatosVinculados) {
+      switch (respuestaDatosVinculados) {
+        case '1':
+          swal({
+            title: '¿Estás seguro?',
+            text: 'Al ser eliminada esta cobertura ya no podrá ser seleccionada para ser adquirida, ni vinculada a un tipo de cobertura.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'Cancelar'
+          }).then(function (result) {
+            if (result.value) {
+              $.ajax({
+                data: {
+                  action: action,
+                  id: id
+                },
+                url: '../app/control/despCoberturas.php',
+                type: 'POST',
+                success: function success(resp) {
+                  switch (resp) {
+                    case '1':
+                      swal('Listo', 'El producto fue eliminado', 'success');
+                      cargarMantenedorCoberturas();
+                      break;
+                    case '2':
+                      swal('Error', 'El producto no pudo ser eliminado', 'error');
+                      break;
+                    case '3':
+                      swal('Error', 'El producto no puede ser eliminado ya que un tipo de cobertura lo contiene', 'error');
+                      break;
+                  }
+                },
+                error: function error() {
+                  alert('Lo sentimos ha habido un error inesperado');
+                }
+              });
+            }
+          });
+          break;
+        default:
+          swal('Error', 'El producto no pudo ser eliminado ya que est\xE1 vinculado a los tipos de cobertura \'' + respuestaDatosVinculados + '\'', 'error');
+          break;
+      }
+    },
+    error: function error() {
+      swal('Error', 'El producto no pudo ser eliminado', 'error');
     }
   });
 }
@@ -541,6 +640,8 @@ function actualizarCoberturaM(id) {
   $('#accion_coberturas').text('Actualizar Cobertura');
   $('#modal_mantenedor_cobertura').modal('open');
   var action = 'CargarModalCobertura';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_coberturas"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_coberturas').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -710,14 +811,12 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
         // *Si no contiene valor se interpreta que se ingresará una nueva 'cobertura'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
         if ($('#lbl_id_cobertura').text() == '') {
-          var action = 'IngresarCobertura';
-          formData.append('action', action);
+          var _action2 = 'IngresarCobertura';
+          formData.append('action', _action2);
           if ($('#imagen_coberturas').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-            console.log('imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('no imagen');
           }
         } else {
           var actionUpdate = 'ActualizarDatosCobertura';
@@ -726,10 +825,8 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
           // *Se comprueba la extensión de la imagen por la variable imgExtension
           if ($('#imagen_coberturas').val() != '' || imgExtension == 'jpg' || imgExtension == 'png' || imgExtension == 'jpeg') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-            console.log('Imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('No Imagen');
           }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
@@ -741,10 +838,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
           processData: false,
           success: function success(resp) {
             //*Acción a ejecutar si la respuesta existe
-            console.log(resp);
-            console.log(formData);
-            console.log($('#combo_indice_cobertura').val());
-            console.log($('#lbl_id_cobertura').text());
             switch (resp) {
               case '1':
                 $('#modal_mantenedor_cobertura').modal('close');
@@ -755,8 +848,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
               case '2':
                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
                 break;
-              default:
-              // console.log(resp);
             }
           },
           error: function error() {
@@ -780,12 +871,12 @@ function cargarTotalIndiceCoberturas() {
     success: function success(respuesta) {
       switch (respuesta) {
         case 'error':
-          console.log('Lo sentimos ha ocurrido un error al cargar la cantidad de indices de cobertura');
+          alert('Lo sentimos ha ocurrido un error al cargar la cantidad de indices de cobertura');
           break;
         default:
           cargaHtml += '<p>' + respuesta + '</p>';
           cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="sumarIndiceCobertura()"><i class="fa fa-plus"></i></a>';
-          cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceCobertura()"><i class="fa fa-minus"></i></a>';
+          cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceCobertura(' + respuesta + ')"><i class="fa fa-minus"></i></a>';
           $('#indice_cobertura_carga').html(cargaHtml);
           break;
       }
@@ -794,39 +885,61 @@ function cargarTotalIndiceCoberturas() {
 }
 
 // *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
+function obtenerDatosVinculadosIndiceCobertura() {
+  var actionGetDatos = 'ObtenerDatosVinculadosIndiceCobertura';
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despIndiceCobertura.php',
+    type: 'POST',
+    success: function success(respuesta) {},
+    error: function error() {
+      returnValueAjax('algunos');
+    }
+  });
+}
+
+function returnValueAjax(value) {
+  return value;
+}
+
 function restarIndiceCobertura() {
-  var action = 'RestarIndiceCoberturas';
-  var cargaHtml = '';
-  //*Se envían datos del form y action, al controlador mediante ajax
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(function (result) {
-    if (result.value) {
-      $.ajax({
-        data: 'action=' + action,
-        url: '../app/control/despIndiceCobertura.php',
-        type: 'POST',
-        success: function success(respuesta) {
-          console.log(respuesta);
-          switch (respuesta) {
-            case '1':
-              console.log('Eliminación exitosa');
-              cargarTotalIndiceCoberturas();
-              cargarMantenedorCoberturas();
-              cargarIndiceCobertura();
-              swal('Listo', 'Se ha restado un índice', 'success');
-              break;
-            case '2':
-              swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-              console.log('Eliminación erróneo');
-              break;
-          }
+  var actionGetDatos = 'ObtenerDatosVinculadosIndiceCobertura';
+  $.ajax({
+    data: 'action=' + actionGetDatos,
+    url: '../app/control/despIndiceCobertura.php',
+    type: 'POST',
+    success: function success(respuestaDatosVinculados) {
+      var action = 'RestarIndiceCoberturas';
+      //*Se envían datos del form y action, al controlador mediante ajax
+      swal({
+        title: '¿Estás seguro?',
+        text: 'Existen ' + respuestaDatosVinculados + ' coberturas vinculadas a este \xEDndice, al elimnarlo estos no podr\xE1n ser seleccionados por el cliente.',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si',
+        cancelButtonText: 'Cancelar'
+      }).then(function (result) {
+        if (result.value) {
+          $.ajax({
+            data: 'action=' + action,
+            url: '../app/control/despIndiceCobertura.php',
+            type: 'POST',
+            success: function success(respuesta) {
+              switch (respuesta) {
+                case '1':
+                  cargarTotalIndiceCoberturas();
+                  cargarMantenedorCoberturas();
+                  cargarIndiceCobertura();
+                  swal('Listo', 'Se ha restado un \xEDndice, ' + respuestaDatosVinculados + ' coberturas han quedado sin \xEDndice de selecci\xF3n, por lo tanto no podr\xE0n ser seleccionadas por el cliente.', 'success');
+                  break;
+                case '2':
+                  swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                  break;
+              }
+            }
+          });
         }
       });
     }
@@ -836,7 +949,6 @@ function restarIndiceCobertura() {
 // *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
 function sumarIndiceCobertura() {
   var action = 'AgregarIndiceCoberturas';
-  var cargaHtml = '';
   //*Se envían datos del form y action, al controlador mediante ajax
   swal({
     title: '¿Estás seguro?',
@@ -853,10 +965,9 @@ function sumarIndiceCobertura() {
         url: '../app/control/despIndiceCobertura.php',
         type: 'POST',
         success: function success(respuesta) {
-          console.log(respuesta);
           switch (respuesta) {
             case '1':
-              console.log('Agregación exitosa');
+              // *Ingreso exitoso
               cargarTotalIndiceCoberturas();
               cargarMantenedorCoberturas();
               cargarIndiceCobertura();
@@ -864,7 +975,6 @@ function sumarIndiceCobertura() {
               break;
             case '2':
               swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-              console.log('Agregación errónea');
               break;
           }
         }
@@ -1047,7 +1157,7 @@ var validatorDatosFormCliente = $('#form-editar-perfil-cliente').validate({
       cancelButtonText: 'Cancelar'
     }).then(function (result) {
       if (result.value) {
-        var action = 'EditarPerfilCliente';
+        var _action3 = 'EditarPerfilCliente';
         var nombre = $('#txt_nombre').val();
         var apellidos = $('#txt_apellidos').val();
         var telefono = $('#txt_telefono').val();
@@ -1057,7 +1167,7 @@ var validatorDatosFormCliente = $('#form-editar-perfil-cliente').validate({
             txt_nombre: nombre,
             txt_apellidos: apellidos,
             txt_telefono: telefono,
-            action: action
+            action: _action3
           },
           url: '../app/control/despCliente.php',
           type: 'POST',
@@ -1420,798 +1530,988 @@ $('#form-login-empleado').validate({
   }
 });
 
-// function cargarMantenedorPromosCliente(estado, caracter) {
-//   var action = 'CargarMantenedorPromosCliente';
-//   var cargaHtml = '';
-//   //*Se envían datos del form y action, al controlador mediante ajax
-//   $.ajax({
-//     data: `action=${action}`,
-//     url: '../app/control/despPromos.php',
-//     type: 'POST',
-//     success: function(respuesta) {
-//       // *----------------------------------------------------------------------
-//       var arr = JSON.parse(respuesta);
-//       // *Se parsea la respuesta json obtenida
+function cargarMantenedorPromosCliente(estado, caracter) {
+  var action = 'CargarMantenedorPromosCliente';
+  var cargaHtml = '';
+  var arrayNoEnCarta = [];
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despPromos.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *----------------------------------------------------------------------
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
 
-//       // *-----------------------------------------------------------------------
-//       //*Acción a ejecutar si la respuesta existe
-//       switch (respuesta) {
-//         case 'error':
-//           alert('Lo sentimos ha ocurrido un error');
-//           break;
-//         default:
-//           //* Por defecto los datos serán cargados en pantalla
-//           $.each(arr, function(indice, item) {
-//             cargaHtml += '<div class="col s12 m4 l4">';
-//             cargaHtml += '<div class="card col s12 m12 l12">';
-//             cargaHtml += `<div class="descuento"><p class="center-align">-${
-//               item.Descuento
-//             }%</p></div>`;
-//             cargaHtml +=
-//               '<div class="card-image waves-effect waves-block waves-light">';
-//             cargaHtml += `<img class="activator" src="uploads/${item.ImgUrl}">`;
-//             cargaHtml += '</div>';
-//             cargaHtml += '<div class="card-content">';
-//             cargaHtml += `<span class="card-title activator grey-text text-darken-4">${
-//               item.Nombre
-//             }<i class="material-icons right">more_vert</i></span>`;
-//             cargaHtml += '<div class="precios-productos">';
-//             cargaHtml += `<span class="grey-text text-darken-4">Precio normal: $${
-//               item.Precio
-//             }</span>`;
-//             cargaHtml += `<span class="grey-text text-darken-4">Precio descuento: $${item.Precio -
-//               (item.Precio / 100) * item.Descuento}</span>`;
-//             cargaHtml += '</div>';
-//             cargaHtml += '<div class="divider"></div>';
-//             cargaHtml += '<div class="btn-mant-productos">';
-//             cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="actualizarPromoCliente(${
-//               item.IdPromo
-//             })"><i class="material-icons">edit</i></a>`;
-//             cargaHtml += `<h5 class="grey-text text-darken-4">${
-//               item.Estado
-//             }</h5>`;
-//             cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light red" onclick="eliminarPromoM(${
-//               item.IdPromo
-//             })"><i class="material-icons">delete</i></a>`;
-//             cargaHtml += '</div>';
-//             cargaHtml += '</div>';
-//             // cargaHtml += '<div class="card-reveal">';
-//             // cargaHtml += `<span class="card-title grey-text text-darken-4">${
-//             //   item.Nombre
-//             // }<i class="material-icons right">close</i></span>`;
-//             // cargaHtml += `<p>${item.Descripcion}</p>`;
-//             // cargaHtml += '</div>';
-//             cargaHtml += '</div>';
-//             cargaHtml += '</div>';
-//           });
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
+            if (item.IdEstado == 2) {
+              arrayNoEnCarta.push(item.Nombre);
+            }
 
-//           $('#mant_arma_tu_promo_carga').html(cargaHtml);
-//           break;
-//       }
-//     },
-//     error: function() {
-//       alert('Lo sentimos ha ocurrido un error');
-//     }
-//   });
-// }
+            cargaHtml += '<div class="col s12 m4 l4">';
+            cargaHtml += '<div class="card col s12 m12 l12">';
+            cargaHtml += '<div class="descuento"><p class="center-align">-' + item.Descuento + '%</p></div>';
+            cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
+            cargaHtml += '<img class="activator" src="uploads/' + item.ImgUrl + '">';
+            cargaHtml += '</div>';
+            cargaHtml += '<div class="card-content">';
+            cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + '<i class="material-icons right">more_vert</i></span>';
+            cargaHtml += '<div class="precios-productos">';
+            cargaHtml += '<span class="grey-text text-darken-4">Precio normal: $' + item.Precio + '</span>';
+            cargaHtml += '<span class="grey-text text-darken-4">Precio descuento: $' + (item.Precio - item.Precio / 100 * item.Descuento) + '</span>';
+            cargaHtml += '</div>';
+            cargaHtml += '<div class="divider"></div>';
+            cargaHtml += '<div class="btn-mant-productos">';
 
-// // *Se cargan los combobox del mantenedor
-// function cargarComboAgregados() {
-//   var action = 'CargarComboAgregados';
-//   $('select').formSelect();
-//   var cargaHtml = '';
-//   //*Se envían datos del form y action, al controlador mediante ajax
-//   $.ajax({
-//     data: `action=${action}`,
-//     url: '../app/control/despAgregados.php',
-//     type: 'POST',
-//     success: function(respuesta) {
-//       // *cargaHtml es para los combobox del formulario
-//       var arr = JSON.parse(respuesta);
-//       $.each(arr, function(indice, item) {
-//         cargaHtml += `<option value='${item.IdAgregado}'>${
-//           item.Nombre
-//         }</option>`;
-//       });
-//       $('select[name="combo_agregados"]').html(cargaHtml);
-//     },
-//     error: function() {
-//       alert('Lo sentimos ha ocurrido un error');
-//     }
-//   });
-// }
+            if (item.IdTipoPreparacion == 2) {
+              cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="actualizarPromoCliente(' + item.IdPromo + ')"><i class="material-icons">edit</i></a>';
+            } else if (item.IdTipoPreparacion == 1) {
+              cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="actualizarPromoChef(' + item.IdPromo + ')"><i class="material-icons">edit</i></a>';
+            }
 
-// // *Se cargan los combobox del mantenedor
-// function cargarComboTipoCoberturas() {
-//   var action = 'CargarComboTipoCoberturas';
-//   $('select').formSelect();
-//   var cargaHtml = '';
-//   //*Se envían datos del form y action, al controlador mediante ajax
-//   $.ajax({
-//     data: `action=${action}`,
-//     url: '../app/control/despTipoCoberturas.php',
-//     type: 'POST',
-//     success: function(respuesta) {
-//       // *cargaHtml es para los combobox del formulario
-//       var arr = JSON.parse(respuesta);
-//       $.each(arr, function(indice, item) {
-//         cargaHtml += `<option value='${item.IdTipoCobertura}'>${
-//           item.Nombre
-//         }</option>`;
-//       });
-//       $('select[name="combo_tipo_coberturas"]').html(cargaHtml);
-//     },
-//     error: function() {
-//       alert('Lo sentimos ha ocurrido un error');
-//     }
-//   });
-// }
+            cargaHtml += '<h5 class="grey-text text-darken-4">' + item.Estado + '</h5>';
+            cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light red" onclick="eliminarPromoM(' + item.IdPromo + ')"><i class="material-icons">delete</i></a>';
+            cargaHtml += '</div>';
+            cargaHtml += '</div>';
+            // cargaHtml += '<div class="card-reveal">';
+            // cargaHtml += `<span class="card-title grey-text text-darken-4">${
+            //   item.Nombre
+            // }<i class="material-icons right">close</i></span>`;
+            // cargaHtml += `<p>${item.Descripcion}</p>`;
+            // cargaHtml += '</div>';
+            cargaHtml += '</div>';
+            cargaHtml += '</div>';
+          });
 
-// // *Se cargan los combobox del mantenedor
-// function cargarComboTipoPromo() {
-//   var action = 'CargarComboTipoPromo';
-//   var cargaHtml = '';
-//   //*Se envían datos del form y action, al controlador mediante ajax
-//   $.ajax({
-//     data: `action=${action}`,
-//     url: '../app/control/despTipoPromo.php',
-//     type: 'POST',
-//     success: function(respuesta) {
-//       // *cargaHtml es para los combobox del formulario
-//       var arr = JSON.parse(respuesta);
-//       cargaHtml += `<option disabled selected>Tipo Promo</option>`;
-//       $.each(arr, function(indice, item) {
-//         cargaHtml += `<option value='${item.IdTipoPromo}'>${
-//           item.Nombre
-//         }</option>`;
-//       });
-//       $('select[name="combo_tipo_promo"]').html(cargaHtml);
-//     },
-//     error: function() {
-//       alert('Lo sentimos ha ocurrido un error');
-//     }
-//   });
-// }
-// // *---------------------------------------------------------------------------
-// // * Añade un agregado a la lista de la promo
-// $('#btn_add_agregados_promo_cliente').click(function() {
-//   var listaHtml = `<li id-agregado='${$(
-//     '#combo_agregados_promo_form'
-//   ).val()}' cantidad-agregado='${$('#txt_cantidad_agregados').val()}'>${$(
-//     '#txt_cantidad_agregados'
-//   ).val()} - ${$(
-//     '#combo_agregados_promo_form option:selected'
-//   ).text()} <a id="eliminar_lista_agregados" href="#">Eliminar<a/></li>`;
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayNoEnCarta.length > 0) {
+            var htmlNoEnCarta = '<div class="mensaje-precaucion-indice" id="mensaje_indice_no_carta_promos"><p><b>Atenci\xF3n!:</b> Existen ' + arrayNoEnCarta.length + ' promos (' + arrayNoEnCarta.join(', ') + ') que no est\xE1n en carta. Recuerda que estos no podr\xE1n ser adquiridos por el cliente.</p></div>';
+            $('#mensaje_no_carta_promos').html(htmlNoEnCarta);
+          } else {
+            $('#mensaje_indice_no_carta_promos').remove();
+          }
 
-//   $('#lista_agregados_adicionales').append(listaHtml);
-// });
+          $('#mant_arma_tu_promo_carga').html(cargaHtml);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
 
-// // *Elimina el agregado de la lista de la promo
-// $('body').on('click', '#eliminar_lista_agregados', function() {
-//   $(this)
-//     .closest('li')
-//     .remove();
-// });
+// *Se cargan los combobox del mantenedor
+function cargarComboAgregados() {
+  var action = 'CargarComboAgregados';
+  $('select').formSelect();
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despAgregados.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *cargaHtml es para los combobox del formulario
+      var arr = JSON.parse(respuesta);
+      $.each(arr, function (indice, item) {
+        cargaHtml += '<option value=\'' + item.IdAgregado + '\'>' + item.Nombre + '</option>';
+      });
+      $('select[name="combo_agregados"]').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
 
-// //  *------------------------------------------------------------------------------------------
+// *Se cargan los combobox del mantenedor
+function cargarComboTipoCoberturas() {
+  var action = 'CargarComboTipoCoberturas';
+  $('select').formSelect();
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despTipoCoberturas.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *cargaHtml es para los combobox del formulario
+      var arr = JSON.parse(respuesta);
+      $.each(arr, function (indice, item) {
+        cargaHtml += '<option value=\'' + item.IdTipoCobertura + '\'>' + item.Nombre + '</option>';
+      });
+      $('select[name="combo_tipo_coberturas"]').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
 
-// // * Añade un agregado a la lista de la promo
-// $('#btn_add_agregados_promo_chef').click(function() {
-//   var listaHtml = `<li id-agregado-chef='${$(
-//     '#combo_agregados_promo_chef_form'
-//   ).val()}' cantidad-agregado-chef='${$(
-//     '#txt_cantidad_agregados_chef'
-//   ).val()}'>${$('#txt_cantidad_agregados_chef').val()} - ${$(
-//     '#combo_agregados_promo_form_chef option:selected'
-//   ).text()} <a id="eliminar_lista_agregados_chef" href="#">Eliminar<a/></li>`;
+// *Se cargan los combobox del mantenedor
+function cargarComboTipoPromo() {
+  var action = 'CargarComboTipoPromo';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despTipoPromo.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *cargaHtml es para los combobox del formulario
+      var arr = JSON.parse(respuesta);
+      cargaHtml += '<option disabled selected>Tipo Promo</option>';
+      $.each(arr, function (indice, item) {
+        cargaHtml += '<option value=\'' + item.IdTipoPromo + '\'>' + item.Nombre + '</option>';
+      });
+      $('select[name="combo_tipo_promo"]').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+// *---------------------------------------------------------------------------
+// * Añade un agregado a la lista de la promo
+$('#btn_add_agregados_promo_cliente').click(function () {
+  if ($('#txt_cantidad_agregados_chef').val() < 1) {
+    M.toast({
+      html: 'Debes ingresar una cantidad válida.',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  } else {
+    var listaHtml = '<li id-agregado=\'' + $('#combo_agregados_promo_form').val() + '\' cantidad-agregado=\'' + $('#txt_cantidad_agregados').val() + '\'>' + $('#txt_cantidad_agregados').val() + ' - ' + $('#combo_agregados_promo_form option:selected').text() + ' <a id="eliminar_lista_agregados" href="#">Eliminar<a/></li>';
 
-//   $('#lista_agregados_adicionales_chef').append(listaHtml);
-// });
+    $('#lista_agregados_adicionales').append(listaHtml);
+  }
+});
 
-// // *Elimina el agregado de la lista de la promo
-// $('body').on('click', '#eliminar_lista_agregados_chef', function() {
-//   $(this)
-//     .closest('li')
-//     .remove();
-// });
+// *Elimina el agregado de la lista de la promo
+$('body').on('click', '#eliminar_lista_agregados', function () {
+  $(this).closest('li').remove();
+});
 
-// // * Añade un tipo de cobertura a la lista de la promo
-// $('#btn_add_tipo_coberturas_promo_chef').click(function() {
-//   var listaHtml = `<li id-tipo-cobertura='${$(
-//     '#combo_agregados_promo_chef_form'
-//   ).val()}' cantidad-tipo-cobertura='${$(
-//     '#txt_cantidad_tipo_coberturas_chef'
-//   ).val()}'>${$('#txt_cantidad_tipo_coberturas_chef').val()} - ${$(
-//     '#combo_tipo_coberturas_promo_form_chef option:selected'
-//   ).text()} <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>`;
+//  *------------------------------------------------------------------------------------------
 
-//   $('#lista_tipo_coberturas_chef').append(listaHtml);
-// });
+// * Añade un agregado a la lista de la promo
+$('#btn_add_agregados_promo_chef').click(function () {
+  if ($('#txt_cantidad_agregados_chef').val() < 1) {
+    M.toast({
+      html: 'Debes ingresar una cantidad válida.',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  } else {
+    var listaHtml = '<li id-agregado-chef=\'' + $('#combo_agregados_promo_form_chef').val() + '\' cantidad-agregado-chef=\'' + $('#txt_cantidad_agregados_chef').val() + '\'>' + $('#txt_cantidad_agregados_chef').val() + ' - ' + $('#combo_agregados_promo_form_chef option:selected').text() + ' <a id="eliminar_lista_agregados_chef" href="#">Eliminar<a/></li>';
 
-// // *Elimina el agregado de la lista de la promo
-// $('body').on('click', '#eliminar_lista_tipo_cobertura_chef', function() {
-//   $(this)
-//     .closest('li')
-//     .remove();
-// });
+    $('#lista_agregados_adicionales_chef').append(listaHtml);
+  }
+});
 
-// // *-------------------------------------------------------------------------------------------------
-// // *Se validan y envian los datos del formulario de arma tu promo
-// $('#form_mantenedor_promo_cliente').validate({
-//   errorClass: 'invalid red-text',
-//   validClass: 'valid',
-//   errorElement: 'div',
-//   errorPlacement: function(error, element) {
-//     $(element)
-//       .closest('form')
-//       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
-//       .attr('data-error', error.text()); //*Se obtiene el texto de erro
-//     error.insertAfter(element); //*Se inserta el error después del elemento
-//   },
-//   rules: {
-//     txt_nombre_promo: {
-//       required: true,
-//       minlength: 3,
-//       maxlength: 100
-//     },
-//     txt_cantidad_piezas: {
-//       required: true,
-//       min: 10,
-//       max: 140,
-//       digits: true
-//     },
-//     txt_precio_promo: {
-//       required: true,
-//       min: 0,
-//       max: 1000000,
-//       digits: true
-//     },
-//     txt_descuento_promo: {
-//       required: true,
-//       min: 0,
-//       max: 100,
-//       digits: true
-//     },
-//     combo_estado_elemento: {
-//       required: true
-//     },
-//     imagen_promo: {
-//       // required: true,
-//       //   extension: 'jpeg|jpg|png'
-//     },
-//     imagen_promo_text: {
-//       // required: true
-//     },
-//     combo_tipo_promo: {
-//       required: true
-//     }
-//   },
-//   messages: {
-//     txt_nombre_promo: {
-//       required: 'Campo requerido *',
-//       minlength: 'Mínimo 3 caracteres',
-//       maxlength: 'Máximo 100 caracteres'
-//     },
-//     txt_cantidad_piezas: {
-//       required: 'Campo requerido *',
-//       min: 'La cantidad mínima es 10',
-//       max: 'La cantidad máxima es 140',
-//       digits: 'Ingresa solo números'
-//     },
-//     txt_precio_promo: {
-//       required: 'Campo requerido *',
-//       min: 'El valor mínimo es 0',
-//       max: 'Valor máximo 1000000',
-//       digits: 'Ingresa solo números'
-//     },
-//     txt_descuento_promo: {
-//       required: 'Campo requerido *',
-//       min: 'El porcentaje mínimo es 0',
-//       max: 'El porcentaje máximo es 100',
-//       digits: 'Ingresa sólo números'
-//     },
-//     combo_estado_elemento: {
-//       required: 'Selecciona una opción'
-//     },
-//     imagen_promo: {
-//       // required: '',
-//       extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
-//     },
-//     imagen_promo_text: {
-//       // required: 'Selecciona una imagen'
-//     },
-//     combo_tipo_promo: {
-//       required: 'Selecciona una opción'
-//     }
-//   },
-//   invalidHandler: function(form) {
-//     //*Acción a ejecutar al no completar todos los campos requeridos
-//     M.toast({
-//       html: 'Por favor completa los campos requeridos',
-//       displayLength: 3000,
-//       classes: 'red'
-//     });
-//   },
-//   submitHandler: function(form) {
-//     swal({
-//       title: '¿Estás seguro?',
-//       type: 'warning',
-//       showCancelButton: true,
-//       confirmButtonColor: '#3085d6',
-//       cancelButtonColor: '#d33',
-//       confirmButtonText: 'Si',
-//       cancelButtonText: 'Cancelar'
-//     }).then(result => {
-//       if (result.value) {
-//         var agregados = [];
+// *Elimina el agregado de la lista de la promo
+$('body').on('click', '#eliminar_lista_agregados_chef', function () {
+  $(this).closest('li').remove();
+});
 
-//         // *Se añaden los agregados adicionales a un array para luego ingresarlos a Bd
-//         $('#lista_agregados_adicionales li').each(function() {
-//           agregados.push([
-//             $(this).attr('id-agregado'),
-//             $(this).attr('cantidad-agregado')
-//           ]);
-//         });
+// * Añade un tipo de cobertura a la lista de la promo
+$('#btn_add_tipo_coberturas_promo_chef').click(function () {
+  var total;
+  if (obtenerTotalListaTipoCoberturas() != null) {
+    total = obtenerTotalListaTipoCoberturas();
+  } else {
+    total = 0;
+  }
 
-//         agregados = JSON.stringify(agregados);
+  console.log(obtenerTotalListaTipoCoberturas());
+  if ($('#txt_cantidad_tipo_coberturas_chef').val() < 10) {
+    M.toast({
+      html: 'Debes ingresar una cantidad válida (mínimo 10).',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  } else if (total < 200) {
+    var listaHtml = '<li id-tipo-cobertura-chef=\'' + $('#combo_tipo_coberturas_promo_form_chef').val() + '\' cantidad-tipo-cobertura-chef=\'' + $('#txt_cantidad_tipo_coberturas_chef').val() + '\'>' + $('#txt_cantidad_tipo_coberturas_chef').val() + ' - ' + $('#combo_tipo_coberturas_promo_form_chef option:selected').text() + ' <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>';
 
-//         // *imgExtension obtiene la extensión de la imagen
+    $('#lista_tipo_coberturas_chef').append(listaHtml);
+  } else {
+    M.toast({
+      html: 'Haz sobre pasado las 200 piezas.',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  }
 
-//         var imgExtension = $('#imagen_promo')
-//           .val()
-//           .substr(
-//             $('#imagen_promo')
-//               .val()
-//               .lastIndexOf('.') + 1
-//           );
-//         // *La variable formData inicializa el formulario al cual se le pasan los datos usando append
-//         var formData = new FormData();
-//         formData.append('nombre', $('#txt_nombre_promo').val());
-//         formData.append('cantidad', $('#txt_cantidad_piezas').val());
-//         formData.append('precio', $('#txt_precio_promo').val());
-//         formData.append('descuento', $('#txt_descuento_promo').val());
-//         formData.append('estado', $('#combo_estado_elemento_form').val());
-//         formData.append('tipopromo', $('#combo_tipo_promo_form').val());
-//         formData.append('agregados', agregados);
+  var valor;
+  if (obtenerTotalListaTipoCoberturas() != null) {
+    valor = obtenerTotalListaTipoCoberturas();
+    $('#txt_cantidad_piezas_chef').val(valor);
+  }
+});
 
-//         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
-//         // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
-//         // *Dependiendo de la acción se anexan más datos al formulario (formData)
+// *Elimina el tipo cobertura de la lista de la promo
+$('body').on('click', '#eliminar_lista_tipo_cobertura_chef', function () {
+  $(this).closest('li').remove();
+  if (obtenerTotalListaTipoCoberturas() != null) {
+    valor = obtenerTotalListaTipoCoberturas();
+    $('#txt_cantidad_piezas_chef').val(valor);
+  } else {
+    $('#txt_cantidad_piezas_chef').val(0);
+  }
+  // $('#txt_cantidad_piezas_chef').val(obtenerTotalListaTipoCoberturas());
+});
 
-//         if ($('#lbl_id_promo_cliente').text() == '') {
-//           let action = 'IngresarPromoCliente';
-//           formData.append('action', action);
-//           if (
-//             $('#imagen_promo').val() != '' ||
-//             imgExtension == 'jpg' ||
-//             imgExtension == 'png' ||
-//             imgExtension == 'jpeg'
-//           ) {
-//             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-//             console.log('imagen');
-//           } else {
-//             formData.append('imagenUrl', '');
-//             console.log('no imagen');
-//           }
-//         } else {
-//           let actionUpdate = 'ActualizarDatosPromoCliente';
-//           formData.append('id', $('#lbl_id_promo_cliente').text());
-//           formData.append('action', actionUpdate);
-//           // *Se comprueba la extensión de la imagen por la variable imgExtension
-//           if (
-//             $('#imagen_agregados').val() != '' ||
-//             imgExtension == 'jpg' ||
-//             imgExtension == 'png' ||
-//             imgExtension == 'jpeg'
-//           ) {
-//             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-//             console.log('Imagen');
-//           } else {
-//             formData.append('imagenUrl', '');
-//             console.log('No Imagen');
-//           }
-//         }
+// *-------------------------------------------------------------------------------------------------
+// *Se validan y envian los datos del formulario de arma tu promo
+$('#form_mantenedor_promo_cliente').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    txt_nombre_promo: {
+      required: true,
+      minlength: 3,
+      maxlength: 100
+    },
+    txt_cantidad_piezas: {
+      required: true,
+      min: 10,
+      max: 200,
+      digits: true
+    },
+    txt_precio_promo: {
+      required: true,
+      min: 0,
+      max: 1000000,
+      digits: true
+    },
+    txt_descuento_promo: {
+      required: true,
+      min: 0,
+      max: 100,
+      digits: true
+    },
+    combo_estado_elemento: {
+      required: true
+    },
+    imagen_promo: {
+      // required: true,
+      //   extension: 'jpeg|jpg|png'
+    },
+    imagen_promo_text: {
+      // required: true
+    },
+    combo_tipo_promo: {
+      required: true
+    }
+  },
+  messages: {
+    txt_nombre_promo: {
+      required: 'Campo requerido *',
+      minlength: 'Mínimo 3 caracteres',
+      maxlength: 'Máximo 100 caracteres'
+    },
+    txt_cantidad_piezas: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 10',
+      max: 'La cantidad máxima es 200',
+      digits: 'Ingresa solo números'
+    },
+    txt_precio_promo: {
+      required: 'Campo requerido *',
+      min: 'El valor mínimo es 0',
+      max: 'Valor máximo 1000000',
+      digits: 'Ingresa solo números'
+    },
+    txt_descuento_promo: {
+      required: 'Campo requerido *',
+      min: 'El porcentaje mínimo es 0',
+      max: 'El porcentaje máximo es 100',
+      digits: 'Ingresa sólo números'
+    },
+    combo_estado_elemento: {
+      required: 'Selecciona una opción'
+    },
+    imagen_promo: {
+      // required: '',
+      extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
+    },
+    imagen_promo_text: {
+      // required: 'Selecciona una imagen'
+    },
+    combo_tipo_promo: {
+      required: 'Selecciona una opción'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        var agregados = [];
 
-//         $.ajax({
-//           data: formData,
-//           url: '../app/control/despPromos.php',
-//           type: 'POST',
-//           contentType: false,
-//           processData: false,
-//           success: function(resp) {
-//             console.log(resp);
-//             switch (resp) {
-//               case '1':
-//                 $('#modal_mantenedor_promo_cliente').modal('close');
-//                 swal('Listo', 'Los datos han sido ingresados', 'success');
-//                 cargarMantenedorPromosCliente();
-//                 // *La función se ejecutó correctamente
-//                 break;
-//               case '2':
-//                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-//                 break;
-//             }
-//           },
-//           error: function() {
-//             alert('Lo sentimos ha ocurrido un error.');
-//           }
-//         });
-//       }
-//     });
+        // *Se añaden los agregados adicionales a un array para luego ingresarlos a Bd
+        $('#lista_agregados_adicionales li').each(function () {
+          agregados.push([$(this).attr('id-agregado'), $(this).attr('cantidad-agregado')]);
+        });
+
+        agregados = JSON.stringify(agregados);
+
+        // *imgExtension obtiene la extensión de la imagen
+
+        var imgExtension = $('#imagen_promo').val().substr($('#imagen_promo').val().lastIndexOf('.') + 1);
+        // *La variable formData inicializa el formulario al cual se le pasan los datos usando append
+        var formData = new FormData();
+        formData.append('nombre', $('#txt_nombre_promo').val());
+        formData.append('cantidad', $('#txt_cantidad_piezas').val());
+        formData.append('precio', $('#txt_precio_promo').val());
+        formData.append('descuento', $('#txt_descuento_promo').val());
+        formData.append('estado', $('#combo_estado_elemento_form').val());
+        formData.append('tipopromo', $('#combo_tipo_promo_form').val());
+        formData.append('agregados', agregados);
+
+        // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
+        // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
+        // *Dependiendo de la acción se anexan más datos al formulario (formData)
+
+        if ($('#lbl_id_promo_cliente').text() == '') {
+          var _action4 = 'IngresarPromoCliente';
+          formData.append('action', _action4);
+          if ($('#imagen_promo').val() != '') {
+            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            console.log('imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('no imagen');
+          }
+        } else {
+          var actionUpdate = 'ActualizarDatosPromoCliente';
+          formData.append('id', $('#lbl_id_promo_cliente').text());
+          formData.append('action', actionUpdate);
+          // *Se comprueba la extensión de la imagen por la variable imgExtension
+          if ($('#imagen_promo').val() != '' || imgExtension == 'jpg' || imgExtension == 'png' || imgExtension == 'jpeg') {
+            formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
+            console.log('Imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('No Imagen');
+          }
+        }
+
+        $.ajax({
+          data: formData,
+          url: '../app/control/despPromos.php',
+          type: 'POST',
+          contentType: false,
+          processData: false,
+          success: function success(resp) {
+            console.log(resp);
+            switch (resp) {
+              case '1':
+                $('#modal_mantenedor_promo_cliente').modal('close');
+                swal('Listo', 'Los datos han sido ingresados', 'success');
+                cargarMantenedorPromosCliente();
+                // *La función se ejecutó correctamente
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error.');
+          }
+        });
+      }
+    });
+  }
+});
+
+// *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
+// *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
+$('#cancelar_mantenedor_promo').on('click', function (evt) {
+  evt.preventDefault();
+  $('#modal_mantenedor_promo_cliente').modal('close');
+  // *Borra los datos de la lista
+});
+
+// *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
+// *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
+$('#cancelar_mantenedor_promo_chef').on('click', function (evt) {
+  evt.preventDefault();
+  $('#modal_mantenedor_promo_chef').modal('close');
+  // *Borra los datos de la lista
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_descuento_promo').keyup(function () {
+  var precioFinalDescuento = $('#txt_precio_promo').val() - $('#txt_precio_promo').val() / 100 * $('#txt_descuento_promo').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo').text('0');
+  } else {
+    $('#precio_descuento_promo').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_descuento_promo').change(function () {
+  var precioFinalDescuento = $('#txt_precio_promo').val() - $('#txt_precio_promo').val() / 100 * $('#txt_descuento_promo').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo').text('0');
+  } else {
+    $('#precio_descuento_promo').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_precio_promo').keyup(function () {
+  var precioFinalDescuento = $('#txt_precio_promo').val() - $('#txt_precio_promo').val() / 100 * $('#txt_descuento_promo').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo').text('0');
+  } else {
+    $('#precio_descuento_promo').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_precio_promo').change(function () {
+  var precioFinalDescuento = $('#txt_precio_promo').val() - $('#txt_precio_promo').val() / 100 * $('#txt_descuento_promo').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo').text('0');
+  } else {
+    $('#precio_descuento_promo').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// !Añadir handlers para el txt_precio
+
+// *Eliminar promo seleccionda
+// *La función recibe el id del elemento y ejecuta la query en BD
+function eliminarPromoM(id) {
+  var action = 'EliminarPromo';
+  swal({
+    title: '¿Estás seguro?',
+    text: 'Esta acción es irreversible, al eliminar la promo está ya no podrá ser adquirida en una compra.',
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Si',
+    cancelButtonText: 'Cancelar'
+  }).then(function (result) {
+    if (result.value) {
+      $.ajax({
+        data: {
+          action: action,
+          id: id
+        },
+        url: '../app/control/despPromos.php',
+        type: 'POST',
+        success: function success(resp) {
+          console.log(resp);
+          switch (resp) {
+            case '1':
+              swal('Listo', 'El elemento fue eliminado exitosamente', 'success');
+              cargarMantenedorPromosCliente();
+              break;
+            case '2':
+              swal('Error', 'Lo sentimos no cuentas con los permisos para realizar esta acción', 'error');
+              break;
+          }
+        },
+        error: function error() {
+          alert('Lo sentimos ha habido un error inesperado');
+        }
+      });
+    }
+  });
+}
+
+function actualizarPromoCliente(id) {
+  $('#modal_mantenedor_promo_cliente').modal('open');
+  $('#accion_promo_cliente').text('Actualizar Arma tu Promo');
+  var action = 'CargarModalPromoCliente';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_promo_cliente"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#mensaje_precaucion_actualizar_promo_cliente').html(mensajeHtml);
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: {
+      id: id,
+      action: action
+    },
+    url: '../app/control/despPromos.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      console.log(respuesta);
+      var arr = JSON.parse(respuesta);
+      $.each(arr, function (indice, item) {
+        // *Los label adquieren la clase active para no quedar sobre el texto definido en val
+        $('#lbl_id_promo_cliente').text('' + id);
+        $("label[for='txt_nombre_promo']").addClass('active');
+        $('#txt_nombre_promo').val(item.Nombre);
+        $('label[for=\'txt_cantidad_piezas\']').addClass('active');
+        $('#txt_cantidad_piezas').val(item.Cantidad);
+        $('label[for=\'txt_precio_promo\']').addClass('active');
+        $('#txt_precio_promo').val(item.Precio);
+        $('label[for=\'txt_descuento_promo\']').addClass('active');
+        $('#txt_descuento_promo').val(item.Descuento);
+        $('#precio_descuento_promo').text('$\n          ' + (item.Precio - item.Precio / 100 * item.Descuento));
+        $('#imagen_promo_text').val(item.ImgUrl);
+        $('#combo_estado_elemento_form').val(item.IdEstado);
+        $('#combo_tipo_promo_form').val(item.IdTipoPromo);
+
+        if (item.Agregados != null) {
+          var arrayAgregados = item.Agregados.split(', ');
+          var arrayIdAgregados = item.IdAgregados.split(', ');
+          var arrayCantidades = item.Cantidades.split(', ');
+
+          $.each(arrayAgregados, function (indice) {
+            var listaHtml = '<li id-agregado=\'' + arrayIdAgregados[indice] + '\' cantidad-agregado=\'' + arrayCantidades[indice] + '\'>' + arrayCantidades[indice] + ' - ' + arrayAgregados[indice] + ' <a id="eliminar_lista_agregados" href="#">Eliminar<a/></li>';
+
+            $('#lista_agregados_adicionales').append(listaHtml);
+          });
+        } else {
+          console.log(item.Agregados);
+        }
+      });
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un problema');
+    }
+  });
+}
+
+$('#txt_cantidad_agregados').change(function () {
+  if ($(this).val() < 0) {
+    $(this).val(0);
+  }
+});
+
+$('#txt_cantidad_agregados').blur(function () {
+  if ($(this).val() < 0) {
+    $(this).val(0);
+  }
+});
+
+// *-------------------------------------------------------------------------------------------------
+
+// *Se validan y envian los datos del formulario promo a gusto del chef
+$('#form_mantenedor_promo_chef').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    txt_nombre_promo_chef: {
+      required: true,
+      minlength: 3,
+      maxlength: 100
+    },
+    txt_cantidad_piezas_chef: {
+      required: true,
+      min: 10,
+      max: 200,
+      digits: true
+    },
+    txt_precio_promo_chef: {
+      required: true,
+      min: 0,
+      max: 1000000,
+      digits: true
+    },
+    txt_descuento_promo_chef: {
+      required: true,
+      min: 0,
+      max: 100,
+      digits: true
+    },
+    combo_estado_elemento: {
+      required: true
+    },
+    combo_tipo_promo: {
+      required: true
+    },
+    'lista_tipo_coberturas_chef[]': {
+      required: true
+    }
+  },
+  messages: {
+    txt_nombre_promo_chef: {
+      required: 'Campo requerido *',
+      minlength: 'Mínimo 3 caracteres',
+      maxlength: 'Máximo 100 caracteres'
+    },
+    txt_cantidad_piezas_chef: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 10',
+      max: 'La cantidad máxima es 200',
+      digits: 'Ingresa solo números'
+    },
+    txt_precio_promo_chef: {
+      required: 'Campo requerido *',
+      min: 'El valor mínimo es 0',
+      max: 'Valor máximo 1000000',
+      digits: 'Ingresa solo números'
+    },
+    txt_descuento_promo_chef: {
+      required: 'Campo requerido *',
+      min: 'El porcentaje mínimo es 0',
+      max: 'El porcentaje máximo es 100',
+      digits: 'Ingresa sólo números'
+    },
+    combo_estado_elemento: {
+      required: 'Selecciona una opción'
+    },
+    combo_tipo_promo: {
+      required: 'Selecciona una opción'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        var agregados = [];
+        var tipocoberturas = [];
+
+        // *Se añaden los agregados adicionales a un array para luego ingresarlos a Bd
+        $('#lista_agregados_adicionales_chef li').each(function () {
+          agregados.push([$(this).attr('id-agregado-chef'), $(this).attr('cantidad-agregado-chef')]);
+        });
+
+        // *Se añaden los tipo de coberturas a un array para luego ingresarlos a Bd
+        $('#lista_tipo_coberturas_chef li').each(function () {
+          tipocoberturas.push([$(this).attr('id-tipo-cobertura-chef'), $(this).attr('cantidad-tipo-cobertura-chef')]);
+        });
+
+        agregados = JSON.stringify(agregados);
+        tipocoberturas = JSON.stringify(tipocoberturas);
+
+        // *imgExtension obtiene la extensión de la imagen
+        console.log(agregados);
+        console.log(tipocoberturas);
+        var imgExtension = $('#imagen_promo_chef').val().substr($('#imagen_promo_chef').val().lastIndexOf('.') + 1);
+        // *La variable formData inicializa el formulario al cual se le pasan los datos usando append
+        var formData = new FormData();
+        formData.append('nombre', $('#txt_nombre_promo_chef').val());
+        formData.append('cantidad', obtenerTotalListaTipoCoberturas());
+        formData.append('precio', $('#txt_precio_promo_chef').val());
+        formData.append('descuento', $('#txt_descuento_promo_chef').val());
+        formData.append('estado', $('#combo_estado_elemento_form_chef').val());
+        formData.append('tipopromo', $('#combo_tipo_promo_form_chef').val());
+        formData.append('agregados', agregados);
+        formData.append('tipocoberturas', tipocoberturas);
+
+        // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
+        // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
+        // *Dependiendo de la acción se anexan más datos al formulario (formData)
+
+        if ($('#lbl_id_promo_chef').text() == '') {
+          var _action5 = 'IngresarPromoChef';
+          formData.append('action', _action5);
+          if ($('#imagen_promo_chef').val() != '' || imgExtension == 'jpg' || imgExtension == 'png' || imgExtension == 'jpeg') {
+            formData.append('imagenUrl', $('#imagen_promo_chef')[0].files[0]);
+            console.log('imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('no imagen');
+          }
+        } else {
+          var actionUpdate = 'ActualizarDatosPromoChef';
+          formData.append('id', $('#lbl_id_promo_chef').text());
+          formData.append('action', actionUpdate);
+          // *Se comprueba la extensión de la imagen por la variable imgExtension
+          if ($('#imagen_promo_chef').val() != '' || imgExtension == 'jpg' || imgExtension == 'png' || imgExtension == 'jpeg') {
+            formData.append('imagenUrl', $('#imagen_promo_chef')[0].files[0]);
+            console.log('Imagen');
+          } else {
+            formData.append('imagenUrl', '');
+            console.log('No Imagen');
+          }
+        }
+        console.log(formData);
+        $.ajax({
+          data: formData,
+          url: '../app/control/despPromos.php',
+          type: 'POST',
+          contentType: false,
+          processData: false,
+          success: function success(resp) {
+            console.log(resp);
+            switch (resp) {
+              case '1':
+                $('#modal_mantenedor_promo_chef').modal('close');
+                swal('Listo', 'Los datos han sido ingresados', 'success');
+                cargarMantenedorPromosCliente();
+                // *La función se ejecutó correctamente
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error.');
+          }
+        });
+      }
+    });
+  }
+});
+
+// *Validación de tipo coberturas
+
+function validarListaTipoCoberturasForm() {
+  if ($('#lista_tipo_coberturas_chef li').length = 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+function obtenerTotalListaTipoCoberturas() {
+  var arrayTipoCoberturas = $('#lista_tipo_coberturas_chef li').toArray();
+  var totalCantidadTipoCoberturas = [];
+  if (arrayTipoCoberturas.length > 0) {
+    $.each(arrayTipoCoberturas, function () {
+      totalCantidadTipoCoberturas.push($(this).attr('cantidad-tipo-cobertura-chef'));
+    });
+  }
+  if (totalCantidadTipoCoberturas.length > 0) {
+    var total = totalCantidadTipoCoberturas.reduce(function (a, b) {
+      return parseInt(a) + parseInt(b);
+    });
+    console.log(total);
+    return total;
+  }
+}
+
+// $('#txt_cantidad_tipo_coberturas_chef').change(function() {
+//   var arrayTipoCoberturas = $('#lista_tipo_coberturas_chef li').toArray();
+//   var nuevoValor;
+//   if (arrayTipoCoberturas.length > 0) {
+//     nuevoValor =
+//       $('#txt_cantidad_piezas_chef').val() - obtenerTotalListaTipoCoberturas();
 //   }
-// });
-
-// // *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
-// // *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
-// $('#cancelar_mantenedor_promo').on('click', function(evt) {
-//   evt.preventDefault();
-//   $('#modal_mantenedor_promo_cliente').modal('close');
-//   // *Borra los datos de la lista
-// });
-
-// // *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
-// $('#txt_descuento_promo').keyup(function() {
-//   var precioFinalDescuento =
-//     $('#txt_precio_promo').val() -
-//     ($('#txt_precio_promo').val() / 100) * $('#txt_descuento_promo').val();
-//   if (precioFinalDescuento == 'NaN') {
-//     $('#precio_descuento_promo').text('0');
-//   } else {
-//     $('#precio_descuento_promo').text('$ ' + precioFinalDescuento);
-//   }
-// });
-
-// // *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
-// $('#txt_descuento_promo').change(function() {
-//   var precioFinalDescuento =
-//     $('#txt_precio_promo').val() -
-//     ($('#txt_precio_promo').val() / 100) * $('#txt_descuento_promo').val();
-//   if (precioFinalDescuento == 'NaN') {
-//     $('#precio_descuento_promo').text('0');
-//   } else {
-//     $('#precio_descuento_promo').text('$ ' + precioFinalDescuento);
-//   }
-// });
-
-// // *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
-// $('#txt_precio_promo').keyup(function() {
-//   var precioFinalDescuento =
-//     $('#txt_precio_promo').val() -
-//     ($('#txt_precio_promo').val() / 100) * $('#txt_descuento_promo').val();
-//   if (precioFinalDescuento == 'NaN') {
-//     $('#precio_descuento_promo').text('0');
-//   } else {
-//     $('#precio_descuento_promo').text('$ ' + precioFinalDescuento);
-//   }
-// });
-
-// // *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
-// $('#txt_precio_promo').change(function() {
-//   var precioFinalDescuento =
-//     $('#txt_precio_promo').val() -
-//     ($('#txt_precio_promo').val() / 100) * $('#txt_descuento_promo').val();
-//   if (precioFinalDescuento == 'NaN') {
-//     $('#precio_descuento_promo').text('0');
-//   } else {
-//     $('#precio_descuento_promo').text('$ ' + precioFinalDescuento);
-//   }
-// });
-
-// // !Añadir handlers para el txt_precio
-
-// // *Eliminar promo seleccionda
-// // *La función recibe el id del elemento y ejecuta la query en BD
-// function eliminarPromoM(id) {
-//   var action = 'EliminarPromo';
-//   swal({
-//     title: '¿Estás seguro?',
-//     type: 'warning',
-//     showCancelButton: true,
-//     confirmButtonColor: '#3085d6',
-//     cancelButtonColor: '#d33',
-//     confirmButtonText: 'Si',
-//     cancelButtonText: 'Cancelar'
-//   }).then(result => {
-//     if (result.value) {
-//       $.ajax({
-//         data: {
-//           action: action,
-//           id: id
-//         },
-//         url: '../app/control/despPromos.php',
-//         type: 'POST',
-//         success: function(resp) {
-//           console.log(resp);
-//           switch (resp) {
-//             case '1':
-//               swal('Listo', 'El elemento fue eliminado', 'success');
-//               cargarMantenedorPromosCliente();
-//               break;
-//             case '2':
-//               swal('Error', 'El elemento no pudo ser eliminado', 'error');
-//               break;
-//           }
-//         },
-//         error: function() {
-//           alert('Lo sentimos ha habido un error inesperado');
-//         }
-//       });
-//     }
-//   });
-// }
-
-// function actualizarPromoCliente(id) {
-//   $('#modal_mantenedor_promo_cliente').modal('open');
-//   $('#accion_promo_cliente').text('Actualizar Arma tu Promo');
-//   var action = 'CargarModalPromoCliente';
-//   //*Se envían datos del form y action, al controlador mediante ajax
-//   $.ajax({
-//     data: {
-//       id: id,
-//       action: action
-//     },
-//     url: '../app/control/despPromos.php',
-//     type: 'POST',
-//     success: function(respuesta) {
-//       console.log(respuesta);
-//       var arr = JSON.parse(respuesta);
-//       $.each(arr, function(indice, item) {
-//         // *Los label adquieren la clase active para no quedar sobre el texto definido en val
-//         $('#lbl_id_promo_cliente').text(`${id}`);
-//         $("label[for='txt_nombre_promo']").addClass('active');
-//         $('#txt_nombre_promo').val(item.Nombre);
-//         $(`label[for='txt_cantidad_piezas']`).addClass('active');
-//         $('#txt_cantidad_piezas').val(item.Cantidad);
-//         $(`label[for='txt_precio_promo']`).addClass('active');
-//         $('#txt_precio_promo').val(item.Precio);
-//         $(`label[for='txt_descuento_promo']`).addClass('active');
-//         $('#txt_descuento_promo').val(item.Descuento);
-//         $('#precio_descuento_promo').text(`$
-//           ${item.Precio - (item.Precio / 100) * item.Descuento}`);
-//         $('#imagen_promo_text').val(item.ImgUrl);
-//         $('#combo_estado_elemento_form').val(item.IdEstado);
-//         $('#combo_tipo_promo_form').val(item.IdTipoPromo);
-
-//         if (item.Agregados != null) {
-//           var arrayAgregados = item.Agregados.split(', ');
-//           var arrayIdAgregados = item.IdAgregados.split(', ');
-//           var arrayCantidades = item.Cantidades.split(', ');
-
-//           $.each(arrayAgregados, function(indice) {
-//             var listaHtml = `<li id-agregado='${
-//               arrayIdAgregados[indice]
-//             }' cantidad-agregado='${arrayCantidades[indice]}'>${
-//               arrayCantidades[indice]
-//             } - ${
-//               arrayAgregados[indice]
-//             } <a id="eliminar_lista_agregados" href="#">Eliminar<a/></li>`;
-
-//             $('#lista_agregados_adicionales').append(listaHtml);
-//           });
-//         } else {
-//           console.log(item.Agregados);
-//         }
-//       });
-//     },
-//     error: function() {
-//       alert('Lo sentimos ha ocurrido un problema');
-//     }
-//   });
-// }
-
-// $('#txt_cantidad_agregados').change(function() {
 //   if ($(this).val() < 0) {
 //     $(this).val(0);
 //   }
-// });
-
-// $('#txt_cantidad_agregados').blur(function() {
-//   if ($(this).val() < 0) {
-//     $(this).val(0);
+//   console.log(nuevoValor);
+//   if (
+//     $('#txt_cantidad_piezas_chef').val() >= 10 &&
+//     $(this).val() > nuevoValor
+//   ) {
+//     $('#txt_cantidad_tipo_coberturas_chef').val(nuevoValor);
 //   }
 // });
 
-// // *-------------------------------------------------------------------------------------------------
-// // *Se validan y envian los datos del formulario promo a gusto del chef
-// $('#form_mantenedor_promo_chef').validate({
-//   errorClass: 'invalid red-text',
-//   validClass: 'valid',
-//   errorElement: 'div',
-//   errorPlacement: function(error, element) {
-//     $(element)
-//       .closest('form')
-//       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
-//       .attr('data-error', error.text()); //*Se obtiene el texto de erro
-//     error.insertAfter(element); //*Se inserta el error después del elemento
-//   },
-//   rules: {
-//     txt_nombre_promo_chef: {
-//       required: true,
-//       minlength: 3,
-//       maxlength: 100
-//     },
-//     txt_cantidad_piezas_chef: {
-//       required: true,
-//       min: 10,
-//       max: 140,
-//       digits: true
-//     },
-//     txt_precio_promo_chef: {
-//       required: true,
-//       min: 0,
-//       max: 1000000,
-//       digits: true
-//     },
-//     txt_descuento_promo_chef: {
-//       required: true,
-//       min: 0,
-//       max: 100,
-//       digits: true
-//     },
-//     combo_estado_elemento_chef: {
-//       required: true
-//     },
-//     combo_tipo_promo_chef: {
-//       required: true
+// $('#txt_cantidad_piezas_chef').change(function() {
+//   if ($(this).val() < 10) {
+//     $(this).val(10);
+//   }
+//   console.log(obtenerTotalListaTipoCoberturas());
+//   if (obtenerTotalListaTipoCoberturas() != null) {
+//     var valor = obtenerTotalListaTipoCoberturas();
+//     if ($('#txt_cantidad_piezas_chef').val() < valor) {
+//       $('#txt_cantidad_piezas_chef').val(valor);
 //     }
-//   },
-//   messages: {
-//     txt_nombre_promo_chef: {
-//       required: 'Campo requerido *',
-//       minlength: 'Mínimo 3 caracteres',
-//       maxlength: 'Máximo 100 caracteres'
-//     },
-//     txt_cantidad_piezas_chef: {
-//       required: 'Campo requerido *',
-//       min: 'La cantidad mínima es 10',
-//       max: 'La cantidad máxima es 140',
-//       digits: 'Ingresa solo números'
-//     },
-//     txt_precio_promo_chef: {
-//       required: 'Campo requerido *',
-//       min: 'El valor mínimo es 0',
-//       max: 'Valor máximo 1000000',
-//       digits: 'Ingresa solo números'
-//     },
-//     txt_descuento_promo_chef: {
-//       required: 'Campo requerido *',
-//       min: 'El porcentaje mínimo es 0',
-//       max: 'El porcentaje máximo es 100',
-//       digits: 'Ingresa sólo números'
-//     },
-//     combo_estado_elemento_chef: {
-//       required: 'Selecciona una opción'
-//     },
-//     combo_tipo_promo_chef: {
-//       required: 'Selecciona una opción'
-//     }
-//   },
-//   invalidHandler: function(form) {
-//     //*Acción a ejecutar al no completar todos los campos requeridos
-//     M.toast({
-//       html: 'Por favor completa los campos requeridos',
-//       displayLength: 3000,
-//       classes: 'red'
-//     });
-//   },
-//   submitHandler: function(form) {
-//     swal({
-//       title: '¿Estás seguro?',
-//       type: 'warning',
-//       showCancelButton: true,
-//       confirmButtonColor: '#3085d6',
-//       cancelButtonColor: '#d33',
-//       confirmButtonText: 'Si',
-//       cancelButtonText: 'Cancelar'
-//     }).then(result => {
-//       if (result.value) {
-//         var agregados = [];
-//         var tipocoberturas = [];
-
-//         // *Se añaden los agregados adicionales a un array para luego ingresarlos a Bd
-//         $('#lista_agregados_adicionales_chef li').each(function() {
-//           agregados.push([
-//             $(this).attr('id-agregado-chef'),
-//             $(this).attr('cantidad-agregado-chef')
-//           ]);
-//         });
-
-//         // *Se añaden los tipo de coberturas a un array para luego ingresarlos a Bd
-//         $('#lista_tipo_coberturas_chef li').each(function() {
-//           agregados.push([
-//             $(this).attr('id-tipo-cobertura'),
-//             $(this).attr('cantidad-tipo-cobertura')
-//           ]);
-//         });
-
-//         agregados = JSON.stringify(agregados);
-
-//         // *imgExtension obtiene la extensión de la imagen
-
-//         var imgExtension = $('#imagen_promo')
-//           .val()
-//           .substr(
-//             $('#imagen_promo')
-//               .val()
-//               .lastIndexOf('.') + 1
-//           );
-//         // *La variable formData inicializa el formulario al cual se le pasan los datos usando append
-//         var formData = new FormData();
-//         formData.append('nombre', $('#txt_nombre_promo').val());
-//         formData.append('cantidad', $('#txt_cantidad_piezas').val());
-//         formData.append('precio', $('#txt_precio_promo').val());
-//         formData.append('descuento', $('#txt_descuento_promo').val());
-//         formData.append('estado', $('#combo_estado_elemento_form').val());
-//         formData.append('tipopromo', $('#combo_tipo_promo_form').val());
-//         formData.append('agregados', agregados);
-//         formData.append('tipocoberturas', tipocoberturas);
-
-//         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
-//         // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
-//         // *Dependiendo de la acción se anexan más datos al formulario (formData)
-
-//         if ($('#lbl_id_promo_chef').text() == '') {
-//           let action = 'IngresarPromoChef';
-//           formData.append('action', action);
-//           if (
-//             $('#imagen_promo').val() != '' ||
-//             imgExtension == 'jpg' ||
-//             imgExtension == 'png' ||
-//             imgExtension == 'jpeg'
-//           ) {
-//             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-//             console.log('imagen');
-//           } else {
-//             formData.append('imagenUrl', '');
-//             console.log('no imagen');
-//           }
-//         } else {
-//           let actionUpdate = 'ActualizarDatosPromoChef';
-//           formData.append('id', $('#lbl_id_promo_chef').text());
-//           formData.append('action', actionUpdate);
-//           // *Se comprueba la extensión de la imagen por la variable imgExtension
-//           if (
-//             $('#imagen_agregados').val() != '' ||
-//             imgExtension == 'jpg' ||
-//             imgExtension == 'png' ||
-//             imgExtension == 'jpeg'
-//           ) {
-//             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-//             console.log('Imagen');
-//           } else {
-//             formData.append('imagenUrl', '');
-//             console.log('No Imagen');
-//           }
-//         }
-
-//         $.ajax({
-//           data: formData,
-//           url: '../app/control/despPromos.php',
-//           type: 'POST',
-//           contentType: false,
-//           processData: false,
-//           success: function(resp) {
-//             console.log(resp);
-//             switch (resp) {
-//               case '1':
-//                 $('#modal_mantenedor_promo_chef').modal('close');
-//                 swal('Listo', 'Los datos han sido ingresados', 'success');
-//                 cargarMantenedorPromosCliente();
-//                 // *La función se ejecutó correctamente
-//                 break;
-//               case '2':
-//                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-//                 break;
-//             }
-//           },
-//           error: function() {
-//             alert('Lo sentimos ha ocurrido un error.');
-//           }
-//         });
-//       }
-//     });
+//     console.log(valor);
 //   }
 // });
+
+$('#txt_cantidad_piezas_chef').change(function () {
+  if (obtenerTotalListaTipoCoberturas() != null) {
+    valor = obtenerTotalListaTipoCoberturas();
+    $(this).val(valor);
+  } else {
+    $(this).val(0);
+  }
+});
+
+$('#txt_cantidad_agregados_chef').change(function () {
+  if ($(this).val() < 1) {
+    $(this).val(1);
+  }
+  if ($(this).val() > 200) {
+    $(this).val(200);
+  }
+});
+
+$('#txt_cantidad_tipo_coberturas_chef').change(function () {
+  if ($(this).val() < 10) {
+    $(this).val(10);
+  }
+  if ($(this).val() > 200) {
+    $(this).val(200);
+  }
+});
+
+$('#txt_cantidad_agregados').change(function () {
+  if ($(this).val() < 1) {
+    $(this).val(1);
+  }
+  if ($(this).val() > 200) {
+    $(this).val(200);
+  }
+});
+
+function actualizarPromoChef(id) {
+  console.log(id);
+  $('#modal_mantenedor_promo_chef').modal('open');
+  $('#accion_promo_chef').text('Actualizar Promo A Gusto del Chef');
+  var action = 'CargarModalPromoChef';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_promo_chef"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#mensaje_precaucion_actualizar_promo_chef').html(mensajeHtml);
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: {
+      id: id,
+      action: action
+    },
+    url: '../app/control/despPromos.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      console.log(respuesta);
+      var arr = JSON.parse(respuesta);
+      console.log(action);
+      $.each(arr, function (indice, item) {
+        // *Los label adquieren la clase active para no quedar sobre el texto definido en val
+        $('#lbl_id_promo_chef').text('' + id);
+        $("label[for='txt_nombre_promo_chef']").addClass('active');
+        $('#txt_nombre_promo_chef').val(item.Nombre);
+        $('label[for=\'txt_cantidad_piezas_chef\']').addClass('active');
+        $('#txt_cantidad_piezas_chef').val(item.Cantidad);
+        $('label[for=\'txt_precio_promo_chef]').addClass('active');
+        $('#txt_precio_promo_chef').val(item.Precio);
+        $('label[for=\'txt_descuento_promo_chef\']').addClass('active');
+        $('#txt_descuento_promo_chef').val(item.Descuento);
+        $('#precio_descuento_promo_chef').text('$\n          ' + (item.Precio - item.Precio / 100 * item.Descuento));
+        $('#imagen_promo_text_chef').val(item.ImgUrl);
+        $('#combo_estado_elemento_form_chef').val(item.IdEstado);
+        $('#combo_tipo_promo_form_chef').val(item.IdTipoPromo);
+        $('label[for=\'txt_cantidad_agregados_chef]').addClass('active');
+
+        if (item.Agregados != null) {
+          var arrayAgregados = item.Agregados.split(', ');
+          var arrayIdAgregados = item.IdAgregados.split(', ');
+          var arrayCantidadesAgregados = item.CantidadesAgregados.split(', ');
+
+          $.each(arrayAgregados, function (indice) {
+            var listaHtml = '<li id-agregado-chef=\'' + arrayIdAgregados[indice] + '\' cantidad-agregado-chef=\'' + arrayCantidadesAgregados[indice] + '\'>' + arrayCantidadesAgregados[indice] + ' - ' + arrayAgregados[indice] + ' <a id="eliminar_lista_agregados_chef" href="#">Eliminar<a/></li>';
+
+            $('#lista_agregados_adicionales_chef').append(listaHtml);
+          });
+        } else {
+          console.log(item.Agregados);
+        }
+
+        if (item.TipoCoberturas != null) {
+          var arrayTipoCoberturas = item.TipoCoberturas.split(', ');
+          var arrayIdTipoCoberturas = item.IdTipoCoberturas.split(', ');
+          var arrayCantidadesTipoCoberturas = item.CantidadesTipoCoberturas.split(', ');
+
+          $.each(arrayTipoCoberturas, function (indice) {
+            var listaHtml = '<li id-tipo-cobertura-chef=\'' + arrayIdTipoCoberturas[indice] + '\' cantidad-tipo-cobertura-chef=\'' + arrayCantidadesTipoCoberturas[indice] + '\'>' + arrayCantidadesTipoCoberturas[indice] + ' - ' + arrayTipoCoberturas[indice] + ' <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>';
+
+            $('#lista_tipo_coberturas_chef').append(listaHtml);
+          });
+        } else {
+          console.log(item.Agregados);
+        }
+      });
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un problema');
+    }
+  });
+}
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_descuento_promo_chef').keyup(function () {
+  var precioFinalDescuento = $('#txt_precio_promo_chef').val() - $('#txt_precio_promo_chef').val() / 100 * $('#txt_descuento_promo_chef').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo_chef').text('0');
+  } else {
+    $('#precio_descuento_promo_chef').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_descuento_promo_chef').change(function () {
+  var precioFinalDescuento = $('#txt_precio_promo_chef').val() - $('#txt_precio_promo_chef').val() / 100 * $('#txt_descuento_promo_chef').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo_chef').text('0');
+  } else {
+    $('#precio_descuento_promo_chef').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_precio_promo_chef').keyup(function () {
+  var precioFinalDescuento = $('#txt_precio_promo_chef').val() - $('#txt_precio_promo_chef').val() / 100 * $('#txt_descuento_promo_chef').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo_chef').text('0');
+  } else {
+    $('#precio_descuento_promo_chef').text('$ ' + precioFinalDescuento);
+  }
+});
+
+// *Permitirá dar a conocer en tiempo real el valor final del producto al ingresar un valor de descuento
+$('#txt_precio_promo_chef').change(function () {
+  var precioFinalDescuento = $('#txt_precio_promo_chef').val() - $('#txt_precio_promo_chef').val() / 100 * $('#txt_descuento_promo_chef').val();
+  if (precioFinalDescuento == 'NaN') {
+    $('#precio_descuento_promo_chef').text('0');
+  } else {
+    $('#precio_descuento_promo_chef').text('$ ' + precioFinalDescuento);
+  }
+});
 
 'use strict';
 
@@ -2230,13 +2530,13 @@ $('#form_registro').validate({
     txt_nombre: {
       required: true,
       minlength: 3,
-      maxlength: 45,
+      maxlength: 100,
       lettersonly: true
     },
     txt_apellidos: {
       required: true,
       minlength: 3,
-      maxlength: 45,
+      maxlength: 100,
       lettersonly: true
     },
     txt_email: {
@@ -2246,7 +2546,7 @@ $('#form_registro').validate({
     txt_password: {
       required: true,
       minlength: 10,
-      maxlength: 100
+      maxlength: 200
     }
   },
   messages: {
@@ -2254,12 +2554,12 @@ $('#form_registro').validate({
     txt_nombre: {
       required: 'Campo requerido *',
       minlength: 'Ingresa un nombre válido',
-      maxlength: 'Máximo permitido 45 caracteres'
+      maxlength: 'Máximo permitido 100 caracteres'
     },
     txt_apellidos: {
       required: 'Campo requerido *',
       minlength: 'Ingresa un apellido válido',
-      maxlength: 'Máximo permitido 45 caracteres'
+      maxlength: 'Máximo permitido 100 caracteres'
     },
     txt_email: {
       required: 'Campo requerido *',
@@ -2267,7 +2567,8 @@ $('#form_registro').validate({
     },
     txt_password: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres'
+      minlength: 'Mínimo 10 caracteres',
+      maxlength: 'Máximo 200 caracteres'
     }
   },
   invalidHandler: function invalidHandler(form) {
@@ -2323,6 +2624,9 @@ jQuery.validator.addMethod('emailCom', function (value, element) {
 function cargarMantenedorRellenos(estado, caracter) {
   var action = 'CargarMantenedorRellenos';
   var cargaHtml = '';
+  // *Los arrays almacenarán los datos de aquellas coberturas que no puedan ser seleccionados por el cliente
+  var arrayIndiceNingunoRellenos = [];
+  var arrayNoEnCartaRellenos = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: 'action=' + action,
@@ -2349,6 +2653,14 @@ function cargarMantenedorRellenos(estado, caracter) {
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arr, function (indice, item) {
+            // *Si el item tiene como indice el valor ninguno este se insertará en el array indicado
+            if (item.Indice == 'Ninguno') {
+              arrayIndiceNingunoRellenos.push(item.Nombre);
+            }
+            // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
+            if (item.idEstado == 2) {
+              arrayNoEnCartaRellenos.push(item.Nombre);
+            }
             cargaHtml += '<div class="col s12 m4 l4">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
@@ -2358,10 +2670,11 @@ function cargarMantenedorRellenos(estado, caracter) {
             cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + '<i class="material-icons right">more_vert</i></span>';
             cargaHtml += '<div class="precios-productos">';
             cargaHtml += '<span class="grey-text text-darken-4">Precio Adicional: $' + item.Precio + '</span>';
-            if (item.Indice != null) {
+            // *Si el indice es igual a 'Ninguno' el texto se marca en rojo
+            if (item.Indice != 'Ninguno') {
               cargaHtml += '<span class="grey-text text-darken-4">Opci\xF3n de elecci\xF3n: ' + item.Indice + '</span>';
             } else {
-              cargaHtml += '<span class="grey-text text-darken-4">Opci\xF3n de elecci\xF3n: Ninguno</span>';
+              cargaHtml += '<span class="red-text text-darken-4">Opci\xF3n de elecci\xF3n: ' + item.Indice + '</span>';
             }
             cargaHtml += '</div>';
             cargaHtml += '<div class="divider"></div>';
@@ -2378,7 +2691,23 @@ function cargarMantenedorRellenos(estado, caracter) {
             cargaHtml += '</div>';
             cargaHtml += '</div>';
           });
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayIndiceNingunoRellenos.length > 0) {
+            var htmlNoIndice = '<div class="mensaje-precaucion-indice" id="mensaje_indice_rellenos"><p><b>Atenci\xF3n!:</b> Existen ' + arrayIndiceNingunoRellenos.length + ' rellenos (' + arrayIndiceNingunoRellenos.join(', ') + ') que no poseen un \xEDndice de selecci\xF3n. Recuerda que estos no podr\xE1n ser elegidos por el cliente.</p></div>';
+            $('#mensaje_no_indice_rellenos').html(htmlNoIndice);
+          } else {
+            $('#mensaje_indice_rellenos').remove();
+          }
 
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayNoEnCartaRellenos.length > 0) {
+            var htmlNoEnCarta = '<div class="mensaje-precaucion-indice" id="mensaje_indice_no_carta_rellenos"><p><b>Atenci\xF3n!:</b> Existen ' + arrayNoEnCartaRellenos.length + ' rellenos (' + arrayNoEnCartaRellenos.join(', ') + ') que no est\xE1n en carta. Recuerda que estos no podr\xE1n ser elegidos por el cliente.</p></div>';
+            $('#mensaje_no_carta_rellenos').html(htmlNoEnCarta);
+          } else {
+            $('#mensaje_indice_no_carta_rellenos').remove();
+          }
+
+          // *Se cargan los datos de la bd en la pantalla
           $('#rellenos_carga').html(cargaHtml);
           break;
       }
@@ -2409,6 +2738,7 @@ function eliminarRellenoM(id) {
   var action = 'EliminarRelleno';
   swal({
     title: '¿Estás seguro?',
+    text: 'Al ser eliminada este relleno ya no podrá ser seleccionado para ser adquirido.',
     type: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -2448,6 +2778,8 @@ function actualizarRellenoM(id) {
   $('#accion_rellenos').text('Actualizar Relleno');
   $('#modal_mantenedor_relleno').modal('open');
   var action = 'CargarModalRelleno';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_rellenos"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_rellenos').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -2608,14 +2940,12 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'relleno'
         // *Dependiendo de la acción se anexan más datos al formulario (formData)
         if ($('#lbl_id_rellenos').text() == '') {
-          var action = 'IngresarRelleno';
-          formData.append('action', action);
+          var _action6 = 'IngresarRelleno';
+          formData.append('action', _action6);
           if ($('#imagen_rellenos').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-            console.log('imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('no imagen');
           }
         } else {
           var actionUpdate = 'ActualizarDatosRelleno';
@@ -2624,10 +2954,8 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
           // *Se comprueba la extensión de la imagen por la variable imgExtension
           if ($('#imagen_rellenos').val() != '' || imgExtension == 'jpg' || imgExtension == 'png' || imgExtension == 'jpeg') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-            console.log('Imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('No Imagen');
           }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
@@ -2649,8 +2977,6 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
               case '2':
                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
                 break;
-              default:
-              // console.log(resp);
             }
           },
           error: function error() {
@@ -2689,38 +3015,45 @@ function cargarTotalIndiceRellenos() {
 
 // *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
 function restarIndiceRelleno() {
-  var action = 'RestarIndiceRellenos';
-  var cargaHtml = '';
-  //*Se envían datos del form y action, al controlador mediante ajax
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(function (result) {
-    if (result.value) {
-      $.ajax({
-        data: 'action=' + action,
-        url: '../app/control/despIndiceRelleno.php',
-        type: 'POST',
-        success: function success(respuesta) {
-          console.log(respuesta);
-          switch (respuesta) {
-            case '1':
-              console.log('Eliminación exitosa');
-              cargarTotalIndiceRellenos();
-              cargarMantenedorRellenos();
-              cargarIndiceRelleno();
-              swal('Listo', 'Se ha restado un índice', 'success');
-              break;
-            case '2':
-              swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-              console.log('Eliminación erróneo');
-              break;
-          }
+  var actionGetDatosVinculadosRellenos = 'ObtenerDatosVinculadosIndiceRelleno';
+  $.ajax({
+    data: 'action=' + actionGetDatosVinculadosRellenos,
+    url: '../app/control/despIndiceRelleno.php',
+    type: 'POST',
+    success: function success(respuestaDatosVinculados) {
+      var action = 'RestarIndiceRellenos';
+      //*Se envían datos del form y action, al controlador mediante ajax
+      swal({
+        title: '¿Estás seguro?',
+        text: 'Existen ' + respuestaDatosVinculados + ' rellenos vinculados a este \xEDndice, al elimnarlo estos no podr\xE1n ser seleccionados por el cliente.',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si',
+        cancelButtonText: 'Cancelar'
+      }).then(function (result) {
+        if (result.value) {
+          $.ajax({
+            data: 'action=' + action,
+            url: '../app/control/despIndiceRelleno.php',
+            type: 'POST',
+            success: function success(respuesta) {
+              switch (respuesta) {
+                case '1':
+                  // *Eliminación exitosa
+                  cargarTotalIndiceRellenos();
+                  cargarMantenedorRellenos();
+                  cargarIndiceRelleno();
+                  swal('Listo', 'Se ha restado un \xEDndice, ' + respuestaDatosVinculados + ' rellenos han quedado sin \xEDndice de selecci\xF3n, por lo tanto no podr\xE0n ser seleccionadas por el cliente.', 'success');
+                  break;
+                case '2':
+                  // *Error al eliminar
+                  swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                  break;
+              }
+            }
+          });
         }
       });
     }
@@ -2747,18 +3080,17 @@ function sumarIndiceRelleno() {
         url: '../app/control/despIndiceRelleno.php',
         type: 'POST',
         success: function success(respuesta) {
-          console.log(respuesta);
           switch (respuesta) {
             case '1':
-              console.log('Agregación exitosa');
+              // *Ingreso exitoso
               cargarTotalIndiceRellenos();
               cargarMantenedorRellenos();
               cargarIndiceRelleno();
               swal('Listo', 'Se ha restado un índice', 'success');
               break;
             case '2':
+              // *Ingreso erróneo
               swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-              console.log('Agregación errónea');
               break;
           }
         }
@@ -2850,6 +3182,8 @@ function actualizarTipoCobertura(nombre, id) {
   $("label[for='txt_nombre']").addClass('active');
   $('#txt_nombre').val(nombre);
   var action = 'CargarModalTipoCobertura';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_tipo_cobertura"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_tipo_cobertura').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -2978,42 +3312,58 @@ $('#form_mantenedor_tipo_coberturas').validate({
 // *La función recibe el id del elemento y ejecuta la query en BD
 function eliminarTipoCobertura(id) {
   var action = 'EliminarTipoCobertura';
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(function (result) {
-    if (result.value) {
-      $.ajax({
-        data: {
-          action: action,
-          id: id
-        },
-        url: '../app/control/despTipoCoberturas.php',
-        type: 'POST',
-        success: function success(resp) {
-          console.log(resp);
-          switch (resp) {
-            case '1':
-              swal('Listo', 'El producto fue eliminado', 'success');
-              CargarTablaTipoCobertura();
-              break;
-            // case '2':
-            //   swal('Error', 'El producto no pudo ser eliminado', 'error');
-            //   break;
-            case '3':
-              swal('Error', 'El producto no puede ser eliminado ya que una promo la contiene', 'error');
-              break;
-          }
-        },
-        error: function error() {
-          alert('Lo sentimos ha habido un error inesperado');
-        }
-      });
+  var actionGetDatos = 'ComprobarVinculacionTipoCobertura';
+  $.ajax({
+    data: 'action=' + actionGetDatos + '&id=' + id,
+    url: '../app/control/despTipoCoberturas.php',
+    type: 'POST',
+    success: function success(respuestaDatosVinculados) {
+      switch (respuestaDatosVinculados) {
+        case '1':
+          swal({
+            title: '¿Estás seguro?',
+            text: 'Al ser eliminada este tipo de cobertura ya no podrá ser seleccionado para ser adquirido, o asociado a una promo.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'Cancelar'
+          }).then(function (result) {
+            if (result.value) {
+              $.ajax({
+                data: {
+                  action: action,
+                  id: id
+                },
+                url: '../app/control/despTipoCoberturas.php',
+                type: 'POST',
+                success: function success(resp) {
+                  console.log(resp);
+                  switch (resp) {
+                    case '1':
+                      swal('Listo', 'El producto fue eliminado', 'success');
+                      CargarTablaTipoCobertura();
+                      break;
+                    case '3':
+                      swal('Error', 'El producto no puede ser eliminado ya que una promo la contiene', 'error');
+                      break;
+                  }
+                },
+                error: function error() {
+                  alert('Lo sentimos ha habido un error inesperado');
+                }
+              });
+            }
+          });
+          break;
+        default:
+          swal('Error', 'El producto no pudo ser eliminado ya que est\xE1 vinculado a las promos \'' + respuestaDatosVinculados + '\'', 'error');
+          break;
+      }
+    },
+    error: function error() {
+      swal('Error', 'El producto no pudo ser eliminado', 'error');
     }
   });
 }
@@ -3084,6 +3434,7 @@ function eliminarTipoPago(id) {
   var action = 'EliminarTipoPago';
   swal({
     title: '¿Estás seguro?',
+    text: 'Al ser eliminada este tipo de pago ya no podrá ser seleccionado para ser vinculado a una compra.',
     type: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -3124,6 +3475,8 @@ function actualizarTipoPago(id) {
   $('#accion_tipo_pago').text('Actualizar Tipo Pago');
   $('#modal_mantenedor_tipo_pago').modal('open');
   var action = 'CargarModalTipoPago';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_tipo_pago"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_tipo_pago').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -3168,14 +3521,16 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_pago').validate({
     txt_nombre: {
       required: true,
       minlength: 3,
-      maxlength: 1000
+      maxlength: 1000,
+      lettersonly: true
     }
   },
   messages: {
     txt_nombre: {
       required: 'Campo requerido *',
       minlength: 'Mínimo 3 caracteres',
-      maxlength: 'Máximo 1000 caracteres'
+      maxlength: 'Máximo 1000 caracteres',
+      lettersonly: 'Solo letras'
     }
   },
   invalidHandler: function invalidHandler(form) {
@@ -3203,10 +3558,10 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_pago').validate({
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
         if ($('#lbl_id_tipo_pago').text() == '') {
-          var action = 'IngresarTipoPago';
+          var _action7 = 'IngresarTipoPago';
           dataInfo = {
             nombre: $('#txt_nombre').val(),
-            action: action
+            action: _action7
           };
         } else {
           var actionUpdate = 'ActualizarTipoPago';
@@ -3296,42 +3651,61 @@ $('#txt_buscar_tipo_promo').on('keyup', function () {
 // *La función recibe el id del elemento y ejecuta la query en BD
 function eliminarTipoPromo(id) {
   var action = 'EliminarTipoPromo';
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(function (result) {
-    if (result.value) {
-      $.ajax({
-        data: {
-          action: action,
-          id: id
-        },
-        url: '../app/control/despTipoPromo.php',
-        type: 'POST',
-        success: function success(resp) {
-          console.log(resp);
-          switch (resp) {
-            case '1':
-              swal('Listo', 'El elemento fue eliminado', 'success');
-              CargarTablaTipoPromo();
-              break;
-            case '2':
-              swal('Error', 'El elemento no pudo ser eliminado', 'error');
-              break;
-            case '3':
-              swal('Error', 'El elemento no pudo ser eliminado ya que una promo es de este tipo', 'error');
-              break;
-          }
-        },
-        error: function error() {
-          alert('Lo sentimos ha habido un error inesperado');
-        }
-      });
+  var actionGetDatos = 'ComprobarVinculacionTipoPromo';
+  $.ajax({
+    data: 'action=' + actionGetDatos + '&id=' + id,
+    url: '../app/control/despTipoPromo.php',
+    type: 'POST',
+    success: function success(respuestaDatosVinculados) {
+      switch (respuestaDatosVinculados) {
+        case '1':
+          swal({
+            title: '¿Estás seguro?',
+            text: 'Al ser eliminada esta tipo promo ya no podrá ser seleccionado para ser vinculada a una promo.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'Cancelar'
+          }).then(function (result) {
+            if (result.value) {
+              $.ajax({
+                data: {
+                  action: action,
+                  id: id
+                },
+                url: '../app/control/despTipoPromo.php',
+                type: 'POST',
+                success: function success(resp) {
+                  console.log(resp);
+                  switch (resp) {
+                    case '1':
+                      swal('Listo', 'El elemento fue eliminado', 'success');
+                      CargarTablaTipoPromo();
+                      break;
+                    case '2':
+                      swal('Error', 'El elemento no pudo ser eliminado', 'error');
+                      break;
+                    case '3':
+                      swal('Error', 'El elemento no pudo ser eliminado ya que al menos una promo es de este tipo', 'error');
+                      break;
+                  }
+                },
+                error: function error() {
+                  alert('Lo sentimos ha habido un error inesperado');
+                }
+              });
+            }
+          });
+          break;
+        default:
+          swal('Error', 'El producto no pudo ser eliminado ya que est\xE1 vinculado a las promos \'' + respuestaDatosVinculados + '\'', 'error');
+          break;
+      }
+    },
+    error: function error() {
+      swal('Error', 'El producto no pudo ser eliminado', 'error');
     }
   });
 }
@@ -3341,6 +3715,8 @@ function actualizarTipoPromo(id) {
   $('#accion_tipo_promo').text('Actualizar Tipo Promo');
   $('#modal_mantenedor_tipo_promo').modal('open');
   var action = 'CargarModalTipoPromo';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_tipo_promo"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_tipo_promo').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -3420,10 +3796,10 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_promo').validate({
         // *Si no contiene valor se interpreta que se ingresará una nueva 'promo'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
         if ($('#lbl_id_tipo_promo').text() == '') {
-          var action = 'IngresarTipoPromo';
+          var _action8 = 'IngresarTipoPromo';
           dataInfo = {
             nombre: $('#txt_nombre').val(),
-            action: action
+            action: _action8
           };
         } else {
           var actionUpdate = 'ActualizarTipoPromo';

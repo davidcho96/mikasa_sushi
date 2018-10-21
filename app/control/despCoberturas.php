@@ -121,5 +121,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CargarChecboxCoberturas';
             echo $coberturas->cargarCoberturas();
         break;
+
+        case 'ComprobarVinculacionCoberturas':
+            $coberturas->setIdCobertura($_POST['id']);
+            echo $coberturas->comprobarVinculacionCoberturas();
+        break;
     }
 }

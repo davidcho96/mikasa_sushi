@@ -24,5 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'AgregarIndiceRelleno': 
             echo $indiceRellenos->agregarIndiceRelleno($_SESSION['user'][1]);
         break;
+        case 'ObtenerDatosVinculadosIndiceRelleno':
+            echo $indiceRellenos->obtenerDatosVinculadosIndiceRelleno();
+        break;
     }
 }

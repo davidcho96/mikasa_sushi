@@ -50,6 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CargarComboTipoPromo':
                 echo $tipopromo->CargarComboTipoPromo();
         break;
+        case 'ComprobarVinculacionTipoPromo':
+            $tipopromo->setIdTipoPromo($_POST['id']);
+            echo $tipopromo->comprobarVinculacionTipoPromo();
+        break;
     }
 
 }

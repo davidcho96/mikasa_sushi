@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if($validate->check(['nombre', 'descripcion', 'precio', 'descuento', 'estado'], $_REQUEST)){
                 $id = $_POST['id'];
                 $nombre = $validate->str($_POST['nombre'], '100', '3');
+                $unidades = $validate->int($_POST['unidades'], 2000, 1);
                 $descripcion = $validate->str($_POST['descripcion'], '1000', '3');
                 $precio = $validate->int($_POST['precio'], 1000000, 0);
                 $descuento = $validate->int($_POST['descuento'], 100, 0);
@@ -66,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $agregados->setIdAgregados($id);
             $agregados->setNombre($nombre);
             $agregados->setDescripcion($descripcion);
+            $agregados->setUnidades($unidades);
             $agregados->setPrecio($precio);
             $agregados->setDescuento($descuento);
             $agregados->setIdEstado($idEstado);
@@ -79,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if($validate->check(['nombre', 'descripcion', 'precio', 'descuento', 'estado'], $_REQUEST)){
             $nombre = $validate->str($_POST['nombre'], '100', '3');
             $descripcion = $validate->str($_POST['descripcion'], '1000', '3');
+            $unidades = $validate->int($_POST['unidades'], 2000, 1);
             $precio = $validate->int($_POST['precio'], 1000000, 0);
             $descuento = $validate->int($_POST['descuento'], 100, 0);
             $idEstado = $_POST['estado'];
@@ -114,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $agregados->setNombre($nombre);
             $agregados->setDescripcion($descripcion);
+            $agregados->setUnidades($unidades);
             $agregados->setPrecio($precio);
             $agregados->setDescuento($descuento);
             $agregados->setIdEstado($idEstado);
@@ -124,7 +128,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         break;
         // *Ejecuta la función que obtendrá los datos para cargar el combobox
         case 'CargarComboAgregados':
-                echo $agregados->CargarComboAgregados();
+            echo $agregados->CargarComboAgregados();
+        break;
+        case 'ComprobarVinculacionAgregados':
+            $agregados->setIdAgregados($_POST['id']);
+            echo $agregados->comprobarVinculacionAgregados();
         break;
     }
 }

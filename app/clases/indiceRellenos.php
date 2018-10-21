@@ -116,4 +116,26 @@ class IndiceRellenos extends connection{
             echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
         }
     }
+
+    function obtenerDatosVinculadosIndiceRelleno(){
+        try{
+            $db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call obtenerDatosVinculadosIndiceRelleno()');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($result);
+            $datos = array();
+			if($stmt->fetch()>0){
+                echo $result;
+			}else{
+                echo 'algunos';
+            }
+                $stmt->free_result();
+        }catch(Exception $error){
+            echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+        }
+    }
 }

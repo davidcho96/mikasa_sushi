@@ -1,13 +1,15 @@
 function cargarMantenedorCoberturas(estado, caracter) {
   var action = 'CargarMantenedorCoberturas';
   var cargaHtml = '';
+  // *Los arrays almacenarán los datos de aquellas coberturas que no puedan ser seleccionados por el cliente
+  var arrayIndiceNinguno = [];
+  var arrayNoEnCarta = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: `action=${action}`,
     url: '../app/control/despCoberturas.php',
     type: 'POST',
     success: function(respuesta) {
-      // console.log(respuesta);
       // *----------------------------------------------------------------------
       // *Se filtra el array obtenido en base a los parámetros obtenidos
       var arrFilter = '';
@@ -31,6 +33,15 @@ function cargarMantenedorCoberturas(estado, caracter) {
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arrFilter, function(indice, item) {
+            // *Si el item tiene como indice el valor ninguno este se insertará en el array indicado
+            if (item.Indice == 'Ninguno') {
+              arrayIndiceNinguno.push(item.Nombre);
+            }
+            // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
+            if (item.IdEstado == 2) {
+              arrayNoEnCarta.push(item.Nombre);
+            }
+
             cargaHtml += '<div class="col s12 m4 l4">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml +=
@@ -45,23 +56,26 @@ function cargarMantenedorCoberturas(estado, caracter) {
             cargaHtml += `<span class="grey-text text-darken-4">Precio Adicional: $${
               item.Precio
             }</span>`;
-            if (item.Indice != null) {
-              cargaHtml += `<span class="grey-text text-darken-4">Opción de elección: ${
+            // *Si el indice es igual a 'Ninguno' el texto se marca en rojo
+            if (item.Indice != 'Ninguno') {
+              cargaHtml += `<span class="grey-text text-darken-4" indice-cobertura="${
                 item.Indice
-              }</span>`;
+              }">Opción de elección: ${item.Indice}</span>`;
             } else {
-              cargaHtml += `<span class="grey-text text-darken-4">Opción de elección: Ninguno</span>`;
+              cargaHtml += `<span class="red-text" indice-cobertura="${
+                item.Indice
+              }">Opción de elección: ${item.Indice}</span>`;
             }
             cargaHtml += '</div>';
             cargaHtml += '<div class="divider"></div>';
             cargaHtml += '<div class="btn-mant-productos">';
-            cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="actualizarCoberturaM(${
+            cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" name="indice_cobertura" onclick="actualizarCoberturaM(${
               item.IdCobertura
             })"><i class="material-icons">edit</i></a>`;
             cargaHtml += `<h5 class="grey-text text-darken-4">${
               item.Estado
             }</h5>`;
-            cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light red" onclick="eliminarCoberturaM(${
+            cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light red" name="indice_cobertura" onclick="eliminarCoberturaM(${
               item.IdCobertura
             })"><i class="material-icons">delete</i></a>`;
             cargaHtml += '</div>';
@@ -76,7 +90,32 @@ function cargarMantenedorCoberturas(estado, caracter) {
             cargaHtml += '</div>';
           });
 
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayIndiceNinguno.length > 0) {
+            var htmlNoIndice = `<div class="mensaje-precaucion-indice" id="mensaje_indice_coberturas"><p><b>Atención!:</b> Existen ${
+              arrayIndiceNinguno.length
+            } coberturas (${arrayIndiceNinguno.join(
+              ', '
+            )}) que no poseen un índice de selección. Recuerda que estos no podrán ser elegidos por el cliente.</p></div>`;
+            $('#mensaje_no_indice_cobertura').html(htmlNoIndice);
+          } else {
+            $('#mensaje_indice_coberturas').remove();
+          }
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayNoEnCarta.length > 0) {
+            var htmlNoEnCarta = `<div class="mensaje-precaucion-indice" id="mensaje_indice_no_carta_coberturas"><p><b>Atención!:</b> Existen ${
+              arrayNoEnCarta.length
+            } coberturas (${arrayNoEnCarta.join(
+              ', '
+            )}) que no están en carta. Recuerda que estos no podrán ser elegidos por el cliente.</p></div>`;
+            $('#mensaje_no_carta_cobertura').html(htmlNoEnCarta);
+          } else {
+            $('#mensaje_indice_no_carta_coberturas').remove();
+          }
+
+          // *Se cargan los datos de la bd en la pantalla
           $('#coberturas_carga').html(cargaHtml);
+
           break;
       }
     },
@@ -114,45 +153,73 @@ $('#txt_buscar_coberturas').keyup(function(item) {
 // *La función recibe el id del elemento y ejecuta la query en BD
 function eliminarCoberturaM(id) {
   var action = 'EliminarCobertura';
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.value) {
-      $.ajax({
-        data: {
-          action: action,
-          id: id
-        },
-        url: '../app/control/despCoberturas.php',
-        type: 'POST',
-        success: function(resp) {
-          switch (resp) {
-            case '1':
-              swal('Listo', 'El producto fue eliminado', 'success');
-              cargarMantenedorCoberturas();
-              break;
-            case '2':
-              swal('Error', 'El producto no pudo ser eliminado', 'error');
-              break;
-            case '3':
-              swal(
-                'Error',
-                'El producto no puede ser eliminado ya que un tipo de cobertura lo contiene',
-                'error'
-              );
-              break;
-          }
-        },
-        error: function() {
-          alert('Lo sentimos ha habido un error inesperado');
-        }
-      });
+  var actionGetDatos = 'ComprobarVinculacionCoberturas';
+  $.ajax({
+    data: `action=${actionGetDatos}&id=${id}`,
+    url: '../app/control/despCoberturas.php',
+    type: 'POST',
+    success: function(respuestaDatosVinculados) {
+      switch (respuestaDatosVinculados) {
+        case '1':
+          swal({
+            title: '¿Estás seguro?',
+            text:
+              'Al ser eliminada esta cobertura ya no podrá ser seleccionada para ser adquirida, ni vinculada a un tipo de cobertura.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'Cancelar'
+          }).then(result => {
+            if (result.value) {
+              $.ajax({
+                data: {
+                  action: action,
+                  id: id
+                },
+                url: '../app/control/despCoberturas.php',
+                type: 'POST',
+                success: function(resp) {
+                  switch (resp) {
+                    case '1':
+                      swal('Listo', 'El producto fue eliminado', 'success');
+                      cargarMantenedorCoberturas();
+                      break;
+                    case '2':
+                      swal(
+                        'Error',
+                        'El producto no pudo ser eliminado',
+                        'error'
+                      );
+                      break;
+                    case '3':
+                      swal(
+                        'Error',
+                        'El producto no puede ser eliminado ya que un tipo de cobertura lo contiene',
+                        'error'
+                      );
+                      break;
+                  }
+                },
+                error: function() {
+                  alert('Lo sentimos ha habido un error inesperado');
+                }
+              });
+            }
+          });
+          break;
+        default:
+          swal(
+            'Error',
+            `El producto no pudo ser eliminado ya que está vinculado a los tipos de cobertura '${respuestaDatosVinculados}'`,
+            'error'
+          );
+          break;
+      }
+    },
+    error: function() {
+      swal('Error', 'El producto no pudo ser eliminado', 'error');
     }
   });
 }
@@ -162,6 +229,9 @@ function actualizarCoberturaM(id) {
   $('#accion_coberturas').text('Actualizar Cobertura');
   $('#modal_mantenedor_cobertura').modal('open');
   var action = 'CargarModalCobertura';
+  var mensajeHtml =
+    '<div class="mensaje-precaucion" id="mensaje_precaucion_coberturas"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_coberturas').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: {
@@ -345,10 +415,8 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
           formData.append('action', action);
           if ($('#imagen_coberturas').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-            console.log('imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('no imagen');
           }
         } else {
           let actionUpdate = 'ActualizarDatosCobertura';
@@ -362,10 +430,8 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
             imgExtension == 'jpeg'
           ) {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
-            console.log('Imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('No Imagen');
           }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
@@ -377,10 +443,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
           processData: false,
           success: function(resp) {
             //*Acción a ejecutar si la respuesta existe
-            console.log(resp);
-            console.log(formData);
-            console.log($('#combo_indice_cobertura').val());
-            console.log($('#lbl_id_cobertura').text());
             switch (resp) {
               case '1':
                 $('#modal_mantenedor_cobertura').modal('close');
@@ -391,8 +453,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
               case '2':
                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
                 break;
-              default:
-              // console.log(resp);
             }
           },
           error: function() {
@@ -416,14 +476,14 @@ function cargarTotalIndiceCoberturas() {
     success: function(respuesta) {
       switch (respuesta) {
         case 'error':
-          console.log(
+          alert(
             'Lo sentimos ha ocurrido un error al cargar la cantidad de indices de cobertura'
           );
           break;
         default:
           cargaHtml += `<p>${respuesta}</p>`;
           cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="sumarIndiceCobertura()"><i class="fa fa-plus"></i></a>`;
-          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceCobertura()"><i class="fa fa-minus"></i></a>`;
+          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceCobertura(${respuesta})"><i class="fa fa-minus"></i></a>`;
           $('#indice_cobertura_carga').html(cargaHtml);
           break;
       }
@@ -432,39 +492,65 @@ function cargarTotalIndiceCoberturas() {
 }
 
 // *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
+function obtenerDatosVinculadosIndiceCobertura() {
+  var actionGetDatos = 'ObtenerDatosVinculadosIndiceCobertura';
+  $.ajax({
+    data: `action=${action}`,
+    url: '../app/control/despIndiceCobertura.php',
+    type: 'POST',
+    success: function(respuesta) {},
+    error: function() {
+      returnValueAjax('algunos');
+    }
+  });
+}
+
+function returnValueAjax(value) {
+  return value;
+}
+
 function restarIndiceCobertura() {
-  var action = 'RestarIndiceCoberturas';
-  var cargaHtml = '';
-  //*Se envían datos del form y action, al controlador mediante ajax
-  swal({
-    title: '¿Estás seguro?',
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Si',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.value) {
-      $.ajax({
-        data: `action=${action}`,
-        url: '../app/control/despIndiceCobertura.php',
-        type: 'POST',
-        success: function(respuesta) {
-          console.log(respuesta);
-          switch (respuesta) {
-            case '1':
-              console.log('Eliminación exitosa');
-              cargarTotalIndiceCoberturas();
-              cargarMantenedorCoberturas();
-              cargarIndiceCobertura();
-              swal('Listo', 'Se ha restado un índice', 'success');
-              break;
-            case '2':
-              swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-              console.log('Eliminación erróneo');
-              break;
-          }
+  var actionGetDatos = 'ObtenerDatosVinculadosIndiceCobertura';
+  $.ajax({
+    data: `action=${actionGetDatos}`,
+    url: '../app/control/despIndiceCobertura.php',
+    type: 'POST',
+    success: function(respuestaDatosVinculados) {
+      var action = 'RestarIndiceCoberturas';
+      //*Se envían datos del form y action, al controlador mediante ajax
+      swal({
+        title: '¿Estás seguro?',
+        text: `Existen ${respuestaDatosVinculados} coberturas vinculadas a este índice, al elimnarlo estos no podrán ser seleccionados por el cliente.`,
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si',
+        cancelButtonText: 'Cancelar'
+      }).then(result => {
+        if (result.value) {
+          $.ajax({
+            data: `action=${action}`,
+            url: '../app/control/despIndiceCobertura.php',
+            type: 'POST',
+            success: function(respuesta) {
+              switch (respuesta) {
+                case '1':
+                  cargarTotalIndiceCoberturas();
+                  cargarMantenedorCoberturas();
+                  cargarIndiceCobertura();
+                  swal(
+                    'Listo',
+                    `Se ha restado un índice, ${respuestaDatosVinculados} coberturas han quedado sin índice de selección, por lo tanto no podràn ser seleccionadas por el cliente.`,
+                    'success'
+                  );
+                  break;
+                case '2':
+                  swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                  break;
+              }
+            }
+          });
         }
       });
     }
@@ -474,7 +560,6 @@ function restarIndiceCobertura() {
 // *La función elimina el último valor de la tabla de indices y luego actualiza los demás al valor '1' (Ninguno)
 function sumarIndiceCobertura() {
   var action = 'AgregarIndiceCoberturas';
-  var cargaHtml = '';
   //*Se envían datos del form y action, al controlador mediante ajax
   swal({
     title: '¿Estás seguro?',
@@ -491,10 +576,9 @@ function sumarIndiceCobertura() {
         url: '../app/control/despIndiceCobertura.php',
         type: 'POST',
         success: function(respuesta) {
-          console.log(respuesta);
           switch (respuesta) {
             case '1':
-              console.log('Agregación exitosa');
+              // *Ingreso exitoso
               cargarTotalIndiceCoberturas();
               cargarMantenedorCoberturas();
               cargarIndiceCobertura();
@@ -502,7 +586,6 @@ function sumarIndiceCobertura() {
               break;
             case '2':
               swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-              console.log('Agregación errónea');
               break;
           }
         }

@@ -5,7 +5,8 @@ require_once "../db_connection/connection.php";
 class Agregados extends connection{
 	private $idAgregados;
 	private $nombre;
-    private $descripcion;
+	private $descripcion;
+	private $unidades;
     private $precio;
 	private $descuento;
 	private $estado;
@@ -33,6 +34,14 @@ class Agregados extends connection{
 
 	public function setDescripcion($descripcion){
 		$this->descripcion = $descripcion;
+	}
+
+	public function getUnidades(){
+		return $this->unidades;
+	}
+
+	public function setUnidades($unidades){
+		$this->unidades = $unidades;
 	}
 
 	public function getPrecio(){
@@ -77,7 +86,7 @@ class Agregados extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($id, $nombre, $descripcion, $precio, $descuento, $idEstado, $imgUrl);
+            $stmt->bind_result($id, $nombre, $descripcion, $unidades, $precio, $descuento, $estado, $imgUrl, $idEstado);
             $datos = array();
 			// if($stmt->fetch()>0){
 				// *Los resultados se añaden a un array para ser procesado y mostrados en pantalla
@@ -86,10 +95,12 @@ class Agregados extends connection{
                         "IdAgregado"=>$id,
 						"Nombre"=>$nombre,
 						"Descripcion"=>$descripcion,
+						"Unidades"=>$unidades,
 						"Precio"=>$precio,
 						"Descuento"=>$descuento,
-						"Estado"=>$idEstado,
-						"ImgUrl"=>$imgUrl
+						"Estado"=>$estado,
+						"ImgUrl"=>$imgUrl,
+						"IdEstado"=>$idEstado
 					);
 				}
 
@@ -112,7 +123,7 @@ class Agregados extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-			$stmt->bind_result($id, $nombre, $descripcion, $precio, $descuento, $idEstado, $imgUrl);
+			$stmt->bind_result($id, $nombre, $descripcion, $unidades, $precio, $descuento, $idEstado, $imgUrl);
 			$datos = array();
 			// if($stmt->fetch()>0){
 				// *Los datos serán añadidos a un array para ser procesados y mostrados en pantalla
@@ -121,6 +132,7 @@ class Agregados extends connection{
 						"Id"=>$id,
 						"Nombre"=>$nombre,
 						"Descripcion"=>$descripcion,
+						"Unidades"=>$unidades,
 						"Precio"=>$precio,
 						"Descuento"=>$descuento,
 						"Estado"=>$idEstado,
@@ -168,9 +180,9 @@ class Agregados extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call actualizarDatosAgregados(?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call actualizarDatosAgregados(?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('issiiiss', $this->getIdAgregados(), $this->getNombre(), $this->getDescripcion(), $this->getPrecio(), $this->getDescuento(), $this->getIdEstado(), $this->getImgUrl(), $correo);
+			$stmt->bind_param('issiiiiss', $this->getIdAgregados(), $this->getNombre(), $this->getDescripcion(), $this->getUnidades(), $this->getPrecio(), $this->getDescuento(), $this->getIdEstado(), $this->getImgUrl(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta
@@ -193,9 +205,9 @@ class Agregados extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call ingresarAgregados(?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call ingresarAgregados(?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('ssiiiss', $this->getNombre(), $this->getDescripcion(), $this->getPrecio(), $this->getDescuento(), $this->getIdEstado(), $this->getImgUrl(), $correo);
+			$stmt->bind_param('ssiiiiss', $this->getNombre(), $this->getDescripcion(), $this->getUnidades(), $this->getPrecio(), $this->getDescuento(), $this->getIdEstado(), $this->getImgUrl(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta
@@ -234,6 +246,28 @@ class Agregados extends connection{
 				// *Transforma el array en string
 				return json_encode($datos, JSON_UNESCAPED_UNICODE);
 				$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function comprobarVinculacionAgregados(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			//*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call comprobarVinculacionAgregados(?)');
+			// *Se pasan los parámetros
+			$stmt->bind_param('i', $this->getIdAgregados());
+			//* Se ejecuta
+			$stmt->execute();
+			//* Resultados obtenidos de la consulta
+			$stmt->bind_result($result);
+			if($stmt->fetch()>0){
+				echo $result;
+			}
+
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}

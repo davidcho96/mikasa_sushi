@@ -38,6 +38,9 @@
 
     <div id="modal_mantenedor_tipo_cobertura" class="modal">
         <div class="modal-content">
+
+            <div id="content_mensaje_precaucion_tipo_cobertura"></div>
+
             <h5 class="center" id="accion_tipo_coberturas">Ingresar Tipo Cobertura</h5>
             <form action="" name="form_mantenedor_tipo_coberturas" id="form_mantenedor_tipo_coberturas">
             <label id="lbl_id_tipo_cobertura" class="lbl-id"></label>
@@ -68,6 +71,7 @@
             $('#form_mantenedor_tipo_coberturas')[0].reset();
             $('#lbl_id_tipo_cobertura').text('');
             $('#accion_tipo_coberturas').text('Ingresar Tipo de cobertura');
+            $('#mensaje_precaucion_tipo_cobertura').remove();
             }
         });
     });
