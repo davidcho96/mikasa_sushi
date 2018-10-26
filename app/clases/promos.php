@@ -421,7 +421,7 @@ class Promos extends connection{
                 }else{
                     foreach ($arrayAgregados as $key=>$valor) {
                         $stmt2 = $conn->prepare("CALL actualizarDetallePromoChef(?, ?, ?, ?, ?, @out_value)");
-                        $stmt2->bind_param("iiiis", $valor[1], $null, $valor[0],  $this->getIdPromo(), $correo);
+                        $stmt2->bind_param("iiiis", $valor[0], $null, $valor[1],  $this->getIdPromo(), $correo);
                         if($stmt2->execute()){
                             $errorFor = 1;
                             $stmt2->free_result();
@@ -431,7 +431,6 @@ class Promos extends connection{
                         }
                     }
                 }
-
                 if(empty($arrayTipoCoberturas) || $arrayTipoCoberturas == '' || $arrayTipoCoberturas == NULL){
                     $errorFor = 1;
                 }else{

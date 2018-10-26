@@ -1,3 +1,17 @@
+<?php 
+session_start();
+
+require 'templates/session.php';
+
+$sesionUsuario = new Sesion();
+
+$sesionUsuario->validarSesionMantenedores();
+
+$sesionUsuario->validacionSesionAdmin();
+
+// $sesionUsuario->validarEstadoSesion();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -196,11 +210,20 @@
         <!-- <script src="src/js/es6/promo-functions.js"></script> -->
         <script>
         $(document).ready(function(){
-            cargarComboAgregados();
-            cargarComboEstadoElemento();
-            cargarMantenedorPromosCliente();
-            cargarComboTipoPromo();
-            cargarComboTipoCoberturas();
+                comprobarEstadoSesion();
+                cargarComboAgregados();
+                cargarComboEstadoElemento();
+                cargarMantenedorPromosCliente();
+                cargarComboTipoPromo();
+                cargarComboTipoCoberturas();
+            setInterval(function(){
+                comprobarEstadoSesion();
+                cargarComboAgregados();
+                cargarComboEstadoElemento();
+                cargarMantenedorPromosCliente();
+                cargarComboTipoPromo();
+                cargarComboTipoCoberturas();
+            }, 15000);
             $('#modal_mantenedor_promo_cliente').modal({
                 onCloseEnd: function() {
                 $('#form_mantenedor_promo_cliente')[0].reset();

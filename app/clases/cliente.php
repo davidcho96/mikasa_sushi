@@ -89,7 +89,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 	}
 	
 	// *Generará un código random que será utilizado posteriormente para recuperar la contraseña
-	public function randomCode(){
+	private function randomCode(){
 		$caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789'; //* Caracteres posibles
 		$code = '';
 		$max = strlen($caracteres) - 1;
@@ -123,7 +123,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 				@out_value)");//*Representa el valor output
 				
 			//*Se pasan los parámetros a la consulta
-			$stmt->bind_param('ssissss', $this->getNombre(), $this->getApellidos(), $estado, $this->getCorreo(), $password_hash, $telefono, $codRestauracionHash);
+			$stmt->bind_param('ssissss', $this->getNombre(), $this->getApellidos(), $estado, $this->getCorreo(), $password_hash, $this->getTelefono(), $codRestauracionHash);
 			//*Se ejecuta la consulta en BD
 			$stmt->execute();
 			//*Se obtiene el resultado
@@ -159,16 +159,21 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 			$stmt->bind_result($result);
 			//*Se comprueba la respuesta
 			if($stmt->fetch()>0){
-				if($result != 'error'){
+				switch($result){
+					case 'error':
+						return 3;
+					break;
+					case 'errorEstado':
+						return 4;
+					break;
+					default:
 					$passHash = $result;
-					// *Desencripta la contraseña almacenada para ser comparada con la ingresada en el form del login
 					if(password_verify($this->getPassword(), $passHash)){
 						return 1; //*Login exitoso
 					}else {
 						return 2; //*Login erróneo
 					}
-				}else{
-					return 3; //*Login erróneo
+					break;
 				}
 			}
 			//*Se libera la respuesta en BD
@@ -303,31 +308,151 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 		try{
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
-			// *Se prepara la query
 			$stmt=$conn->prepare('call listarClientes2()');
 			//*Se pasan los parámetros a la consulta
 			// $stmt->bind_param('s', $this->getCorreo());
 			//*Se ejecuta la consulta en BD
 			$stmt->execute();
 			//*Se obtiene el resultado
-			$stmt->bind_result($nombre, $apellidos, $correo, $telefono);
+			$stmt->bind_result($idCliente, $nombre, $apellidos, $correo, $telefono, $estado);
 			$datos = array();
 			// if($stmt->fetch()>0){
-				// *Los resultado se ingresan en un array para ser enviados al lado del cliente
 				while($stmt->fetch()){
 					$datos[]=array(
+						"idCliente"=>$idCliente,
 						"Nombre"=>$nombre,
 						"Apellidos"=>$apellidos,
 						"Correo"=>$correo,
-						"Telefono"=>$telefono
+						"Telefono"=>$telefono,
+						"Estado"=> $estado
 					);
 				}
 				return json_encode($datos);
-				// *Transforma el array en string
 			// }else{
 				// return 'error';
 			// }
 			$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function IngresaCliente(){
+		try{
+			//*Se establece la conexión con la BD
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$codRestauracionHash = $this->randomCode();
+			$estado = 1; //* El estado es 1 por defecto
+			// !Falta generar el cod de restauracion
+			$telefono = 'NULL';
+			//*Se encripta la contraseña para ser almacenada en la BD
+			$password_hash = password_hash($this->getPassword(), PASSWORD_DEFAULT, ['cost'=>12]);
+			//*Se prepara la consulta
+			$stmt=$conn->prepare("call registroCliente (
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				?,
+				@out_value)");//*Representa el valor output
+				
+			//*Se pasan los parámetros a la consulta
+			$stmt->bind_param('ssissss', $this->getNombre(), $this->getApellidos(), $estado, $this->getCorreo(), $password_hash, $telefono, $codRestauracionHash);
+			//*Se ejecuta la consulta en BD
+			$stmt->execute();
+			//*Se obtiene el resultado
+			$stmt->bind_result($result);
+
+			//*Se comprueba la respuesta
+				if($stmt->fetch()>0){
+					return $result;
+				}else{
+					return 'Ha ocurrido un error';
+				}
+			
+			//*Se libera la respuesta en BD
+			$stmt->free_result();
+
+		}catch (Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function cargaCliente($id){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare('call  CargaModal(?)');
+			//*Se pasan los parámetros a la consulta
+			 $stmt->bind_param('i', $id);
+			//*Se ejecuta la consulta en BD
+			$stmt->execute();
+			//*Se obtiene el resultado
+			$stmt->bind_result($idCliente, $nombre, $apellidos, $correo, $idEstado ,$telefono);
+			$datos = array();
+			// if($stmt->fetch()>0){
+				while($stmt->fetch()){
+					$datos[]=array(
+						"id"=>$idCliente,
+						"Nombre"=>$nombre,
+						"Apellidos"=>$apellidos,
+						"Correo"=>$correo,
+						"idEstado"=>$idEstado,
+						"Telefono"=>$telefono
+					);
+					return json_encode($datos);
+				}
+			// }else{
+				// return 'error';
+			// }
+			$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function eliminaCliente($id){
+		$db = connection::getInstance();
+		$conn = $db->getConnection();		
+		$stmt=$conn->prepare("call eliminarCliente(
+			?,
+			@out_value)");//*Representa el valor output
+			
+		//*Se pasan los parámetros a la consulta
+		$stmt->bind_param('i', $id);
+		//*Se ejecuta la consulta en BD
+		$stmt->execute();
+		//*Se obtiene el resultado
+		$stmt->bind_result($result);
+		//*Se comprueba la respuesta
+			if($stmt->fetch()>0){
+				return $result;
+			}else{
+				return 'Ha ocurrido un error';
+			}
+		
+		//*Se libera la respuesta en BD
+		$stmt->free_result();
+	}
+
+	public function ActualizarCliente(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare('call actualizaCliente(
+				?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt->bind_param('issssi', $this->getIdCliente(), $this->getNombre(), $this->getApellidos(),  $this->getCorreo(), $this->getTelefono(), $this->getIdEstado());
+			$stmt->execute();
+			$stmt->bind_result($result);
+			if($stmt->fetch()>=0){
+				echo $result;
+			}else{
+				// echo $result;
+				echo "<script>alert($result);</script>";
+			}
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}

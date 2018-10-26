@@ -1,3 +1,14 @@
+<?php 
+session_start();
+
+require 'templates/session.php';
+
+$sesionUsuario = new Sesion();
+
+$sesionUsuario->validarSesion();
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 

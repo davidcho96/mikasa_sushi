@@ -31,9 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tipocoberturas->setCoberturas($arraycoberturas);
 
             echo $tipocoberturas->IngresarTipoCoberturas($_SESSION['user'][1]);
-            // echo json_encode($arraycoberturas);
-            // echo json_encode($tipocoberturas->getCoberturas());
-            // $tipocoberturas->setNombre();
+
         }
         break;
         

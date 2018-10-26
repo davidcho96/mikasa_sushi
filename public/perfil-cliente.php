@@ -1,9 +1,15 @@
-<?php
-//* Validamos la existencia de la sesión y el tipo de usuario que solicita el acceso
-    session_start();
-    if(!isset($_SESSION['user']) || $_SESSION['user'] == '' || $_SESSION['user'][0] != 'cliente'){
-        header('Location: login.php');
-    }
+<?php 
+session_start();
+
+require 'templates/session.php';
+
+$sesionUsuario = new Sesion();
+
+$sesionUsuario->validarSesionMantenedores();
+
+$sesionUsuario->validacionSesionCliente();
+
+// $sesionUsuario->validarEstadoSesion();
 ?>
 
 <!DOCTYPE html>

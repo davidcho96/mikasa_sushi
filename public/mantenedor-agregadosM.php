@@ -1,3 +1,17 @@
+<?php 
+session_start();
+
+require 'templates/session.php';
+
+$sesionUsuario = new Sesion();
+
+$sesionUsuario->validarSesionMantenedores();
+
+$sesionUsuario->validacionSesionAdmin();
+
+// $sesionUsuario->validarEstadoSesion();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,6 +103,10 @@
         $(document).ready(function(){
             cargarComboEstadoElemento();
             cargarMantenedorAgregados();
+            setInterval(function(){
+                cargarComboEstadoElemento();
+                cargarMantenedorAgregados();
+            }, 25000);
             $('#modal_mantenedor_agregado').modal({
                 onCloseEnd: function() {
                 $('#form_mantenedor_agregado')[0].reset();

@@ -1,3 +1,17 @@
+<?php 
+session_start();
+
+require 'templates/session.php';
+
+$sesionUsuario = new Sesion();
+
+$sesionUsuario->validarSesionMantenedores();
+
+$sesionUsuario->validacionSesionAdmin();
+
+// $sesionUsuario->validarEstadoSesion();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,6 +75,9 @@
     <script>
     $(document).ready(function(){
         CargarTablaTipoPago();
+        setInterval(function(){
+            CargarTablaTipoPago();
+        }, 25000);
         $('#modal_mantenedor_tipo_pago').modal({
                 dismissible: true,
                 onCloseEnd: function() {

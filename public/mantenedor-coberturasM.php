@@ -1,3 +1,17 @@
+<?php 
+session_start();
+
+require 'templates/session.php';
+
+$sesionUsuario = new Sesion();
+
+$sesionUsuario->validarSesionMantenedores();
+
+$sesionUsuario->validacionSesionAdmin();
+
+// $sesionUsuario->validarEstadoSesion();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -92,6 +106,12 @@
             cargarMantenedorCoberturas();
             cargarIndiceCobertura();
             cargarTotalIndiceCoberturas();
+            setInterval(function(){
+                cargarComboEstadoElemento();
+                cargarMantenedorCoberturas();
+                cargarIndiceCobertura();
+                cargarTotalIndiceCoberturas();
+            }, 25000);
             $('#modal_mantenedor_cobertura').modal({
                 dismissible: true,
                 onCloseEnd: function() {

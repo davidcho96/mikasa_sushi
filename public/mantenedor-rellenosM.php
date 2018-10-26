@@ -1,3 +1,17 @@
+<?php 
+session_start();
+
+require 'templates/session.php';
+
+$sesionUsuario = new Sesion();
+
+$sesionUsuario->validarSesionMantenedores();
+
+$sesionUsuario->validacionSesionAdmin();
+
+// $sesionUsuario->validarEstadoSesion();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,6 +101,12 @@
             cargarMantenedorRellenos();
             cargarIndiceRelleno();
             cargarTotalIndiceRellenos();
+            setInterval(function(){
+                argarComboEstadoElemento()
+                cargarMantenedorRellenos();
+                cargarIndiceRelleno();
+                cargarTotalIndiceRellenos();
+            }, 25000);
             $('#modal_mantenedor_relleno').modal({
                 dismissible: true,
                 onCloseEnd: function() {

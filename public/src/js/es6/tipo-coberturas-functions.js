@@ -62,6 +62,7 @@ function cargarCheckboxCoberturas(estado, caracter) {
           break;
         default:
           //* Por defecto los datos serán cargados en pantalla
+          cargaHtml += '<div id="error_checkbox_coberturas"></div>';
           $.each(arr, function(indice, item) {
             cargaHtml += '<p>';
             cargaHtml += '<label>';
@@ -126,27 +127,33 @@ $('#form_mantenedor_tipo_coberturas').validate({
       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
       .attr('data-error', error.text()); //*Se obtiene el texto de erro
     error.insertAfter(element); //*Se inserta el error después del elemento
+    if (element.attr('type') == 'checkbox') {
+      error.insertAfter(
+        $(element)
+          .parents('#carga_chekbox_cobertura')
+          .prev($('#error_checkbox_coberturas'))
+      );
+    }
   },
   rules: {
     txt_nombre: {
       required: true,
       minlength: 3,
       maxlength: 100
+    },
+    'coberturas_check[]': {
+      required: true
     }
-    // 'coberturas_check[]': {
-    //   required: true
-    // }
-    // !Falta validar los checkbox
   },
   messages: {
     txt_nombre: {
       required: 'Campo requerido *',
       minlength: 'Mínimo 3 caracteres',
       maxlength: 'Máximo 100 caracteres'
+    },
+    'coberturas_check[]': {
+      required: 'Selecciona al menos una opción'
     }
-    // 'coberturas_check[]': {
-    //   required: 'Selecciona una opción'
-    // }
   },
   invalidHandler: function(form) {
     //*Acción a ejecutar al no completar todos los campos requeridos

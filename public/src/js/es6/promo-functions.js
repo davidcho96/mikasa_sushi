@@ -317,7 +317,7 @@ $('#form_mantenedor_promo_cliente').validate({
     },
     txt_precio_promo: {
       required: true,
-      min: 0,
+      min: 1000,
       max: 1000000,
       digits: true
     },
@@ -355,8 +355,8 @@ $('#form_mantenedor_promo_cliente').validate({
     },
     txt_precio_promo: {
       required: 'Campo requerido *',
-      min: 'El valor mínimo es 0',
-      max: 'Valor máximo 1000000',
+      min: 'El valor mínimo es $1000',
+      max: 'Valor máximo $1000000',
       digits: 'Ingresa solo números'
     },
     txt_descuento_promo: {
@@ -710,7 +710,7 @@ $('#form_mantenedor_promo_chef').validate({
     },
     txt_precio_promo_chef: {
       required: true,
-      min: 0,
+      min: 1000,
       max: 1000000,
       digits: true
     },
@@ -744,8 +744,8 @@ $('#form_mantenedor_promo_chef').validate({
     },
     txt_precio_promo_chef: {
       required: 'Campo requerido *',
-      min: 'El valor mínimo es 0',
-      max: 'Valor máximo 1000000',
+      min: 'El valor mínimo es $1000',
+      max: 'Valor máximo $1000000',
       digits: 'Ingresa solo números'
     },
     txt_descuento_promo_chef: {
@@ -1125,3 +1125,30 @@ $('#txt_precio_promo_chef').change(function() {
     $('#precio_descuento_promo_chef').text('$ ' + precioFinalDescuento);
   }
 });
+
+// *Función para validar la sesión activa del usuario
+function comprobarEstadoSesion() {
+  $.ajax({
+    data: `action=comprobarSesion`,
+    url: '../app/control/despSession.php',
+    type: 'POST',
+    success: function(resp) {
+      console.log(resp);
+      switch (resp) {
+        case '1':
+          swal(
+            'Lo sentimos',
+            'Se ha te ha denegado la utilización de este sistema.',
+            'info'
+          );
+          setTimeout(function() {
+            location.href = 'index-cliente.php';
+          }, 3000);
+          break;
+      }
+    },
+    error: function() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}

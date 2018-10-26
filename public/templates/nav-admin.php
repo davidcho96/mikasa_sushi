@@ -1,4 +1,4 @@
-<?php session_start(); ?>
+
 <ul id="slide-out" class="sidenav">
         <li>
             <div class="user-view background red">
@@ -35,7 +35,7 @@
             <a href="" class="subheader">Gestión</a>
         </li>
         <li>
-            <a href="#!">
+            <a href="mantenedor-empleado.php">
                 <i class="material-icons">supervised_user_circle</i>
                 Usuarios
             </a>
@@ -51,6 +51,12 @@
             <a href="">
                 <i class="material-icons">poll</i>
                 Encuestas
+            </a>
+        </li>
+        <li>
+            <a href="mantenedor-infoContacto.php">
+            <i class="material-icons">contact_phone</i>
+                Información empresa
             </a>
         </li>
         <li>

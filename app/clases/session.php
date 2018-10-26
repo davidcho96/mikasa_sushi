@@ -1,6 +1,6 @@
 <?php
 //* Comprueba si existe una sesión iniciada y redirecciona al menú principal correspondiente
-require '/../../app/db_connection/connection.php';
+// require_once '../db_connection/connection.php';
 
 class Sesion extends connection{
 
@@ -91,39 +91,33 @@ class Sesion extends connection{
     }
 
     public function validarEstadoSesion(){
-            try{
-                // echo 'err';
-                $var = '';
-                if(isset($_SESSION['user'])){
-                    $db = connection::getInstance();
-                    $conn = $db->getConnection();
-                    //*Se prepara el procedimiento almacenado
-                    $stmt=$conn->prepare("call validarSesion(?, ?, @out)");
-                    //* Se pasa el id para obtener la información
-                    $stmt->bind_param('ss', $_SESSION['user'][0], $_SESSION['user'][1]);
-                    //* Se ejecuta
-                    $stmt->execute();
-                    //* Resultados obtenidos de la consulta
-                    $stmt->bind_result($result);
-                    if($stmt->fetch()>0){
-                        // return $result;
-                        // if($result == 1){
-                            // unset($_SESSION["user"]);
-                            // if(isset($_SESSION['user'])){
-                                // }
-                                // return $result;
-                                // }
-                                if($result == 1){
-                                    session_destroy();
-                                    // header('Location: ../../public/index.php');
-                                    echo 1;
-                                }
+        try{
+            if(isset($_SESSION['user'][1])){
+                $db = connection::getInstance();
+                $conn = $db->getConnection();
+                //*Se prepara el procedimiento almacenado
+                $stmt=$conn->prepare('call validarSesion(?, ?, @out_value)');
+                //* Se pasa el id para obtener la información
+                $stmt->bind_param('ss', $_SESSION['user'][0], $_SESSION['user'][1]);
+                //* Se ejecuta
+                $stmt->execute();
+                //* Resultados obtenidos de la consulta
+                $stmt->bind_result($result);
+                $datos = array();
+                if($stmt->fetch()>0){
+                    switch ($result) {
+                        case '1':
+                        unset($_SESSION["user"]);
+                        session_destroy();
+                            header('Location: index.php');
+                        break;
                     }
-                    
-                    $stmt->free_result();
-                }   
-            }catch(Exception $error){
-                echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
-            }
-        }
+                }
+                
+                $stmt->free_result();
+            }   
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+    }
 }

@@ -49,6 +49,7 @@ $('#form_login_cliente').validate({
       url: '../app/control/despCliente.php',
       type: 'POST',
       success: function(resp) {
+        console.log(resp);
         //*Acción a ejecutar si la respuesta existe
         switch (resp) {
           case '1':
@@ -69,7 +70,14 @@ $('#form_login_cliente').validate({
               classes: 'red'
             });
             break;
-            console.log('error');
+          case '4':
+            M.toast({
+              html:
+                'Esta cuenta ya no posee permisos para ingresar al sistema.',
+              displayLength: 3000,
+              classes: 'red'
+            });
+            break;
         }
       },
       error: function() {
@@ -144,6 +152,14 @@ $('#form-login-empleado').validate({
           case 'error':
             M.toast({
               html: 'Los datos ingresador son incorrectos',
+              displayLength: 3000,
+              classes: 'red'
+            });
+            break;
+          case 'errorEstado':
+            M.toast({
+              html:
+                'Esta cuenta ya no posee permisos para ingresar al sistema.',
               displayLength: 3000,
               classes: 'red'
             });

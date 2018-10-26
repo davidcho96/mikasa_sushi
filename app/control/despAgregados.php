@@ -1,14 +1,14 @@
-<?php
+<?php 
+session_start();
 
 require_once "../clases/agregados.php"; //*Clase agregados
 require_once "../clases/inputValidate.php"; //*Clase input para validación de campos
 
-session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $validate = new Input();
     //*Se instancia la clase para la validación de campos
-
+    
     $agregados = new Agregados();
 
     switch($_REQUEST['action']){

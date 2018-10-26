@@ -1,46 +1,44 @@
-function cargaCliente(id) {
-  $('#modal-actualiza-cliente').modal('open');
-  var action = 'CargaCliente';
+function cargaModalEmpleado(id) {
+  $('#modal_actualiza_empleado').modal('open');
+  var action = 'cargaModalEmpleado';
   var mensajeHtml =
-    '<div class="mensaje-precaucion" id="mensaje_precaucion_clientes"><p><b>Cuidado!:</b> Considera que puede que este usuario esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
-  $('#content_mensaje_precaucion_clientes').html(mensajeHtml);
+    '<div class="mensaje-precaucion" id="mensaje_precaucion_empleados"><p><b>Cuidado!:</b> Considera que puede que este usuario esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_empleados').html(mensajeHtml);
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: 'action=' + action + '&id=' + id,
-    url: '../app/control/despCliente.php',
+    url: '../app/control/despEmpleados.php',
     type: 'POST',
     success: function(respuesta) {
-      // alert(respuesta);
       var arr = JSON.parse(respuesta);
       //*Acción a ejecutar si la respuesta existe
       switch (respuesta) {
         case 'error':
-          swal('Error', 'Lo sentimos ha ocurrido un error', 'error');
+          swal('error', 'ocurrio un problema', 'error');
           break;
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arr, function(indice, item) {
-            $('#lbl_id_clientes').text(id);
+            $('#lbl_id_empleados').text(id);
             $("label[for='txt_nombre']").addClass('active');
             $('#txt_nombre').val(item.Nombre);
             $(`label[for='txt_apellidos']`).addClass('active');
             $('#txt_apellidos').val(item.Apellidos);
             $(`label[for='txt_email']`).addClass('active');
             $('#txt_email').val(item.Correo);
-            $(`label[for='txt_telefono']`).addClass('active');
-            $('#txt_telefono').val(item.Telefono);
-            $('#combo_EstadoClientes').val(item.idEstado);
+            $('#combo_EstadoEmpleado').val(item.idEstado);
+            $('#combo_TipoEmpleado2').val(item.idTipoEmpleado);
           });
           break;
       }
     },
     error: function() {
-      swal('Error', 'Lo sentimos ha ocurrido un error', 'error');
+      swal('error', 'Lo sentimos ha ocurrido un error', 'error');
     }
   });
 }
 
-$('#ActualizaCliente').validate({
+$('#ActualizaEmpleados').validate({
   //*Se utiliza jquery validate para validar campos del formulario
   errorClass: 'invalid red-text', //*Clase añadida post-error
   validClass: 'valid',
@@ -68,13 +66,13 @@ $('#ActualizaCliente').validate({
     },
     txt_email: {
       required: true,
-      emailCom: true
+      email: true
     },
-    txt_telefono: {
-      required: true,
-      digits: true,
-      min: 11111111,
-      max: 99999999
+    combo_EstadoClientes: {
+      required: true
+    },
+    combo_TipoEmpleado2: {
+      required: true
     }
   },
   messages: {
@@ -91,13 +89,13 @@ $('#ActualizaCliente').validate({
     },
     txt_email: {
       required: 'Campo requerido *',
-      emailCom: 'Correo inválido (ejemplo: dmc@gmail.com)'
+      email: 'Correo inválido (ejemplo: dmc@gmail.com)'
     },
-    txt_telefono: {
-      required: 'Campo requerido *',
-      digits: 'Solo numeros',
-      min: 'No menor a 7 numeros',
-      max: 'No pueder ser mayor a 8'
+    combo_EstadoClientes: {
+      required: 'Campo requerido *'
+    },
+    combo_TipoEmpleado2: {
+      required: 'Campo requerido *'
     }
   },
   invalidHandler: function(form) {
@@ -119,45 +117,56 @@ $('#ActualizaCliente').validate({
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.value) {
-        let action = 'ActualizaCliente';
-        let idCliente = $('#lbl_id_clientes').text();
+        let action = 'ActualizaEmpleados';
+        let idEmpleado = $('#lbl_id_empleados').text();
         let nombre = $('#txt_nombre').val();
         let apellidos = $('#txt_apellidos').val();
         let email = $('#txt_email').val();
-        let telefono = $('#txt_telefono').val();
-        let idEstado = $('#combo_EstadoClientes').val();
+        let idEstado = $('#combo_EstadoEmpleado').val();
+        let idTipoEmp = $('#combo_TipoEmpleado2').val();
         //*Se envían datos del form y action, al controlador mediante ajax
         $.ajax({
           data: {
-            id: idCliente,
+            id: idEmpleado,
             nombre: nombre,
             apellidos: apellidos,
-            telefono: telefono,
             email: email,
             idEstado: idEstado,
+            idTipoEmp: idTipoEmp,
             action: action
           },
-          url: '../app/control/despCliente.php',
+          url: '../app/control/despEmpleados.php',
           type: 'POST',
           success: function(resp) {
             // alert(resp);
             //*Acción a ejecutar si la respuesta existe
             switch (resp) {
               case '1': //*El cambio se realizó exitosamente
-                // alert(resp);
-                swal('Listo', 'El cliente fue actualizado', 'success');
-                $('#modal-actualiza-cliente').modal('close');
-                CargarTablaClientes();
+                swal(
+                  'Listo',
+                  'Los datos del empleado fueron actualizados',
+                  'success'
+                );
+                $('#modal_actualiza_empleado').modal('close');
+                CargarTablaEmpleados();
                 break;
               case '2':
-                swal('Error', 'El cliente fue eliminado', 'error');
+                swal(
+                  'error',
+                  'Lo sentimos hubo un problema al actualizar los datos.',
+                  'error'
+                );
                 break;
               default:
-                swal('Error', 'Lo sentimos ha ocurrido un error', 'error');
+                swal(
+                  'error',
+                  'Lo sentimos hubo un problema al actualizar los datos.',
+                  'error'
+                );
             }
           },
           error: function() {
-            swal('Error', 'Lo sentimos ha ocurrido un error', 'error');
+            swal('error', 'Lo sentimos ha ocurrido un error', 'error');
           }
         });
       }
@@ -165,9 +174,9 @@ $('#ActualizaCliente').validate({
   }
 });
 
-// *Se cargan los combobox del mantenedor
-function CargaEstadoCliente() {
-  var action = 'CargaEstadoCliente';
+// esta funcion carga el combo box del modal para actualizar el cliente
+function CargaEstadoEmpleadoModal() {
+  var action = 'CargaEstadoEmpleado';
   $('select').formSelect();
   var cargaHtml = '';
   var cargaHtmlFiltro = '';
@@ -180,25 +189,83 @@ function CargaEstadoCliente() {
       // *cargaHtml es para los combobox del formulario
       // *cargaHtmlFiltro es para el combobox de filtro del mantenedor
       var arr = JSON.parse(respuesta);
-      cargaHtml += `<option disabled selected>Estado Cliente</option>`;
+      cargaHtml += `<option disabled selected>Estado Empleado</option>`;
       $.each(arr, function(indice, item) {
         cargaHtml += `<option value='${item.idEstado}'>${item.Estado}</option>`;
       });
-      $('#combo_EstadoClientes').html(cargaHtml);
+      $('#combo_EstadoEmpleado').html(cargaHtml);
     },
     error: function() {
-      swal('Error', 'Lo sentimos ha ocurrido un error', 'error');
+      swal('Error', 'Lo sentimos ha ocurrido un error', 'Error');
     }
   });
 }
+
+// respectivamente se cargan los combobox de tipo Empleado como los de arriba
+function CargaTipoEmpleado() {
+  var action = 'CargaTipoEmpleado';
+  $('select').formSelect();
+  var cargaHtml = '';
+  var cargaHtmlFiltro = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: `action=${action}`,
+    url: '../app/control/despTipoEmpleado.php',
+    type: 'POST',
+    success: function(respuesta) {
+      // *cargaHtml es para los combobox del formulario
+      // *cargaHtmlFiltro es para el combobox de filtro del mantenedor
+      var arr = JSON.parse(respuesta);
+      cargaHtml += `<option disabled selected>Tipo Empleado</option>`;
+      $.each(arr, function(indice, item) {
+        cargaHtml += `<option value='${item.idTipoEmp}'>${
+          item.TipoEmpleado
+        }</option>`;
+      });
+      $('#combo_TipoEmpleado').html(cargaHtml);
+    },
+    error: function() {
+      swal('Error', 'Lo sentimos ha ocurrido un error', 'Error');
+    }
+  });
+}
+
+function CargaTipoEmpleadoModal() {
+  var action = 'CargaTipoEmpleado';
+  $('select').formSelect();
+  var cargaHtml = '';
+  var cargaHtmlFiltro = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: `action=${action}`,
+    url: '../app/control/despTipoEmpleado.php',
+    type: 'POST',
+    success: function(respuesta) {
+      // *cargaHtml es para los combobox del formulario
+      // *cargaHtmlFiltro es para el combobox de filtro del mantenedor
+      var arr = JSON.parse(respuesta);
+      cargaHtml += `<option disabled selected>Tipo Empleado</option>`;
+      $.each(arr, function(indice, item) {
+        cargaHtml += `<option value='${item.idTipoEmp}'>${
+          item.TipoEmpleado
+        }</option>`;
+      });
+      $('#combo_TipoEmpleado2').html(cargaHtml);
+    },
+    error: function() {
+      swal('Error', 'Lo sentimos ha ocurrido un error', 'Error');
+    }
+  });
+}
+
 // cancela el modal
-$('#cancelar_actualizar_cliente').on('click', function(evt) {
+$('#cancelar_actualizar_empleado').on('click', function(evt) {
   evt.preventDefault();
-  $('#modal-actualiza-cliente').modal('close');
+  $('#modal_actualiza_empleado').modal('close');
 });
 
-function EliminarClientes(id) {
-  var action = 'EliminarCliente';
+function EliminarEmpleado(id) {
+  var action = 'EliminarEmpleado';
   swal({
     title: '¿Estás seguro?',
     text:
@@ -211,17 +278,24 @@ function EliminarClientes(id) {
     cancelButtonText: 'Cancelar'
   }).then(result => {
     if (result.value) {
-      // alert(id);
       $.ajax({
         data: 'action=' + action + '&id=' + id,
-        url: '../app/control/despCliente.php',
+        url: '../app/control/despEmpleados.php',
         type: 'POST',
         success: function(resp) {
-          if (parseInt(resp) == 1) {
-            swal('Listo', 'El cliente fue eliminado', 'success');
-            CargarTablaClientes();
-          } else {
-            swal('Error', 'El cliente no pudo ser eliminado', 'error');
+          switch (resp) {
+            case '1':
+              swal('Listo', 'El empleado fue eliminado', 'success');
+              CargarTablaEmpleados();
+              $('#modal_actualiza_empleado').modal('close');
+              break;
+            case '2':
+              swal(
+                'Error',
+                'Lo sentimos pero no puedes eliminar tu cuenta.',
+                'error'
+              );
+              break;
           }
         }
       });
@@ -229,20 +303,21 @@ function EliminarClientes(id) {
   });
 }
 
-function CargarTablaClientes() {
-  var action = 'CargarTablaClientes';
+function CargarTablaEmpleados() {
+  var action = 'CargarTablaEmpleados';
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: `action=${action}`,
-    url: '../app/control/despCliente.php',
+    url: '../app/control/despEmpleados.php',
     type: 'POST',
     success: function(respuesta) {
+      //  alert(respuesta);
       var arr = JSON.parse(respuesta);
       var tabla = '';
       //*Acción a ejecutar si la respuesta existe
       switch (respuesta) {
         case 'error':
-          swal('Error', 'Lo sentimos ha ocurrido un error', 'error');
+          swal('Error', 'Lo sentimos ha ocurrido un error', 'Error');
           break;
         default:
           //* Por defecto los datos serán cargados en pantalla
@@ -250,32 +325,32 @@ function CargarTablaClientes() {
             // var idCliente = item.idCliente;
             tabla += `<tr><td>${item.Nombre}</td>`;
             tabla += `<td>${item.Apellidos}</td>`;
-            tabla += `<td>${item.Telefono}</td>`;
             tabla += `<td>${item.Correo}</td>`;
+            tabla += `<td>${item.TipoEmpleado}</td>`;
             tabla += `<td>${item.Estado}</td>`;
             tabla += `<td  class="center-align"><button class="btn btn-floating tooltipped red darken-4 waves-effect waves-light "
-              data-position="right" data-tooltip="Eliminar" class='delete' id=${
-                item.idCliente
-              } onclick='EliminarClientes(${
-              item.idCliente
+                data-position="right" data-tooltip="Eliminar" class='delete' id=${
+                  item.idEmpleado
+                } onclick='EliminarEmpleado(${
+              item.idEmpleado
             })' ><i class="material-icons">delete</i></button></td>`;
             tabla += `<td><a class="waves-effect red darken-4 waves-light btn modal-trigger" id="${
-              item.idCliente
-            }" onclick='cargaCliente(${
-              item.idCliente
+              item.idEmpleado
+            }" onclick='cargaModalEmpleado(${
+              item.idEmpleado
             })' data-position="right" href="#modal-actualiza-cliente"><i class="material-icons">edit</i></a><td></tr>`;
           });
-          $('#tabla_clientes').html(tabla);
+          $('#tabla_empleados').html(tabla);
           break;
       }
     },
     error: function() {
-      swal('Error', 'Lo sentimos ha ocurrido un error', 'error');
+      swal('Error', 'Lo sentimos ha ocurrido un error', 'Error');
     }
   });
 }
 
-$('#form_registro2').validate({
+$('#form_registro_empleado').validate({
   //*Se utiliza jquery validate para validar campos del formulario
   errorClass: 'invalid red-text', //*Clase añadida post-error
   validClass: 'valid',
@@ -303,18 +378,15 @@ $('#form_registro2').validate({
     },
     txt_email: {
       required: true,
-      emailCom: true
+      email: true
     },
     txt_password: {
       required: true,
       minlength: 10,
       maxlength: 100
     },
-    txt_telefono: {
-      required: true,
-      digits: true,
-      min: 11111111,
-      max: 99999999
+    combo_TipoEmpleado: {
+      required: true
     }
   },
   messages: {
@@ -331,17 +403,14 @@ $('#form_registro2').validate({
     },
     txt_email: {
       required: 'Campo requerido *',
-      emailCom: 'Correo inválido (ejemplo: dmc@gmail.com)'
+      email: 'Correo inválido (ejemplo: dmc@gmail.com)'
     },
     txt_password: {
       required: 'Campo requerido *',
       minlength: 'Mínimo 10 caracteres'
     },
-    txt_telefono: {
-      required: 'Campo requerido *',
-      digits: 'Solo numeros',
-      min: 'No menor a 7 numeros',
-      max: 'No pueder ser mayor a 9'
+    combo_TipoEmpleado: {
+      required: 'Campo requerido *'
     }
   },
   invalidHandler: function(form) {
@@ -363,32 +432,28 @@ $('#form_registro2').validate({
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.value) {
-        var action = 'RegistroClienteMantenedor';
+        var action = 'RegistroEmpleado';
         //*Se envían datos del form y action, al controlador mediante ajax
         $.ajax({
-          data: `${$('#form_registro2').serialize()}&action=${action}`,
-          url: '../app/control/despCliente.php',
+          data: `${$('#form_registro_empleado').serialize()}&action=${action}`,
+          url: '../app/control/despEmpleados.php',
           type: 'POST',
           success: function(resp) {
             //*Acción a ejecutar si la respuesta existe
             switch (resp) {
               case '1':
-                swal('Error', 'El correo ya fue registrado', 'error');
+                swal('error', 'El correo ya fue registrado', 'error');
                 break;
               case '2':
-                swal(
-                  'Listo',
-                  'El cliente fue ingresado correctamente',
-                  'success'
-                );
-                $('#form_registro2')[0].reset();
-                CargarTablaClientes();
-                $('#modal-actualiza-cliente').modal('close');
+                CargarTablaEmpleados();
+                limpiarFormulario();
+                $('#modal_actualiza_empleado').modal('close');
+                swal('Listo', 'El empleado fue registrado', 'success');
                 break;
             }
           },
           error: function() {
-            swal('Error', 'Ups ocurrio un error', 'error');
+            swal('error', 'Ups ocurrio un error', 'error');
           }
         });
       }
@@ -410,16 +475,20 @@ jQuery.validator.addMethod(
   'Ingresa solo letras por favor'
 );
 
-$('#txt_filtro_cliente').on('keyup', function() {
-  var filtroCliente = $(this)
+function limpiarFormulario() {
+  document.getElementById('form_registro_empleado').reset();
+}
+
+$('#txt_filtro_empleados').on('keyup', function() {
+  var filtroEmpleado = $(this)
     .val()
     .toLowerCase();
-  $('#tabla_clientes tr').filter(function() {
+  $('#tabla_empleados tr').filter(function() {
     $(this).toggle(
       $(this)
         .text()
         .toLowerCase()
-        .indexOf(filtroCliente) > -1
+        .indexOf(filtroEmpleado) > -1
     );
   });
 });

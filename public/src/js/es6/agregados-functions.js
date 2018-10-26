@@ -341,7 +341,7 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
     },
     txt_precio_agregado: {
       required: true,
-      min: 0,
+      min: 100,
       max: 1000000,
       digits: true
     },
@@ -380,8 +380,8 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
     },
     txt_precio_agregado: {
       required: 'Campo requerido *',
-      min: 'El valor mínimo es 0',
-      max: 'Valor máximo 1000000',
+      min: 'El valor mínimo es $100',
+      max: 'Valor máximo $1000000',
       digits: 'Ingresa solo números'
     },
     txt_descuento_agregado: {

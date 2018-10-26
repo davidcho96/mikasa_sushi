@@ -311,7 +311,7 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
     txt_precio_relleno: {
       required: 'Campo requerido *',
       min: 'El valor mínimo es 0',
-      max: 'Valor máximo 1000000',
+      max: 'Valor máximo $1000000',
       digits: 'Ingresa solo números'
     },
     combo_estado_elemento: {

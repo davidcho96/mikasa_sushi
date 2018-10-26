@@ -1,3 +1,17 @@
+<?php 
+session_start();
+
+require 'templates/session.php';
+
+$sesionUsuario = new Sesion();
+
+$sesionUsuario->validarSesionMantenedores();
+
+$sesionUsuario->validacionSesionAdmin();
+
+// $sesionUsuario->validarEstadoSesion();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,6 +78,10 @@
     $(document).ready(function(){
         CargarTablaTipoCobertura();
         cargarCheckboxCoberturas();
+        setInterval(function(){
+            CargarTablaTipoCobertura();
+            cargarCheckboxCoberturas();
+        }, 25000);
         $('#modal_mantenedor_tipo_cobertura').modal({
             dismissible: true,
             onCloseEnd: function() {
