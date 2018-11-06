@@ -27,7 +27,6 @@ $sesionUsuario->validarSesion();
     <div class="navbar-fixed">
         <nav class="white">
             <div class="nav">
-                <!-- //!Comprobar animaciones -->
                 <div class="logo-nav-img brand-logo">
                     <a href="#">
                         <img src="dist/img/logo.png" class="nav-image align-center">
@@ -89,30 +88,27 @@ $sesionUsuario->validarSesion();
         <div class="rigth-arrow-slider">
             <i class="fa fa-angle-right fa-4x"></i>
         </div>
-        <ul class="slides">
-            <li>
-                <img src="dist/img/deadpool-1.jpg" class="img-slider">
-                <!-- random image -->
+        <ul class="slides" id="imagenes_slide">
+            <li id="img_uno_index">
+                <!-- <img src="dist/img/deadpool-1.jpg" class="img-slider">
                 <div class="caption center-align">
                     <h2>This is our big Tagline!</h2>
                     <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
-                </div>
+                </div> -->
             </li>
-            <li>
-                <img src="dist/img/darth-vader-1.jpg">
-                <!-- random image -->
+            <li id="img_dos_index">
+                <!-- <img src="dist/img/darth-vader-1.jpg">
                 <div class="caption left-align">
                     <h3>Left Aligned Caption</h3>
                     <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
-                </div>
+                </div> -->
             </li>
-            <li>
-                <img src="dist/img/BVS-1.jpg">
-                <!-- random image -->
+            <li id="img_tres_index">
+                <!-- <img src="dist/img/BVS-1.jpg">
                 <div class="caption right-align">
                     <h3>Right Aligned Caption</h3>
                     <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
-                </div>
+                </div> -->
             </li>
         </ul>
     </div>
@@ -288,37 +284,12 @@ $sesionUsuario->validarSesion();
         <div class="row">
             <div class="col s12 m12 card-panel">
                 <h4>Contáctate con nosotros</h4>
-                <p>Horario de atención: Lunes a Domingo 11:00 - 23:00</p>
+                <div id="content_estado_apertura_local_index"></div>
+                <p id="info_apertura"></p>
                 <div class="col m4">
                     <img src="dist/img/phone.png" alt="" class="responsive-img hide-on-small-only">
                 </div>
-                <div class="col m4 s12">
-                    <div class="contact-rectangulo card-panel green white-text">
-                        <h5>
-                            <i class="fa fa-whatsapp"></i>
-                            Whatsapp
-                        </h5>
-                        <p>+569 45652531</p>
-                    </div>
-                    <div class="contact-rectangulo card-panel blue white-text">
-                        <h5>
-                            <i class="fa fa-facebook"></i>
-                            Facebook
-                        </h5>
-                        <p>
-                            Síguenos en
-                            <a href="http://www.facebook.com" class="white-text">Facebook/Mikasa-Sushi</a>
-                        </p>
-                    </div>
-                    <div class="contact-rectangulo card-panel red white-text">
-                        <h5>
-                            <i class="fa fa-phone"></i>
-                            Teléfono
-                        </h5>
-                        <p>
-                            +569 52463258
-                        </p>
-                    </div>
+                <div class="col m4 s12" id="content_info_contacto_index">
                 </div>
                 <div class="col m4 s12">
                     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1882.869529105411!2d-72.35467414346569!3d-37.4702484360825!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x966bdd483f9ed729%3A0xc454d56705ec587a!2zTGF1dGFybyA1ODIsIExvcyBBbmdlbGVzLCBMb3Mgw4FuZ2VsZXMsIFJlZ2nDs24gZGVsIELDrW8gQsOtbw!5e0!3m2!1ses!2scl!4v1529483339185"
@@ -366,14 +337,19 @@ $sesionUsuario->validarSesion();
 </body>
 
 
-<!-- <script src="../node_modules/jquery/dist/jquery.min.js"></script>
-<script src="../node_modules/materialize-css/dist/js/materialize.min.js"></script>
-<script src="../node_modules/wowjs/dist/wow.min.js"></script>
-<script src="../node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="src/js/es5/script.js"></script> -->
 <script src="dist/js/script.min.js"></script>
+<script src="src/js/es6/imagenes-index.js"></script>
 <script>
     new WOW().init();
+    $(document).ready(function(){
+        cargarImagenesIndex();
+        CargarDatosInfoEmpresaIndex();
+        CargarTablaInfoContactoIndex();
+        setInterval(function(){
+            CargarDatosInfoEmpresaIndex();
+            CargarTablaInfoContactoIndex();
+        }, 25000);
+    });
 </script>
 
 </html>

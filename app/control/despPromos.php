@@ -1,9 +1,9 @@
 <?php
+session_start();
 
 require_once '../clases/promos.php';
 require_once '../clases/inputValidate.php';
 
-session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $validate = new Input();
@@ -14,6 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     switch($_REQUEST['action']){
         case 'CargarMantenedorPromosCliente';
             echo $promos->CargarMantenedorPromosCliente();
+        break;
+        case 'CargarPromosCarta';
+            echo $promos->CargarPromosCarta();
         break;
         case 'IngresarPromoCliente':
         if($validate->check(['nombre', 'cantidad', 'precio', 'descuento', 'estado'], $_REQUEST)){

@@ -421,7 +421,7 @@ class Promos extends connection{
                 }else{
                     foreach ($arrayAgregados as $key=>$valor) {
                         $stmt2 = $conn->prepare("CALL actualizarDetallePromoChef(?, ?, ?, ?, ?, @out_value)");
-                        $stmt2->bind_param("iiiis", $valor[0], $null, $valor[1],  $this->getIdPromo(), $correo);
+                        $stmt2->bind_param("iiiis", $valor[1], $null, $valor[0],  $this->getIdPromo(), $correo);
                         if($stmt2->execute()){
                             $errorFor = 1;
                             $stmt2->free_result();
@@ -459,5 +459,40 @@ class Promos extends connection{
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
+    }
+// ---------------------------------------------------------------------------
+
+    public function CargarPromosCarta(){
+        try{
+            $db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call cargarPromosCarta()');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($idPromo, $nombre, $precio, $descuento, $idTipoPromo, $tipoPromo, $idTipoPreparacion, $tipoElaboracion, $imgUrl, $estado, $idEstado);
+            $datos = array();
+            // if($stmt->fetch()>0){
+                while($stmt->fetch()){
+                    $datos[]=array(
+                        "IdPromo"=>$idPromo,
+                        "Nombre"=>$nombre,
+                        "Precio"=>$precio,
+                        "Descuento"=>$descuento,
+                        "IdTipoPromo"=>$idTipoPromo,
+                        "TipoPromo"=>$tipoPromo,
+                        "IdTipoPreparacion"=>$idTipoPreparacion,
+                        "TipoPreparacion"=>$tipoElaboracion,
+                        "ImgUrl"=>$imgUrl,
+                        "Estado"=>$estado,
+                        "IdEstado"=>$idEstado
+                    );
+                }
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+        }catch(Exception $error){
+            echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+        }
     }
 }

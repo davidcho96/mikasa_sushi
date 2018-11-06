@@ -150,7 +150,11 @@ $('#ActualizaCliente').validate({
                 CargarTablaClientes();
                 break;
               case '2':
-                swal('Error', 'El cliente fue eliminado', 'error');
+                swal(
+                  'Error',
+                  'El correo ingresado ya existe en nuestros registros.',
+                  'error'
+                );
                 break;
               default:
                 swal('Error', 'Lo sentimos ha ocurrido un error', 'error');
@@ -250,16 +254,20 @@ function CargarTablaClientes() {
             // var idCliente = item.idCliente;
             tabla += `<tr><td>${item.Nombre}</td>`;
             tabla += `<td>${item.Apellidos}</td>`;
-            tabla += `<td>${item.Telefono}</td>`;
+            if (item.Telefono !== null) {
+              tabla += `<td>+569 ${item.Telefono}</td>`;
+            } else {
+              tabla += `<td>Sin teléfono</td>`;
+            }
             tabla += `<td>${item.Correo}</td>`;
             tabla += `<td>${item.Estado}</td>`;
-            tabla += `<td  class="center-align"><button class="btn btn-floating tooltipped red darken-4 waves-effect waves-light "
+            tabla += `<td  class="center-align"><button class="btn btn-floating tooltipped waves-effect waves-light red"
               data-position="right" data-tooltip="Eliminar" class='delete' id=${
                 item.idCliente
               } onclick='EliminarClientes(${
               item.idCliente
             })' ><i class="material-icons">delete</i></button></td>`;
-            tabla += `<td><a class="waves-effect red darken-4 waves-light btn modal-trigger" id="${
+            tabla += `<td><a class="waves-effect waves-light blue btn-floating modal-trigger" id="${
               item.idCliente
             }" onclick='cargaCliente(${
               item.idCliente

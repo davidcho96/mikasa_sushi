@@ -2,6 +2,7 @@
 
 //*Bd = Base de datos
 
+
 require_once "../db_connection/connection.php"; //*Se requiere a la clase conexión
 
 class Cliente extends connection{ //*Se hereda la clase de conexión
@@ -9,7 +10,6 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
     private $nombre;
     private $apellidos;
     private $idEstado;
-    private $idSexo;
     private $correo;
     private $password;
 	private $telefono;
@@ -46,14 +46,6 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 
 	public function setIdEstado($idEstado){
 		$this->idEstado = $idEstado;
-	}
-
-	public function getIdSexo(){
-		return $this->idSexo;
-	}
-
-	public function setIdSexo($idSexo){
-		$this->idSexo = $idSexo;
 	}
 
 	public function getCorreo(){
@@ -206,8 +198,8 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 						"Correo"=>$correo,
 						"Telefono"=>$telefono
 					);
-					return json_encode($datos);
 				}
+				return json_encode($datos);
 			// }else{
 				// return 'error';
 			// }
@@ -235,7 +227,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 				echo $result;
 			}else{
 				// *Error en la ejecución
-				echo '2';
+				echo 3;
 			}
 			$stmt->free_result();
 		}catch(Exception $error){
@@ -403,8 +395,8 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 						"idEstado"=>$idEstado,
 						"Telefono"=>$telefono
 					);
-					return json_encode($datos);
 				}
+				return json_encode($datos);
 			// }else{
 				// return 'error';
 			// }
@@ -453,6 +445,64 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 				// echo $result;
 				echo "<script>alert($result);</script>";
 			}
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function consultarExistenciaCliente(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare("call consultarExistenciaCliente(?,
+			@out_value)");
+			//*Se pasan los parámetros a la consulta
+			$stmt->bind_param('s', $this->getCorreo());
+			//*Se ejecuta la consulta en BD
+			$stmt->execute();
+			//*Se obtiene el resultado
+			$stmt->bind_result($result);
+			//*Se comprueba la respuesta
+			if($stmt->fetch()>0){
+				switch($result){
+					case 'errorExistencia':
+						return 2;
+					break;
+					case 'errorEstado':
+						return 3;
+					break;
+					default:
+						return 1;
+					break;
+				}
+			}
+			//*Se libera la respuesta en BD
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function recuperarPass(){
+		try{
+			// *Se encripta la pass para ser ingresada en la BD
+			$password_ = password_hash($this->getPassword(), PASSWORD_DEFAULT, ['cost'=>12]);
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			// *Se prepara la query 
+			$stmt=$conn->prepare('call recuperarPassCliente (?, ?, @out_value)');
+			// *Se pasan los valores a la query
+			$stmt->bind_param('ss', $password_, $this->getIdCliente());
+			// *Se ejecuta la query
+			$stmt->execute();
+			// *Se obtiene el resultado de la query
+			$stmt->bind_result($result);
+			if($stmt->fetch()>0){
+				echo $result;
+			}else{
+				// *Error
+				echo '2';
+			}
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}

@@ -52,6 +52,9 @@ class InfoEmpresa extends connection{
     public function cargarDatosInfoEmpresa(){
         try{
 			date_default_timezone_set("America/Santiago");
+			$dias = array('Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
+			$diaActual = date('N');
+
 			$horaActual = date('H:i');
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
@@ -68,7 +71,8 @@ class InfoEmpresa extends connection{
 						"horaCierre"=>$horaCierre,
                         "diaInicio"=>$diaInicio,
 						"diaFinal"=>$diaFinal,
-						"horaActual"=>$horaActual
+						"horaActual"=>$horaActual,
+						"diaSemana"=>$diaActual
 					);
 				}
 				return json_encode($datos);

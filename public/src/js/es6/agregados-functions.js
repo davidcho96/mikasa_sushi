@@ -37,7 +37,7 @@ function cargarMantenedorAgregados(estado, caracter) {
               arrayNoEnCarta.push(item.Nombre);
             }
 
-            cargaHtml += '<div class="col s12 m4 l4">';
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += `<div class="descuento"><p class="center-align">-${
               item.Descuento
@@ -467,7 +467,7 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
             console.log('Imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('No Imagen');
+            console.log(formData);
           }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
@@ -478,6 +478,7 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
           contentType: false,
           processData: false,
           success: function(resp) {
+            console.log(resp);
             //*Acción a ejecutar si la respuesta existe
             switch (resp) {
               case '1':

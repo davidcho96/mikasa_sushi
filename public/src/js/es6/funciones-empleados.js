@@ -19,7 +19,7 @@ function cargaModalEmpleado(id) {
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arr, function(indice, item) {
-            $('#lbl_id_empleados').text(id);
+            $('#lbl_id_empleados').val(id);
             $("label[for='txt_nombre']").addClass('active');
             $('#txt_nombre').val(item.Nombre);
             $(`label[for='txt_apellidos']`).addClass('active');
@@ -66,7 +66,7 @@ $('#ActualizaEmpleados').validate({
     },
     txt_email: {
       required: true,
-      email: true
+      emailCom: true
     },
     combo_EstadoClientes: {
       required: true
@@ -89,7 +89,7 @@ $('#ActualizaEmpleados').validate({
     },
     txt_email: {
       required: 'Campo requerido *',
-      email: 'Correo inválido (ejemplo: dmc@gmail.com)'
+      emailCom: 'Correo inválido (ejemplo: dmc@gmail.com)'
     },
     combo_EstadoClientes: {
       required: 'Campo requerido *'
@@ -118,7 +118,7 @@ $('#ActualizaEmpleados').validate({
     }).then(result => {
       if (result.value) {
         let action = 'ActualizaEmpleados';
-        let idEmpleado = $('#lbl_id_empleados').text();
+        let idEmpleado = $('#lbl_id_empleados').val();
         let nombre = $('#txt_nombre').val();
         let apellidos = $('#txt_apellidos').val();
         let email = $('#txt_email').val();
@@ -152,14 +152,14 @@ $('#ActualizaEmpleados').validate({
                 break;
               case '2':
                 swal(
-                  'error',
-                  'Lo sentimos hubo un problema al actualizar los datos.',
+                  'Error',
+                  'El correo ingresado ya existe en nuestros registros.',
                   'error'
                 );
                 break;
               default:
                 swal(
-                  'error',
+                  'Error',
                   'Lo sentimos hubo un problema al actualizar los datos.',
                   'error'
                 );
@@ -328,13 +328,13 @@ function CargarTablaEmpleados() {
             tabla += `<td>${item.Correo}</td>`;
             tabla += `<td>${item.TipoEmpleado}</td>`;
             tabla += `<td>${item.Estado}</td>`;
-            tabla += `<td  class="center-align"><button class="btn btn-floating tooltipped red darken-4 waves-effect waves-light "
+            tabla += `<td  class="center-align"><button class="btn btn-floating tooltipped waves-effect waves-light red"
                 data-position="right" data-tooltip="Eliminar" class='delete' id=${
                   item.idEmpleado
                 } onclick='EliminarEmpleado(${
               item.idEmpleado
             })' ><i class="material-icons">delete</i></button></td>`;
-            tabla += `<td><a class="waves-effect red darken-4 waves-light btn modal-trigger" id="${
+            tabla += `<td><a class="waves-effect waves-light blue btn btn-floating modal-trigger" id="${
               item.idEmpleado
             }" onclick='cargaModalEmpleado(${
               item.idEmpleado
@@ -378,11 +378,11 @@ $('#form_registro_empleado').validate({
     },
     txt_email: {
       required: true,
-      email: true
+      emailCom: true
     },
     txt_password: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 100
     },
     combo_TipoEmpleado: {
@@ -403,11 +403,12 @@ $('#form_registro_empleado').validate({
     },
     txt_email: {
       required: 'Campo requerido *',
-      email: 'Correo inválido (ejemplo: dmc@gmail.com)'
+      emailCom: 'Correo inválido (ejemplo: dmc@gmail.com)'
     },
     txt_password: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres'
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres'
     },
     combo_TipoEmpleado: {
       required: 'Campo requerido *'
@@ -439,6 +440,7 @@ $('#form_registro_empleado').validate({
           url: '../app/control/despEmpleados.php',
           type: 'POST',
           success: function(resp) {
+            console.log(resp);
             //*Acción a ejecutar si la respuesta existe
             switch (resp) {
               case '1':

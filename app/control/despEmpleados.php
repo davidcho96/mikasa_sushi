@@ -2,9 +2,16 @@
 
 require_once "../clases/empleado.php"; //*Clase empleado
 require_once "../clases/inputValidate.php"; //*Clase Input para validación de campos
+require "../PHPMailer-master/src/PHPMailer.php";
+require "../PHPMailer-master/src/Exception.php";
+require "../PHPMailer-master/src/SMTP.php";
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 session_start();
 
+$mail = new PHPMailer;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de solicitud sea 'POST'
     $validate = new Input();
     //*Se instancia la clase para la validación de campos
@@ -27,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     switch($empleado->login()){
                         case '1':
                             echo '1'; 
-                            $array_session = array('admin', $empleado->getCorreo());
+                            $array_session = array('Administrador', $empleado->getCorreo());
                             //* Registro exitoso
                             if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
                                 $_SESSION['user'] = $array_session;
@@ -35,7 +42,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                         break;
                         case '2':
                             echo '2'; 
-                            $array_session = array('repartidor', $empleado->getCorreo());
+                            $array_session = array('Repartidor', $empleado->getCorreo());
+                            if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
+                                $_SESSION['user'] = $array_session;
+                            }
+                        break;
+                        case '3':
+                            echo '2'; 
+                            $array_session = array('Vendedor', $empleado->getCorreo());
                             if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
                                 $_SESSION['user'] = $array_session;
                             }
@@ -51,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
             break;
             // funcion para el registro del mantenedor empleado
             case 'RegistroEmpleado':
-                if($validate->check(['txt_nombre', 'txt_apellidos', 'txt_email', 'txt_password','combo_TipoEmpleado'], $_REQUEST)){
+                if($validate->check(['txt_nombre', 'txt_apellidos', 'txt_email', 'txt_password'], $_REQUEST)){
                     
                     $nombre = $validate->str($_POST['txt_nombre'], '45', '3');
                     //*Llama al método str, y pasa parámetros (*campo, *maxLength, *minLength)
@@ -62,18 +76,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     $correo=$validate->email($_POST['txt_email']);
                     //*El método email solo valida que el formato del campo sea email
 
-                    $password= $validate->pass($_POST['txt_password'], '100', '10');
-                    $combo_TipoEmpleado = $validate->int($_POST['combo_TipoEmpleado']);
+                    $password= $validate->pass($_POST['txt_password'], '100', '7');
+                    // $combo_TipoEmpleado = $validate->int($_POST['combo_TipoEmpleado']);
                     //*Recibe la acción a ejecutar
 
                     //*Setea parámetros en la clase Cliente
-                    $empleado->setIdTipoEmpleado($combo_TipoEmpleado);
+                    $empleado->setIdTipoEmpleado($_POST['combo_TipoEmpleado']);
                     $empleado->setPassword($password);
                     $empleado->setCorreo($correo);
                     $empleado->setNombre($nombre);
                     $empleado->setApellidos($apellidos);
 
-                    $empleado->IngresaEmpleado();
+                    switch($empleado->IngresaEmpleado()){
+                        case '1':
+                            echo 1;
+                        break;
+                        case '2':
+                            echo 2;                        // $mail->IsSMTP();                                      // Set mailer to use SMTP
+                        // $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
+                        // $mail->SMTPAuth = true;                               // Enable SMTP authentication
+                        // $mail->Username = 'davidchomc8@gmail.com';                 // SMTP username
+                        // $mail->Password = 'dmc28ra09';                           // SMTP password
+                        // $mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
+                        // $mail->Port = 465;                                    // TCP port to connect to
+
+                        // $mail->setFrom('davidchomc8@gmail.com', 'Mikasa Sushi');
+                        // $mail->addAddress($empleado->getCorreo(), $empleado->getNombre());     
+
+                        // $mail->Subject = 'Gracias por unirte a Mikasa';
+                        // $mail->Body    = 'Saludos';
+
+                        // if(!$mail->send()) {
+                        //     echo 1;
+                        // } else {
+                        //     echo 2;
+                        // }
+                        // !No envía con red Inacap
+                        break;
+                    }
                 }else{
                     echo '2';
                 }
@@ -81,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
             // ----------------------------------------------------------------
             // Funcion para cargar las tablas con los datos de los empleados
             case 'CargarTablaEmpleados':
-                    echo $empleado->cargarTablaEmpleados();
+                    echo $empleado->cargarTablaEmpleados($_SESSION['user'][1]);
                 break;
             // la funcion nos permite eliminar un registro de la tabla
             case 'EliminarEmpleado':

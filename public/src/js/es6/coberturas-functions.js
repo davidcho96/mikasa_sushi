@@ -42,7 +42,7 @@ function cargarMantenedorCoberturas(estado, caracter) {
               arrayNoEnCarta.push(item.Nombre);
             }
 
-            cargaHtml += '<div class="col s12 m4 l4">';
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml +=
               '<div class="card-image waves-effect waves-block waves-light">';
@@ -53,7 +53,7 @@ function cargarMantenedorCoberturas(estado, caracter) {
               item.Nombre
             }<i class="material-icons right">more_vert</i></span>`;
             cargaHtml += '<div class="precios-productos">';
-            cargaHtml += `<span class="grey-text text-darken-4">Precio Adicional: $${
+            cargaHtml += `<span class="grey-text text-darken-4">Precio: $${
               item.Precio
             }</span>`;
             // *Si el indice es igual a 'Ninguno' el texto se marca en rojo
@@ -481,9 +481,10 @@ function cargarTotalIndiceCoberturas() {
           );
           break;
         default:
-          cargaHtml += `<p>${respuesta}</p>`;
-          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="sumarIndiceCobertura()"><i class="fa fa-plus"></i></a>`;
-          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceCobertura(${respuesta})"><i class="fa fa-minus"></i></a>`;
+          cargaHtml += `<p>Opciones disponibles: ${respuesta}`;
+          cargaHtml += `<a class="btn-indice btn-floating btn-medium waves-effect waves-light blue tooltipped" data-position="bottom" data-tooltip="Añadir índice de elección" onclick="sumarIndiceCobertura()"><i class="fa fa-plus"></i></a>`;
+          cargaHtml += `<a class="btn-indice btn-floating btn-medium waves-effect waves-light red tooltipped" data-position="bottom" data-tooltip="Eliminar índice de elección" onclick="restarIndiceCobertura(${respuesta})"><i class="fa fa-minus"></i></a>`;
+          cargaHtml += '</p>';
           $('#indice_cobertura_carga').html(cargaHtml);
           break;
       }
@@ -520,7 +521,7 @@ function restarIndiceCobertura() {
       //*Se envían datos del form y action, al controlador mediante ajax
       swal({
         title: '¿Estás seguro?',
-        text: `Existen ${respuestaDatosVinculados} coberturas vinculadas a este índice, al elimnarlo estos no podrán ser seleccionados por el cliente.`,
+        text: `Existen ${respuestaDatosVinculados} coberturas vinculadas a este índice, al eliminarlo estos no podrán ser seleccionados por el cliente.`,
         type: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -541,7 +542,7 @@ function restarIndiceCobertura() {
                   cargarIndiceCobertura();
                   swal(
                     'Listo',
-                    `Se ha restado un índice, ${respuestaDatosVinculados} coberturas han quedado sin índice de selección, por lo tanto no podràn ser seleccionadas por el cliente.`,
+                    `Se ha restado un índice, ${respuestaDatosVinculados} coberturas han quedado sin índice de selección, por lo tanto no podrán ser seleccionadas por el cliente.`,
                     'success'
                   );
                   break;

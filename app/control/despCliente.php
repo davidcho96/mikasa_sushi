@@ -1,10 +1,16 @@
 <?php
 
-require_once "../clases/cliente.php"; //*Clase cliente
-require_once "../clases/inputValidate.php"; //*Clase Input para validación de campos
+require "../clases/cliente.php"; //*Clase cliente
+require "../clases/inputValidate.php"; //*Clase Input para validación de campos
+require "../PHPMailer-master/src/PHPMailer.php";
+require "../PHPMailer-master/src/Exception.php";
+require "../PHPMailer-master/src/SMTP.php";
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 session_start();
 
+$mail = new PHPMailer;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de solicitud sea 'POST'
 
     $validate = new Input();
@@ -25,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     $correo=$validate->email($_POST['txt_email']);
                     //*El método email solo valida que el formato del campo sea email
 
-                    $password= $validate->pass($_POST['txt_password'], '200', '10');
+                    $password= $validate->pass($_POST['txt_password'], '200', '7');
                     //*Recibe la acción a ejecutar
 
                     // if ($_POST['txt_telefono'] == '') {
@@ -47,12 +53,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                             //*El correo ya está registrado
                         break;
                         case '2':
-                            echo '2';
-                            //*Registro exitoso
-                            $array_session = array('cliente', $cliente->getCorreo());
-                            if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
-                                $_SESSION['user'] = $array_session;
-                            }
+                        // $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
+                        // $mail->SMTPAuth = true;                               // Enable SMTP authentication
+                        // $mail->Username = 'davidchomc8@gmail.com';                 // SMTP username
+                        // $mail->Password = 'clavecorreo';                           // SMTP password
+                        // $mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
+                        // $mail->Port = 465;                                    // TCP port to connect to
+
+                        // $mail->setFrom('davidchomc8@gmail.com', 'Mikasa Sushi');
+                        // $mail->addAddress($cliente->getCorreo(), $cliente->getNombre());     
+
+                        // $mail->Subject = 'Gracias por unirte a Mikasa';
+                        // $mail->Body    = 'Saludos';
+
+                        // if(!$mail->send()) {
+                        //     echo 1;
+                        // } else {
+                        //     //*Registro exitoso
+                        //     $array_session = array('cliente', $cliente->getCorreo());
+                        //     if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
+                        //         $_SESSION['user'] = $array_session;
+                        //     }
+                        //     echo 2;
+                        // }
+                        echo '2';
                         break;
                         
                     }
@@ -73,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     $correo=$validate->email($_POST['txt_email']);
                     //*El método email solo valida que el formato del campo sea email
 
-                    $password= $validate->pass($_POST['txt_password'], '200', '10');
+                    $password= $validate->pass($_POST['txt_password'], '200', '7');
                     //*Recibe la acción a ejecutar
 
                     if ($_POST['txt_telefono'] == '') {
@@ -94,26 +118,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                             echo 1;
                         break;
                         case '2':
-                        $mail = "<!html>
-                        <head>
-                            <tittle>Correo de Bienvenida</tittle>
-                        </head>
-                        <body>
-                            <h1>Saludos</h1>
-                        </body>
-                        </html>";
-                        //Titulo
-                        $titulo = "";
-                        //cabecera
-                        $headers = "MIME-Version: 1.0\r\n"; 
-                        $headers .= "Content-type: text/html; charset=iso-8859-1\r\n"; 
-                        //dirección del remitente 
-                        $headers .= "From: Mikasa < davidchomc8@gmail.com >\r\n";
-                        //Enviamos el mensaje a tu_dirección_email 
-                        $bool = mail("'".$cliente->getCorreo()."'",$titulo,$mail,$headers);
-                        if($bool){
-                            echo 2;
-                        }
+                        echo 2;                        // $mail->IsSMTP();                                      // Set mailer to use SMTP
+                        // $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
+                        // $mail->SMTPAuth = true;                               // Enable SMTP authentication
+                        // $mail->Username = 'davidchomc8@gmail.com';                 // SMTP username
+                        // $mail->Password = 'dmc28ra09';                           // SMTP password
+                        // $mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
+                        // $mail->Port = 465;                                    // TCP port to connect to
+
+                        // $mail->setFrom('davidchomc8@gmail.com', 'Mikasa Sushi');
+                        // $mail->addAddress($cliente->getCorreo(), $cliente->getNombre());     
+
+                        // $mail->Subject = 'Gracias por unirte a Mikasa';
+                        // $mail->Body    = 'Saludos';
+
+                        // if(!$mail->send()) {
+                        //     echo 1;
+                        // } else {
+                        //     echo 2;
+                        // }
+                        // !No envía con red Inacap
                         break;
                     }
                 }else{
@@ -206,7 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
             case'ConfirmarPassCliente':
             if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL') {
                 if($validate->check(['txt_pass_actual'], $_REQUEST)){
-                    $password= $validate->pass($_POST['txt_pass_actual'], '200', '10');
+                    $password= $validate->pass($_POST['txt_pass_actual'], '200', '7');
                     $correo=$validate->email($_SESSION['user'][1]);
                     $cliente->setCorreo($correo);
                     $cliente->setPassword($password);
@@ -226,8 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
 
             case 'CambiarPassCliente':
             if($validate->check(['txt_pass_nueva', 'txt_pass_confirmar'], $_REQUEST)){ 
-                $password1= $validate->pass($_POST['txt_pass_nueva'], '200', '10');
-                $password2= $validate->pass($_POST['txt_pass_confirmar'], '200', '10'); 
+                $password1= $validate->pass($_POST['txt_pass_nueva'], '200', '7');
+                $password2= $validate->pass($_POST['txt_pass_confirmar'], '200', '7'); 
 
                 $correoUser=$validate->email($_SESSION['user'][1]);
 

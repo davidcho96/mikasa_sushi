@@ -25,13 +25,14 @@ $sesionUsuario->validacionSesionAdmin();
 </head>
 <body>
     <?php require 'templates/nav-admin.php' ?>
-    <div class="title-mantenedor">
-        <h1>Gestión Tipos de Coberturas</h1>
-        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" href="#modal_mantenedor_tipo_cobertura"><i class="material-icons">add</i></a>
+    <div class="title-mantenedor center-align">
+        <h1>Gestión Tipos de Coberturas
+        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger tooltipped" data-position="bottom" data-tooltip="Añadir tipo de cobertura" href="#modal_mantenedor_tipo_cobertura"><i class="material-icons">add</i></a>
+        </h1>
     </div>
 
-    <div class="contenido-mantenedor row">
-        <div class="col l6 m8 s12">
+    <div class="contenido-mantenedor row container">
+        <div class="col l12 m12 s12 center-align">
             <div class="input-field">
                 <label for="txt_buscar_tipo_cobertura">Buscar Tipo Coberturas</label>
                 <input type="text" id="txt_buscar_tipo_cobertura">
@@ -78,12 +79,14 @@ $sesionUsuario->validacionSesionAdmin();
     $(document).ready(function(){
         CargarTablaTipoCobertura();
         cargarCheckboxCoberturas();
+        comprobarEstadoSesion();
         setInterval(function(){
+            comprobarEstadoSesion();
             CargarTablaTipoCobertura();
-            cargarCheckboxCoberturas();
+            // cargarCheckboxCoberturas();
         }, 25000);
         $('#modal_mantenedor_tipo_cobertura').modal({
-            dismissible: true,
+            dismissible: false,
             onCloseEnd: function() {
             // $('input[name="coberturas_check"]').removeAttr('checked');
             $('#form_mantenedor_tipo_coberturas')[0].reset();

@@ -10,11 +10,14 @@ class Sesion extends connection{
                 case 'cliente':
                         header('Location: index-cliente.php');
                     break;
-                case 'admin':
+                case 'Administrador':
                         header('Location: index-admin.php');
                     break;
-                case 'repartidor':
+                case 'Repartidor':
                         header('Location: index-repartidor.php');
+                    break;
+                case 'Vendedor':
+                        header('Location: index-vendedor.php');
                     break;
             }
         }
@@ -27,15 +30,15 @@ class Sesion extends connection{
     }
 
     public function validacionSesionAdmin(){
-        if($_SESSION['user'][0] != 'admin'){
+        if($_SESSION['user'][0] != 'Administrador'){
             switch($_SESSION['user'][0]){
                 case 'cliente':
                 header('Location: index-cliente.php');
                 break;
-                case 'vendedor':
+                case 'Vendedor':
                 header('Location: index-vendedor.php');
                 break;
-                case 'repartidor':
+                case 'Repartidor':
                 header('Location: index-repartidor.php');
                 break;
             }  
@@ -45,13 +48,13 @@ class Sesion extends connection{
     public function validacionSesionCliente(){
         if($_SESSION['user'][0] != 'cliente'){
             switch($_SESSION['user'][0]){
-                case 'admin':
+                case 'Administrador':
                 header('Location: index-admin.php');
                 break;
-                case 'vendedor':
+                case 'Vendedor':
                 header('Location: index-vendedor.php');
                 break;
-                case 'repartidor':
+                case 'Repartidor':
                 header('Location: index-repartidor.php');
                 break;
             }  
@@ -64,10 +67,10 @@ class Sesion extends connection{
                 case 'cliente':
                 header('Location: index-cliente.php');
                 break;
-                case 'vendedor':
+                case 'Vendedor':
                 header('Location: index-vendedor.php');
                 break;
-                case 'admin':
+                case 'Administrador':
                 header('Location: index-admin.php');
                 break;
             }  
@@ -75,15 +78,15 @@ class Sesion extends connection{
     }
 
     public function validacionSesionVendedor(){
-        if($_SESSION['user'][0] != 'vendedor'){
+        if($_SESSION['user'][0] != 'Vendedor'){
             switch($_SESSION['user'][0]){
                 case 'cliente':
                 header('Location: index-cliente.php');
                 break;
-                case 'admin':
+                case 'Administrador':
                 header('Location: index-admin.php');
                 break;
-                case 'repartidor':
+                case 'Repartidor':
                 header('Location: index-repartidor.php');
                 break;
             }  
@@ -114,9 +117,12 @@ class Sesion extends connection{
                                 // return $result;
                                 // }
                                 if($result == 1){
-                                    session_destroy();
+                                    // session_destroy();
+                                    return true;
                                     // header('Location: ../../public/index.php');
-                                    echo 1;
+                                    // echo 1;
+                                }else{
+                                    return false;
                                 }
                     }
                     

@@ -16,6 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CargarMantenedorRellenos':
             echo $rellenos->cargarRellenos();
         break;
+        case 'CargarRellenosCarta':
+            echo $rellenos->cargarRellenosCarta();
+        break;
         case 'EliminarRelleno':
             if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL'){
                 $rellenos->setIdRelleno($_POST['id']);

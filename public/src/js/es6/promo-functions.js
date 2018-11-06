@@ -26,7 +26,7 @@ function cargarMantenedorPromosCliente(estado, caracter) {
               arrayNoEnCarta.push(item.Nombre);
             }
 
-            cargaHtml += '<div class="col s12 m4 l4">';
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += `<div class="descuento"><p class="center-align">-${
               item.Descuento
@@ -332,7 +332,7 @@ $('#form_mantenedor_promo_cliente').validate({
     },
     imagen_promo: {
       // required: true,
-      //   extension: 'jpeg|jpg|png'
+      extension: 'jpeg|jpg|png'
     },
     imagen_promo_text: {
       // required: true
@@ -860,7 +860,7 @@ $('#form_mantenedor_promo_chef').validate({
             console.log('No Imagen');
           }
         }
-        console.log(formData);
+        console.log(agregados);
         $.ajax({
           data: formData,
           url: '../app/control/despPromos.php',
@@ -1143,7 +1143,10 @@ function comprobarEstadoSesion() {
           );
           setTimeout(function() {
             location.href = 'index-cliente.php';
-          }, 3000);
+          }, 2000);
+          break;
+        case '2':
+          location.href = 'index.php';
           break;
       }
     },

@@ -171,18 +171,18 @@ var validatorPassFormCliente = $('#form-pass-cliente').validate({
     //*Se establecen reglas de validación para campos del form
     txt_pass_actual: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 100
     },
     txt_pass_nueva: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 100,
       notEqual: '#txt_pass_actual'
     },
     txt_pass_confirmar: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 100,
       equalTo: '#txt_pass_nueva'
     }
@@ -191,19 +191,19 @@ var validatorPassFormCliente = $('#form-pass-cliente').validate({
     //*Se establecen mensajes de error a imprimir
     txt_pass_actual: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres',
-      maxlength: 'Máximo 10 caracteres'
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres'
     },
     txt_pass_nueva: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres',
-      maxlength: 'Máximo 10 caracteres',
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres',
       notEqual: 'La nueva contraseña no puede ser igual a la actual'
     },
     txt_pass_confirmar: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres',
-      maxlength: 'Máximo 10 caracteres',
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres',
       equalTo: 'Las contraseñas no coinciden'
     }
   },

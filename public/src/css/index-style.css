@@ -469,9 +469,24 @@ nav {
   background-color: red;
   color: white;
   padding: 3px;
-  border-radius: 5px;
+  border-radius: 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .mensaje-precaucion-indice p {
-  font-size: 13px;
+  font-size: 100%;
+}
+
+.mantenedor-content {
+  padding: 0 1% 0 1%;
+}
+
+.indices-carga p {
+  font-size: 2rem;
+}
+
+.btn-indice {
+  margin-left: 5px;
+  padding-left: 10px;
 }

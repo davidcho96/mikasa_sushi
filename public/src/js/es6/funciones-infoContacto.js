@@ -158,8 +158,7 @@ $('#form_mantenedor_info_contacto').validate({
     txt_medio_info_contacto: {
       required: true,
       minlength: 3,
-      maxlength: 200,
-      lettersonly: true
+      maxlength: 200
     },
     txt_info_contacto: {
       required: true,
@@ -171,8 +170,7 @@ $('#form_mantenedor_info_contacto').validate({
     txt_medio_info_contacto: {
       required: 'Campo requerido *',
       minlength: 'Mínimo 3 caracteres',
-      maxlength: 'Máximo 200 caracteres',
-      lettersonly: 'Ingresa solo letras'
+      maxlength: 'Máximo 200 caracteres'
     },
     txt_info_contacto: {
       required: 'Campo requerido *',
@@ -263,6 +261,7 @@ function CargarDatosInfoEmpresa() {
       // *Se parsea la respuesta json obtenida
       // *-----------------------------------------------------------------------
       //*Acción a ejecutar si la respuesta existe
+      console.log(respuesta);
       switch (respuesta) {
         case 'error':
           alert('Lo sentimos ha ocurrido un error');
@@ -270,8 +269,10 @@ function CargarDatosInfoEmpresa() {
         default:
           $.each(arr, function(indice, item) {
             if (
-              item.horaActual > item.horaApertura &&
-              item.horaActual < item.horaCierre
+              item.horaActual >= item.horaApertura &&
+              item.horaActual <= item.horaCierre &&
+              item.diaSemana >= item.diaInicio &&
+              item.diaSemana <= item.diaFinal
             ) {
               mensajeEstadoAperturaLocal =
                 '<div class="light-green-text">Ahora abierto</div>';
@@ -326,11 +327,13 @@ $('#form_horas_actividad_empresa').validate({
   rules: {
     txt_hora_inicio: {
       required: true,
-      time24: true
+      time24: true,
+      comparar_hora_menor: true
     },
     txt_hora_final: {
       required: true,
-      time24: true
+      time24: true,
+      comparar_hora_mayor: true
     }
   },
   messages: {
@@ -420,12 +423,14 @@ $('#form_dias_actividad_empresa').validate({
     combo_dia_inicio: {
       required: true,
       min: 1,
-      max: 7
+      max: 7,
+      comparar_dia_menor: true
     },
     combo_dia_final: {
       required: true,
       min: 1,
-      max: 7
+      max: 7,
+      comparar_dia_mayor: true
     }
   },
   messages: {
@@ -508,4 +513,36 @@ $.validator.addMethod(
     return value == '' || value.match(/^([01][0-9]|2[0-3]):[0-5][0-9]$/);
   },
   'Enter a valid time: hh:mm'
+);
+
+$.validator.addMethod(
+  'comparar_dia_menor',
+  function(value, element) {
+    return $('#combo_dia_inicio').val() < $('#combo_dia_final').val();
+  },
+  'El dia de apertura debe ser anterior al dia de cierre'
+);
+
+$.validator.addMethod(
+  'comparar_dia_mayor',
+  function(value, element) {
+    return $('#combo_dia_final').val() > $('#combo_dia_inicio').val();
+  },
+  'El dia de cierre debe ser posterior al dia de apertura'
+);
+
+$.validator.addMethod(
+  'comparar_hora_menor',
+  function(value, element) {
+    return $('#txt_hora_inicio').val() < $('#txt_hora_final').val();
+  },
+  'La hora apertura debe ser anterior a la hora de cierre'
+);
+
+$.validator.addMethod(
+  'comparar_hora_mayor',
+  function(value, element) {
+    return $('#txt_hora_final').val() > $('#txt_hora_inicio').val();
+  },
+  'La hora de cierre debe ser posterior a la hora de apertura'
 );

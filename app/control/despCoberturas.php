@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CargarMantenedorCoberturas';
             echo $coberturas->cargarCoberturas();
         break;
+        case 'CargarCoberturasCarta';
+            echo $coberturas->cargarCoberturasCarta();
+        break;
         case 'EliminarCobertura':
             if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL'){
                 $coberturas->setIdCobertura($_POST['id']);

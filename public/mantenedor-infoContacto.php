@@ -144,11 +144,13 @@ $sesionUsuario->validacionSesionAdmin();
     $(document).ready(function(){
         CargarTablaInfoContacto();
         CargarDatosInfoEmpresa();
+        comprobarEstadoSesion();
         setInterval(function (){
+            comprobarEstadoSesion();
             CargarTablaInfoContacto();
         }, 25000);
         $('#modal_mantenedor_info_contacto').modal({
-                dismissible: true,
+                dismissible: false,
                 onCloseEnd: function() {
                 $('#form_mantenedor_info_contacto')[0].reset();
                 $('#lbl_id_info_contacto').text('');

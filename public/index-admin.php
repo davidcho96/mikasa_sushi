@@ -9,8 +9,6 @@ $sesionUsuario->validarSesionMantenedores();
 
 $sesionUsuario->validacionSesionAdmin();
 
-// $sesionUsuario->validarEstadoSesion();
-
 ?>
 
 
@@ -31,6 +29,14 @@ $sesionUsuario->validacionSesionAdmin();
     <?php require 'templates/nav-admin.php' ?>
 
     <script src="dist/js/script.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            comprobarEstadoSesion();
+            setInterval(function(){
+                comprobarEstadoSesion();
+            },25000);
+        });
+    </script>
 </body>
 
 </html>

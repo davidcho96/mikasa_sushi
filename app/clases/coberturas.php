@@ -225,4 +225,34 @@ class Cobertura extends connection{
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
+
+	public function cargarCoberturasCarta(){
+        try{
+            $db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('select * from `vistaCartaCoberturas` ');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($id, $nombre, $descripcion, $precioAdicional, $idIndice, $indice, $imgUrl);
+            $datos = array();
+			// if($stmt->fetch()>0){
+				while($stmt->fetch()){
+					$datos[]=array(
+                        "IdCobertura"=>$id,
+						"Nombre"=>$nombre,
+						"Descripcion"=>$descripcion,
+						"Precio"=>$precioAdicional,
+						"IdIndice"=>$idIndice,
+                        "Indice"=>$indice,
+						"ImgUrl"=>$imgUrl
+					);
+				}
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+        }catch(Exception $error){
+            echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+        }
+    }
 }

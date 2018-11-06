@@ -37,7 +37,7 @@
         <li>
             <a href="mantenedor-empleado.php">
                 <i class="material-icons">supervised_user_circle</i>
-                Usuarios
+                Empleados
             </a>
         </li>
         <li>
@@ -47,12 +47,12 @@
             </a>
         </li>
         <li>
-        <li>
+        <!-- <li>
             <a href="">
                 <i class="material-icons">poll</i>
                 Encuestas
             </a>
-        </li>
+        </li> -->
         <li>
             <a href="mantenedor-infoContacto.php">
             <i class="material-icons">contact_phone</i>
@@ -119,7 +119,7 @@
             </a>
         </li>
         <li>
-            <a href="!#">
+            <a href="templates/killSession.php" id='cerrar_sesion'>
                 <i class="material-icons">power_settings_new</i>
                 Salir
             </a>

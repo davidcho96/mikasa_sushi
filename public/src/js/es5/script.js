@@ -41,7 +41,7 @@ function cargarMantenedorAgregados(estado, caracter) {
               arrayNoEnCarta.push(item.Nombre);
             }
 
-            cargaHtml += '<div class="col s12 m4 l4">';
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += '<div class="descuento"><p class="center-align">-' + item.Descuento + '%</p></div>';
             cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
@@ -407,7 +407,7 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
             console.log('Imagen');
           } else {
             formData.append('imagenUrl', '');
-            console.log('No Imagen');
+            console.log(formData);
           }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
@@ -418,6 +418,7 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
           contentType: false,
           processData: false,
           success: function success(resp) {
+            console.log(resp);
             //*Acción a ejecutar si la respuesta existe
             switch (resp) {
               case '1':
@@ -501,7 +502,7 @@ function cargarMantenedorCoberturas(estado, caracter) {
               arrayNoEnCarta.push(item.Nombre);
             }
 
-            cargaHtml += '<div class="col s12 m4 l4">';
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
             cargaHtml += '<img class="activator" src="uploads/' + item.ImgUrl + '">';
@@ -509,7 +510,7 @@ function cargarMantenedorCoberturas(estado, caracter) {
             cargaHtml += '<div class="card-content">';
             cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + '<i class="material-icons right">more_vert</i></span>';
             cargaHtml += '<div class="precios-productos">';
-            cargaHtml += '<span class="grey-text text-darken-4">Precio Adicional: $' + item.Precio + '</span>';
+            cargaHtml += '<span class="grey-text text-darken-4">Precio: $' + item.Precio + '</span>';
             // *Si el indice es igual a 'Ninguno' el texto se marca en rojo
             if (item.Indice != 'Ninguno') {
               cargaHtml += '<span class="grey-text text-darken-4" indice-cobertura="' + item.Indice + '">Opci\xF3n de elecci\xF3n: ' + item.Indice + '</span>';
@@ -874,9 +875,10 @@ function cargarTotalIndiceCoberturas() {
           alert('Lo sentimos ha ocurrido un error al cargar la cantidad de indices de cobertura');
           break;
         default:
-          cargaHtml += '<p>' + respuesta + '</p>';
-          cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="sumarIndiceCobertura()"><i class="fa fa-plus"></i></a>';
-          cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceCobertura(' + respuesta + ')"><i class="fa fa-minus"></i></a>';
+          cargaHtml += '<p>Opciones disponibles: ' + respuesta;
+          cargaHtml += '<a class="btn-indice btn-floating btn-medium waves-effect waves-light blue tooltipped" data-position="bottom" data-tooltip="A\xF1adir \xEDndice de elecci\xF3n" onclick="sumarIndiceCobertura()"><i class="fa fa-plus"></i></a>';
+          cargaHtml += '<a class="btn-indice btn-floating btn-medium waves-effect waves-light red tooltipped" data-position="bottom" data-tooltip="Eliminar \xEDndice de elecci\xF3n" onclick="restarIndiceCobertura(' + respuesta + ')"><i class="fa fa-minus"></i></a>';
+          cargaHtml += '</p>';
           $('#indice_cobertura_carga').html(cargaHtml);
           break;
       }
@@ -913,7 +915,7 @@ function restarIndiceCobertura() {
       //*Se envían datos del form y action, al controlador mediante ajax
       swal({
         title: '¿Estás seguro?',
-        text: 'Existen ' + respuestaDatosVinculados + ' coberturas vinculadas a este \xEDndice, al elimnarlo estos no podr\xE1n ser seleccionados por el cliente.',
+        text: 'Existen ' + respuestaDatosVinculados + ' coberturas vinculadas a este \xEDndice, al eliminarlo estos no podr\xE1n ser seleccionados por el cliente.',
         type: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -932,7 +934,7 @@ function restarIndiceCobertura() {
                   cargarTotalIndiceCoberturas();
                   cargarMantenedorCoberturas();
                   cargarIndiceCobertura();
-                  swal('Listo', 'Se ha restado un \xEDndice, ' + respuestaDatosVinculados + ' coberturas han quedado sin \xEDndice de selecci\xF3n, por lo tanto no podr\xE0n ser seleccionadas por el cliente.', 'success');
+                  swal('Listo', 'Se ha restado un \xEDndice, ' + respuestaDatosVinculados + ' coberturas han quedado sin \xEDndice de selecci\xF3n, por lo tanto no podr\xE1n ser seleccionadas por el cliente.', 'success');
                   break;
                 case '2':
                   swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
@@ -1001,6 +1003,7 @@ $(document).ready(function () {
   //* Activa slider
   $('.slider').slider();
   $('.dropdown-trigger').dropdown();
+  $('.tooltipped').tooltip();
 });
 
 // * Activa funciones de cambios de slide en slider de index
@@ -1012,6 +1015,79 @@ $('.left-arrow-slider').click(function () {
   $('.slider').slider('prev');
 });
 // -----------
+
+function CargarDatosInfoEmpresaIndex() {
+  var action = 'cargarDatosInfoEmpresa';
+  var mensajeEstadoAperturaLocal = '';
+  var arraySemanas = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despInfoEmpresa.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          var infoContacto = '';
+          $.each(arr, function (indice, item) {
+            if (item.horaActual >= item.horaApertura && item.horaActual <= item.horaCierre && item.diaSemana >= item.diaInicio && item.diaSemana <= item.diaFinal) {
+              mensajeEstadoAperturaLocal = '<div class="light-green-text">Ahora abierto</div>';
+              $('#content_estado_apertura_local_index').html(mensajeEstadoAperturaLocal);
+            } else {
+              mensajeEstadoAperturaLocal = '<div class="red-text">Ahora cerrado</div>';
+              $('#content_estado_apertura_local_index').html(mensajeEstadoAperturaLocal);
+            }
+
+            $('#info_apertura').html('Horario de atenci\xF3n: ' + arraySemanas[item.diaInicio - 1] + ' a ' + arraySemanas[item.diaFinal - 1] + ' ' + item.horaApertura + ' - ' + item.horaCierre);
+          });
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+function CargarTablaInfoContactoIndex() {
+  var action = 'CargarMantenedorInfoContacto';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despInfoContacto.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            cargaHtml += '<p>' + item.medioContacto + ': ' + item.infoContacto + '</p></br>';
+          });
+
+          $('#content_info_contacto_index').html(cargaHtml);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
 
 function cargaCliente(id) {
   $('#modal-actualiza-cliente').modal('open');
@@ -1163,7 +1239,7 @@ $('#ActualizaCliente').validate({
                 CargarTablaClientes();
                 break;
               case '2':
-                swal('Error', 'El cliente fue eliminado', 'error');
+                swal('Error', 'El correo ingresado ya existe en nuestros registros.', 'error');
                 break;
               default:
                 swal('Error', 'Lo sentimos ha ocurrido un error', 'error');
@@ -1262,11 +1338,15 @@ function CargarTablaClientes() {
             // var idCliente = item.idCliente;
             tabla += '<tr><td>' + item.Nombre + '</td>';
             tabla += '<td>' + item.Apellidos + '</td>';
-            tabla += '<td>' + item.Telefono + '</td>';
+            if (item.Telefono !== null) {
+              tabla += '<td>+569 ' + item.Telefono + '</td>';
+            } else {
+              tabla += '<td>Sin tel\xE9fono</td>';
+            }
             tabla += '<td>' + item.Correo + '</td>';
             tabla += '<td>' + item.Estado + '</td>';
-            tabla += '<td  class="center-align"><button class="btn btn-floating tooltipped red darken-4 waves-effect waves-light "\n              data-position="right" data-tooltip="Eliminar" class=\'delete\' id=' + item.idCliente + ' onclick=\'EliminarClientes(' + item.idCliente + ')\' ><i class="material-icons">delete</i></button></td>';
-            tabla += '<td><a class="waves-effect red darken-4 waves-light btn modal-trigger" id="' + item.idCliente + '" onclick=\'cargaCliente(' + item.idCliente + ')\' data-position="right" href="#modal-actualiza-cliente"><i class="material-icons">edit</i></a><td></tr>';
+            tabla += '<td  class="center-align"><button class="btn btn-floating tooltipped waves-effect waves-light red"\n              data-position="right" data-tooltip="Eliminar" class=\'delete\' id=' + item.idCliente + ' onclick=\'EliminarClientes(' + item.idCliente + ')\' ><i class="material-icons">delete</i></button></td>';
+            tabla += '<td><a class="waves-effect waves-light blue btn-floating modal-trigger" id="' + item.idCliente + '" onclick=\'cargaCliente(' + item.idCliente + ')\' data-position="right" href="#modal-actualiza-cliente"><i class="material-icons">edit</i></a><td></tr>';
           });
           $('#tabla_clientes').html(tabla);
           break;
@@ -1570,18 +1650,18 @@ var validatorPassFormCliente = $('#form-pass-cliente').validate({
     //*Se establecen reglas de validación para campos del form
     txt_pass_actual: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 100
     },
     txt_pass_nueva: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 100,
       notEqual: '#txt_pass_actual'
     },
     txt_pass_confirmar: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 100,
       equalTo: '#txt_pass_nueva'
     }
@@ -1590,19 +1670,19 @@ var validatorPassFormCliente = $('#form-pass-cliente').validate({
     //*Se establecen mensajes de error a imprimir
     txt_pass_actual: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres',
-      maxlength: 'Máximo 10 caracteres'
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres'
     },
     txt_pass_nueva: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres',
-      maxlength: 'Máximo 10 caracteres',
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres',
       notEqual: 'La nueva contraseña no puede ser igual a la actual'
     },
     txt_pass_confirmar: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres',
-      maxlength: 'Máximo 10 caracteres',
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres',
       equalTo: 'Las contraseñas no coinciden'
     }
   },
@@ -1729,6 +1809,342 @@ jQuery.validator.addMethod('notEqual', function (value, element, param) {
 });
 // });
 
+// // *Variables globales utilizadas para la generación de rolls
+// let cantidadPiezasArmaTuPromo = 0;
+// let cantidadOpcionesCoberturas = 2;
+// let cantidadOpcionesRellenos = 0;
+// let arrayRollsCreados = [];
+// // *---------------------------------------------------
+
+// function cargarPromosCarta(estado, caracter) {
+//   var action = 'CargarPromosCarta';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despPromos.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       // *----------------------------------------------------------------------
+//       var arr = JSON.parse(respuesta);
+//       // *Se parsea la respuesta json obtenida
+
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           $.each(arr, function(indice, item) {
+//             // *Se cargarán los datos en el menú index
+//             cargaHtml += '<div class="col s12 m6 l4 xl3">';
+//             cargaHtml += '<div class="card col s12 m12 l12">';
+//             if (item.Descuento > 0) {
+//               cargaHtml += `<div class="descuento"><p class="center-align">-${
+//                 item.Descuento
+//               }%</p></div>`;
+//             }
+//             cargaHtml +=
+//               '<div class="card-image waves-effect waves-block waves-light">';
+//             cargaHtml += `<img class="activator" src="uploads/${item.ImgUrl}">`;
+//             cargaHtml += '</div>';
+//             cargaHtml += '<div class="card-content">';
+//             cargaHtml += `<span class="card-title activator grey-text text-darken-4">${
+//               item.Nombre
+//             }<i class="material-icons right">more_vert</i></span>`;
+//             cargaHtml += '<div class="precios-productos">';
+//             if (item.Descuento > 0) {
+//               cargaHtml += `<span class="grey-text text-darken-4"><strike>Precio normal: $${
+//                 item.Precio
+//               }</strike></span>`;
+//             } else {
+//               cargaHtml += `<span class="grey-text text-darken-4">Precio normal: $${
+//                 item.Precio
+//               }</span>`;
+//             }
+//             cargaHtml += `<span class="grey-text text-darken-4">Precio descuento: $${item.Precio -
+//               (item.Precio / 100) * item.Descuento}</span>`;
+//             cargaHtml += '</div>';
+//             cargaHtml += '<div class="divider"></div>';
+//             cargaHtml += '<div class="btn-mant-productos">';
+
+//             if (item.IdTipoPreparacion == 2) {
+//               cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(${
+//                 item.IdPromo
+//               })"><i class="material-icons">add_shopping_cart</i></a>`;
+//             } else if (item.IdTipoPreparacion == 1) {
+//               cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(${
+//                 item.IdPromo
+//               })"><i class="material-icons">add_shopping_cart</i></a>`;
+//             }
+
+//             cargaHtml += '</div>';
+//             cargaHtml += '</div>';
+//             cargaHtml += '</div>';
+//             cargaHtml += '</div>';
+//           });
+
+//           $('#carga_promos_cliente').html(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para cargar los checkbox de coberturas en arma tu promo
+// function cargarRadioButtonCoberturas(estado, caracter) {
+//   var action = 'CargarCoberturasCarta';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despCoberturas.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       // *----------------------------------------------------------------------
+//       var arr = JSON.parse(respuesta);
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           // *Las coberturas se cargan de forma ordenada según su índice
+//           function groupBy(collection, property) {
+//             var i = 0,
+//               val,
+//               index,
+//               values = [],
+//               result = [];
+//             for (; i < collection.length; i++) {
+//               val = collection[i][property];
+//               index = values.indexOf(val);
+//               if (index > -1) result[index].push(collection[i]);
+//               else {
+//                 values.push(val);
+//                 result.push([collection[i]]);
+//               }
+//             }
+//             return result;
+//           }
+//           var obj = groupBy(arr, 'Indice');
+//           $.each(obj, function(indice, item) {
+//             cargaHtml += '<div class="content_coberturas">';
+//             cargaHtml += `<p>${indice + 1}.- </p>`;
+//             $.each(item, function(i, elementos) {
+//               cargaHtml += '<div class="radio_coberturas">';
+//               cargaHtml += '<p>';
+//               cargaHtml += '<label>';
+//               cargaHtml += `<input name='cobertura${
+//                 elementos.Indice
+//               }' type='radio' nombre='${elementos.Nombre}' value='${
+//                 elementos.IdCobertura
+//               }'></input>`;
+//               cargaHtml += `<span>${elementos.Nombre}</span>`;
+//               cargaHtml += '</label>';
+//               cargaHtml += '</p>';
+//               cargaHtml += '</div>';
+//             });
+//             cargaHtml += '</div>';
+//             $('#carga_chekbox_cobertura').html(cargaHtml);
+//           });
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para cargar los checkbox de rellenos en arma tu promo
+// function cargarRadioButtonRellenos(estado, caracter) {
+//   var action = 'CargarRellenosCarta';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despRellenos.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       // *----------------------------------------------------------------------
+//       var arr = JSON.parse(respuesta);
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           // *Los rellenos se cargan de forma ordenada según su índice
+//           function groupBy(collection, property) {
+//             var i = 0,
+//               val,
+//               index,
+//               values = [],
+//               result = [];
+//             for (; i < collection.length; i++) {
+//               val = collection[i][property];
+//               index = values.indexOf(val);
+//               if (index > -1) result[index].push(collection[i]);
+//               else {
+//                 values.push(val);
+//                 result.push([collection[i]]);
+//               }
+//             }
+//             return result;
+//           }
+//           var obj = groupBy(arr, 'Indice');
+//           $.each(obj, function(indice, item) {
+//             cargaHtml += '<div class="content_rellenos">';
+//             cargaHtml += `<p>${indice + 1}.- </p>`;
+//             $.each(item, function(i, elementos) {
+//               cargaHtml += '<div class="radio_rellenos">';
+//               cargaHtml += '<p>';
+//               cargaHtml += '<label>';
+//               cargaHtml += `<input name='relleno${
+//                 elementos.Indice
+//               }' type='radio' nombre='${elementos.Nombre}' value='${
+//                 elementos.IdRelleno
+//               }'></input>`;
+//               cargaHtml += `<span>${elementos.Nombre}</span>`;
+//               cargaHtml += '</label>';
+//               cargaHtml += '</p>';
+//               cargaHtml += '</div>';
+//             });
+//             cargaHtml += '</div>';
+//             $('#carga_chekbox_rellenos').html(cargaHtml);
+//           });
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Comprueba el tipo de preparación de la promo mediante el id
+// function ComprobarTipoDePromo(id) {
+//   $('#modal_add_arma_tu_promo').modal('open');
+//   cargarRadioButtonCoberturas();
+//   cargarRadioButtonRellenos();
+//   // var action = 'ComprobarTipoDePromo';
+//   // $.ajax({
+//   //   data: {
+//   //     action: action,
+//   //     id: id
+//   //   },
+//   //   url: '../app/control/despPromos.php',
+//   //   type: 'POST',
+//   //   success: function(resp) {
+//   //     if (resp == 2) {
+//   //     }
+//   //   }
+//   // });
+// }
+
+// // *Los datos seleccionados se añaden a la lista para llevar la cuenta total de productos
+// // *Almacena los rolls creados
+// $('#btn_add_roll_promo').click(function() {
+//   $('#lista_rolls_compra').empty();
+//   var arrayRoll = [];
+//   var arrayCoberturaDetalleRoll = [];
+//   var arrayRellenoDetalleRoll = [];
+//   var listaHtml = '';
+//   var cantidadPiezas = $('#cantidad_de_piezas_add_carro').val();
+//   for (var i = 1; i <= 3; i++) {
+//     var idCobertura = $(`input[name=cobertura${i}]:checked`).val();
+//     var nombreCobertura = $(`input[name=cobertura${i}]:checked`).attr('nombre');
+//     if (idCobertura == null || nombreCobertura == null) {
+//       M.toast({
+//         html: 'Selecciona al menos una cobertura por opción.',
+//         displayLength: 3000,
+//         classes: 'red'
+//       });
+//       arrayCoberturaDetalleRoll = [];
+//       break;
+//     } else {
+//       arrayCoberturaDetalleRoll.push({
+//         Id: idCobertura,
+//         Nombre: nombreCobertura
+//       });
+//     }
+//   }
+//   for (var j = 1; j <= 1; j++) {
+//     var idRelleno = $(`input[name=relleno${j}]:checked`).val();
+//     var nombreRelleno = $(`input[name=relleno${j}]:checked`).attr('nombre');
+//     if (idRelleno == null || nombreRelleno == null) {
+//       M.toast({
+//         html: 'Selecciona al menos un relleno por opción.',
+//         displayLength: 3000,
+//         classes: 'red'
+//       });
+//       arrayCoberturaDetalleRoll = [];
+//       arrayRellenoDetalleRoll = [];
+//       break;
+//     } else {
+//       arrayRellenoDetalleRoll.push({
+//         Id: idRelleno,
+//         Nombre: nombreRelleno
+//       });
+//     }
+//   }
+//   if (
+//     arrayCoberturaDetalleRoll.length > 0 &&
+//     arrayRellenoDetalleRoll.length > 0
+//   ) {
+//     arrayRoll.push(cantidadPiezas);
+//     arrayRoll.push({ Coberturas: arrayCoberturaDetalleRoll });
+//     arrayRoll.push({ Rellenos: arrayRellenoDetalleRoll });
+//     arrayRollsCreados.push({ arrayRoll: arrayRoll });
+
+//     $.each(arrayRollsCreados, function(indice, item) {
+//       listaHtml += '<li>';
+//       listaHtml += `<span>${item.arrayRoll[0]} piezas con: </span>`;
+//       $.each(item.arrayRoll, function(indice, elem) {
+//         $.each(elem.Coberturas, function(ind, elem) {
+//           listaHtml += `<span>${elem.Nombre}/ </span>`;
+//         });
+//         $.each(elem.Rellenos, function(ind, elem) {
+//           listaHtml += `<span>${elem.Nombre}/ </span>`;
+//         });
+//       });
+//       listaHtml += `<a onclick='eliminarRollCompraList(${indice})' href="#">Eliminar<a/>`;
+//       listaHtml += '</li>';
+//     });
+//     $('#lista_rolls_compra').append(listaHtml);
+//   }
+// });
+
+// // *Elimina el rol específico de la lista arma tu promo
+// function eliminarRollCompraList(indice) {
+//   var listaHtml = '';
+//   arrayRollsCreados.splice(indice);
+//   $('#lista_rolls_compra').empty();
+//   $.each(arrayRollsCreados, function(indice, item) {
+//     listaHtml += '<li>';
+//     listaHtml += `<span>${item.arrayRoll[0]} piezas con: </span>`;
+//     $.each(item.arrayRoll, function(indice, elem) {
+//       $.each(elem.Coberturas, function(ind, elem) {
+//         listaHtml += `<span>${elem.Nombre}/ </span>`;
+//       });
+//       $.each(elem.Rellenos, function(ind, elem) {
+//         listaHtml += `<span>${elem.Nombre}/ </span>`;
+//       });
+//     });
+//     listaHtml += `<a onclick='eliminarRollCompraList(${indice})' href="#">Eliminar<a/>`;
+//     listaHtml += '</li>';
+//   });
+//   $('#lista_rolls_compra').append(listaHtml);
+// }
+
 function cargaModalEmpleado(id) {
   $('#modal_actualiza_empleado').modal('open');
   var action = 'cargaModalEmpleado';
@@ -1749,7 +2165,7 @@ function cargaModalEmpleado(id) {
         default:
           //* Por defecto los datos serán cargados en pantalla
           $.each(arr, function (indice, item) {
-            $('#lbl_id_empleados').text(id);
+            $('#lbl_id_empleados').val(id);
             $("label[for='txt_nombre']").addClass('active');
             $('#txt_nombre').val(item.Nombre);
             $('label[for=\'txt_apellidos\']').addClass('active');
@@ -1794,7 +2210,7 @@ $('#ActualizaEmpleados').validate({
     },
     txt_email: {
       required: true,
-      email: true
+      emailCom: true
     },
     combo_EstadoClientes: {
       required: true
@@ -1817,7 +2233,7 @@ $('#ActualizaEmpleados').validate({
     },
     txt_email: {
       required: 'Campo requerido *',
-      email: 'Correo inválido (ejemplo: dmc@gmail.com)'
+      emailCom: 'Correo inválido (ejemplo: dmc@gmail.com)'
     },
     combo_EstadoClientes: {
       required: 'Campo requerido *'
@@ -1846,7 +2262,7 @@ $('#ActualizaEmpleados').validate({
     }).then(function (result) {
       if (result.value) {
         var _action5 = 'ActualizaEmpleados';
-        var idEmpleado = $('#lbl_id_empleados').text();
+        var idEmpleado = $('#lbl_id_empleados').val();
         var nombre = $('#txt_nombre').val();
         var apellidos = $('#txt_apellidos').val();
         var email = $('#txt_email').val();
@@ -1876,10 +2292,10 @@ $('#ActualizaEmpleados').validate({
                 CargarTablaEmpleados();
                 break;
               case '2':
-                swal('error', 'Lo sentimos hubo un problema al actualizar los datos.', 'error');
+                swal('Error', 'El correo ingresado ya existe en nuestros registros.', 'error');
                 break;
               default:
-                swal('error', 'Lo sentimos hubo un problema al actualizar los datos.', 'error');
+                swal('Error', 'Lo sentimos hubo un problema al actualizar los datos.', 'error');
             }
           },
           error: function error() {
@@ -2036,8 +2452,8 @@ function CargarTablaEmpleados() {
             tabla += '<td>' + item.Correo + '</td>';
             tabla += '<td>' + item.TipoEmpleado + '</td>';
             tabla += '<td>' + item.Estado + '</td>';
-            tabla += '<td  class="center-align"><button class="btn btn-floating tooltipped red darken-4 waves-effect waves-light "\n                data-position="right" data-tooltip="Eliminar" class=\'delete\' id=' + item.idEmpleado + ' onclick=\'EliminarEmpleado(' + item.idEmpleado + ')\' ><i class="material-icons">delete</i></button></td>';
-            tabla += '<td><a class="waves-effect red darken-4 waves-light btn modal-trigger" id="' + item.idEmpleado + '" onclick=\'cargaModalEmpleado(' + item.idEmpleado + ')\' data-position="right" href="#modal-actualiza-cliente"><i class="material-icons">edit</i></a><td></tr>';
+            tabla += '<td  class="center-align"><button class="btn btn-floating tooltipped waves-effect waves-light red"\n                data-position="right" data-tooltip="Eliminar" class=\'delete\' id=' + item.idEmpleado + ' onclick=\'EliminarEmpleado(' + item.idEmpleado + ')\' ><i class="material-icons">delete</i></button></td>';
+            tabla += '<td><a class="waves-effect waves-light blue btn btn-floating modal-trigger" id="' + item.idEmpleado + '" onclick=\'cargaModalEmpleado(' + item.idEmpleado + ')\' data-position="right" href="#modal-actualiza-cliente"><i class="material-icons">edit</i></a><td></tr>';
           });
           $('#tabla_empleados').html(tabla);
           break;
@@ -2075,11 +2491,11 @@ $('#form_registro_empleado').validate({
     },
     txt_email: {
       required: true,
-      email: true
+      emailCom: true
     },
     txt_password: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 100
     },
     combo_TipoEmpleado: {
@@ -2100,11 +2516,12 @@ $('#form_registro_empleado').validate({
     },
     txt_email: {
       required: 'Campo requerido *',
-      email: 'Correo inválido (ejemplo: dmc@gmail.com)'
+      emailCom: 'Correo inválido (ejemplo: dmc@gmail.com)'
     },
     txt_password: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres'
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres'
     },
     combo_TipoEmpleado: {
       required: 'Campo requerido *'
@@ -2136,6 +2553,7 @@ $('#form_registro_empleado').validate({
           url: '../app/control/despEmpleados.php',
           type: 'POST',
           success: function success(resp) {
+            console.log(resp);
             //*Acción a ejecutar si la respuesta existe
             switch (resp) {
               case '1':
@@ -2184,7 +2602,6 @@ function CargarTablaInfoContacto() {
     type: 'POST',
     success: function success(respuesta) {
       var arr = JSON.parse(respuesta);
-      console.log(respuesta);
       // *Se parsea la respuesta json obtenida
       // *-----------------------------------------------------------------------
       //*Acción a ejecutar si la respuesta existe
@@ -2213,199 +2630,477 @@ function CargarTablaInfoContacto() {
   });
 }
 
-// // *Función para filtrar los datos en la tabla
-// $('#txt_buscar_info_contacto').on('keyup', function() {
-//   var caracterFiltro = $(this)
-//     .val()
-//     .toLowerCase();
-//   $('#tabla_info_contacto tr').filter(function() {
-//     $(this).toggle(
-//       $(this)
-//         .text()
-//         .toLowerCase()
-//         .indexOf(caracterFiltro) > -1
-//     );
-//   });
-// });
+// *Función para filtrar los datos en la tabla
+$('#txt_buscar_info_contacto').on('keyup', function () {
+  var caracterFiltro = $(this).val().toLowerCase();
+  $('#body_tabla_info_contacto tr').filter(function () {
+    $(this).toggle($(this).text().toLowerCase().indexOf(caracterFiltro) > -1);
+  });
+});
 
-// // *La función recibe el id del elemento y ejecuta la query en BD
-// function eliminarInfoContacto(id) {
-//   var action = 'EliminarInfoContacto';
-//   swal({
-//     title: '¿Estás seguro?',
-//     text:
-//       'Al ser eliminada la información de contacto ya no podrá ser visulizada por los clientes.',
-//     type: 'warning',
-//     showCancelButton: true,
-//     confirmButtonColor: '#3085d6',
-//     cancelButtonColor: '#d33',
-//     confirmButtonText: 'Si',
-//     cancelButtonText: 'Cancelar'
-//   }).then(result => {
-//     if (result.value) {
-//       $.ajax({
-//         data: {
-//           action: action,
-//           id: id
-//         },
-//         url: '../app/control/despInfoContacto.php',
-//         type: 'POST',
-//         success: function(resp) {
-//           console.log(resp);
-//           switch (resp) {
-//             case '1':
-//               swal('Listo', 'El elemento fue eliminado', 'success');
-//               CargarTablaInfoContacto();
-//               break;
-//             case '2':
-//               swal('Error', 'El elemento no pudo ser eliminado', 'error');
-//               break;
-//           }
-//         },
-//         error: function() {
-//           alert('Lo sentimos ha habido un error inesperado');
-//         }
-//       });
-//     }
-//   });
-// }
+// *La función recibe el id del elemento y ejecuta la query en BD
+function eliminarInfoContacto(id) {
+  var action = 'EliminarInfoContacto';
+  swal({
+    title: '¿Estás seguro?',
+    text: 'Al ser eliminada la información de contacto ya no podrá ser visulizada por los clientes.',
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Si',
+    cancelButtonText: 'Cancelar'
+  }).then(function (result) {
+    if (result.value) {
+      $.ajax({
+        data: {
+          action: action,
+          id: id
+        },
+        url: '../app/control/despInfoContacto.php',
+        type: 'POST',
+        success: function success(resp) {
+          switch (resp) {
+            case '1':
+              swal('Listo', 'La información de contacto fue eliminada.', 'success');
+              CargarTablaInfoContacto();
+              break;
+            case '2':
+              swal('Error', 'La información no pudo ser eliminada.', 'error');
+              break;
+          }
+        },
+        error: function error() {
+          alert('Lo sentimos ha habido un error inesperado');
+        }
+      });
+    }
+  });
+}
 
-// // *Al presionar el botón de editar del producto se cargarán los datos en los campos permitiendo editar los valores actuales
-// function actualizarInfoContacto(id) {
-//   $('#accion_info_contacto').text('Actualizar Información de Contacto');
-//   $('#modal_mantenedor_info_contacto').modal('open');
-//   var action = 'CargarModalInfoContacto';
-//   var mensajeHtml =
-//     '<div class="mensaje-precaucion" id="mensaje_precaucion_info_contacto"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
-//   $('#content_mensaje_precaucion_info_contacto').html(mensajeHtml);
-//   //*Se envían datos del form y action, al controlador mediante ajax
-//   $.ajax({
-//     data: {
-//       id: id,
-//       action: action
-//     },
-//     url: '../app/control/despInfoContacto.php',
-//     type: 'POST',
-//     success: function(respuesta) {
-//       $('#accion_info_contacto').text('Actualizar Información de Contacto');
-//       var arr = JSON.parse(respuesta);
-//       $.each(arr, function(indice, item) {
-//         // *Los label adquieren la clase active para no quedar sobre el texto definido en val
-//         $('#lbl_id_info_contacto').text(item.IdInfoContacto);
-//         $("label[for='txt_nombre_info_contacto']").addClass('active');
-//         $('#txt_nombre_info_contacto').val(item.Descripcion);
-//       });
-//     },
-//     error: function() {
-//       alert('Lo sentimos ha ocurrido un problema');
-//     }
-//   });
-// }
+// *Al presionar el botón de editar del producto se cargarán los datos en los campos permitiendo editar los valores actuales
+function actualizarInfoContacto(id) {
+  $('#accion_info_contacto').text('Actualizar Información de Contacto');
+  $('#modal_mantenedor_info_contacto').modal('open');
+  var action = 'CargarModalActualizarInfoContacto';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_info_contacto"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_info_contacto').html(mensajeHtml);
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: {
+      id: id,
+      action: action
+    },
+    url: '../app/control/despInfoContacto.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      $('#accion_info_contacto').text('Actualizar Información de Contacto');
+      var arr = JSON.parse(respuesta);
+      $.each(arr, function (indice, item) {
+        // *Los label adquieren la clase active para no quedar sobre el texto definido en val
+        $('#lbl_id_info_contacto').text(item.idContacto);
+        $("label[for='txt_medio_info_contacto']").addClass('active');
+        $('#txt_medio_info_contacto').val(item.medioContacto);
+        $("label[for='txt_info_contacto']").addClass('active');
+        $('#txt_info_contacto').val(item.infoContacto);
+      });
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un problema');
+    }
+  });
+}
 
-// // *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
-// // *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
-// $('#cancelar_mantenedor_info_contacto').on('click', function(evt) {
-//   evt.preventDefault();
-//   $('#modal_mantenedor_info_contacto').modal('close');
-// });
+// *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
+// *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
+$('#cancelar_mantenedor_info_contacto').on('click', function (evt) {
+  evt.preventDefault();
+  $('#modal_mantenedor_info_contacto').modal('close');
+});
 
-// var validarFormActualizarInfoContacto = $(
-//   '#form_mantenedor_info_contacto'
-// ).validate({
-//   errorClass: 'invalid red-text',
-//   validClass: 'valid',
-//   errorElement: 'div',
-//   errorPlacement: function(error, element) {
-//     $(element)
-//       .closest('form')
-//       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
-//       .attr('data-error', error.text()); //*Se obtiene el texto de erro
-//     error.insertAfter(element); //*Se inserta el error después del elemento
-//   },
-//   rules: {
-//     txt_nombre_info_contacto: {
-//       required: true,
-//       minlength: 3,
-//       maxlength: 1000,
-//       lettersonly: true
-//     }
-//   },
-//   messages: {
-//     txt_nombre_info_contacto: {
-//       required: 'Campo requerido *',
-//       minlength: 'Mínimo 3 caracteres',
-//       maxlength: 'Máximo 1000 caracteres',
-//       lettersonly: 'Solo letras'
-//     }
-//   },
-//   invalidHandler: function(form) {
-//     //*Acción a ejecutar al no completar todos los campos requeridos
-//     M.toast({
-//       html: 'Por favor completa los campos requeridos',
-//       displayLength: 3000,
-//       classes: 'red'
-//     });
-//   },
-//   submitHandler: function(form) {
-//     swal({
-//       title: '¿Estás seguro?',
-//       type: 'warning',
-//       showCancelButton: true,
-//       confirmButtonColor: '#3085d6',
-//       cancelButtonColor: '#d33',
-//       confirmButtonText: 'Si',
-//       cancelButtonText: 'Cancelar'
-//     }).then(result => {
-//       if (result.value) {
-//         // var action = 'ActualizarDatosAgregados';
-//         var dataInfo = '';
-//         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
-//         // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
-//         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
-//         if ($('#lbl_id_info_contacto').text() == '') {
-//           let action = 'IngresarInfoContacto';
-//           dataInfo = {
-//             nombre: $('#txt_nombre_info_contacto').val(),
-//             action: action
-//           };
-//         } else {
-//           let actionUpdate = 'ActualizarInfoContacto';
-//           dataInfo = {
-//             id: $('#lbl_id_info_contacto').text(),
-//             nombre: $('#txt_nombre_info_contacto').val(),
-//             action: actionUpdate
-//           };
-//         }
-//         //*Se envían datos del form y action, al controlador mediante ajax
-//         $.ajax({
-//           data: dataInfo,
-//           url: '../app/control/despInfoContacto.php',
-//           type: 'POST',
-//           success: function(resp) {
-//             //*Acción a ejecutar si la respuesta existe
-//             console.log(resp);
-//             switch (resp) {
-//               case '1':
-//                 $('#modal_mantenedor_info_contacto').modal('close');
-//                 swal('Listo', 'Los datos han sido ingresados', 'success');
-//                 CargarTablaInfoContacto();
-//                 // *La función se ejecutó correctamente
-//                 break;
-//               case '2':
-//                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-//                 break;
-//               default:
-//                 console.log(resp);
-//             }
-//           },
-//           error: function() {
-//             alert('Lo sentimos ha ocurrido un error');
-//           }
-//         });
-//       }
-//     });
-//   }
-// });
+$('#form_mantenedor_info_contacto').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    txt_medio_info_contacto: {
+      required: true,
+      minlength: 3,
+      maxlength: 200
+    },
+    txt_info_contacto: {
+      required: true,
+      minlength: 3,
+      maxlength: 200
+    }
+  },
+  messages: {
+    txt_medio_info_contacto: {
+      required: 'Campo requerido *',
+      minlength: 'Mínimo 3 caracteres',
+      maxlength: 'Máximo 200 caracteres'
+    },
+    txt_info_contacto: {
+      required: 'Campo requerido *',
+      minlength: 'Mínimo 3 caracteres',
+      maxlength: 'Máximo 200 caracteres'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        // var action = 'ActualizarDatosAgregados';
+        var dataInfo = '';
+        // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
+        // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
+        // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
+        if ($('#lbl_id_info_contacto').text() == '') {
+          var _action6 = 'IngresarInfoContacto';
+          dataInfo = {
+            medio: $('#txt_medio_info_contacto').val(),
+            info: $('#txt_info_contacto').val(),
+            action: _action6
+          };
+        } else {
+          var actionUpdate = 'ActualizarInfoContacto';
+          dataInfo = {
+            id: $('#lbl_id_info_contacto').text(),
+            medio: $('#txt_medio_info_contacto').val(),
+            info: $('#txt_info_contacto').val(),
+            action: actionUpdate
+          };
+        }
+        //*Se envían datos del form y action, al controlador mediante ajax
+        $.ajax({
+          data: dataInfo,
+          url: '../app/control/despInfoContacto.php',
+          type: 'POST',
+          success: function success(resp) {
+            //*Acción a ejecutar si la respuesta existe
+            switch (resp) {
+              case '1':
+                $('#modal_mantenedor_info_contacto').modal('close');
+                swal('Listo', 'Los datos han sido actualizados', 'success');
+                CargarTablaInfoContacto();
+                // *La función se ejecutó correctamente
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error');
+          }
+        });
+      }
+    });
+  }
+});
+
+// *---------------Funciones Info Empresa
+
+function CargarDatosInfoEmpresa() {
+  var action = 'cargarDatosInfoEmpresa';
+  var mensajeEstadoAperturaLocal = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despInfoEmpresa.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      console.log(respuesta);
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          $.each(arr, function (indice, item) {
+            if (item.horaActual >= item.horaApertura && item.horaActual <= item.horaCierre && item.diaSemana >= item.diaInicio && item.diaSemana <= item.diaFinal) {
+              mensajeEstadoAperturaLocal = '<div class="light-green-text">Ahora abierto</div>';
+              $('#content_estado_apertura_local').html(mensajeEstadoAperturaLocal);
+            } else {
+              mensajeEstadoAperturaLocal = '<div class="red-text">Ahora cerrado</div>';
+              $('#content_estado_apertura_local').html(mensajeEstadoAperturaLocal);
+            }
+            console.log(item.horaActual);
+            $('#txt_hora_inicio').val(item.horaApertura);
+            $('#txt_hora_final').val(item.horaCierre);
+            $('#combo_dia_inicio').val(item.diaInicio);
+            $('#combo_dia_final').val(item.diaFinal);
+          });
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+// *----------------------------------------------------------
+
+$('#restaurar_mantenedor_horas_actividad').on('click', function (evt) {
+  evt.preventDefault();
+  CargarDatosInfoEmpresa();
+});
+
+$('#restaurar_mantenedor_dias_actividad').on('click', function (evt) {
+  evt.preventDefault();
+  CargarDatosInfoEmpresa();
+});
+
+$('#form_horas_actividad_empresa').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    txt_hora_inicio: {
+      required: true,
+      time24: true,
+      comparar_hora_menor: true
+    },
+    txt_hora_final: {
+      required: true,
+      time24: true,
+      comparar_hora_mayor: true
+    }
+  },
+  messages: {
+    txt_hora_inicio: {
+      required: 'Campo requerido *',
+      time24: 'Ingresa una hora válida'
+    },
+    txt_hora_final: {
+      required: 'Campo requerido *',
+      time24: 'Ingresa una hora válida'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    swal({
+      title: '¿Estás seguro?',
+      text: 'El cambio de horas de actividad podría alterar la generación de transacciones',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        var dataInfo = '';
+
+        var _action7 = 'ActualizarHorasActividadEmpresa';
+        dataInfo = {
+          horaInicio: $('#txt_hora_inicio').val(),
+          horaCierre: $('#txt_hora_final').val(),
+          action: _action7
+        };
+
+        //*Se envían datos del form y action, al controlador mediante ajax
+        $.ajax({
+          data: dataInfo,
+          url: '../app/control/despInfoEmpresa.php',
+          type: 'POST',
+          success: function success(resp) {
+            //*Acción a ejecutar si la respuesta existe
+            switch (resp) {
+              case '1':
+                swal('Listo', 'Las horas activas han sido actualizadas', 'success');
+                CargarTablaInfoContacto();
+                CargarDatosInfoEmpresa();
+                // *La función se ejecutó correctamente
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error');
+          }
+        });
+      }
+    });
+  }
+});
+
+$('#form_dias_actividad_empresa').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    combo_dia_inicio: {
+      required: true,
+      min: 1,
+      max: 7,
+      comparar_dia_menor: true
+    },
+    combo_dia_final: {
+      required: true,
+      min: 1,
+      max: 7,
+      comparar_dia_mayor: true
+    }
+  },
+  messages: {
+    combo_dia_inicio: {
+      required: 'Campo requerido *',
+      min: 'Por favor eliga un día válido',
+      max: 'Por favor eliga un día válido'
+    },
+    combo_dia_final: {
+      required: 'Campo requerido *',
+      min: 'Por favor eliga un día válido',
+      max: 'Por favor eliga un día válido'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    swal({
+      title: '¿Estás seguro?',
+      text: 'El cambio de dias de actividad podría alterar la generación de transacciones',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        var dataInfo = '';
+
+        var _action8 = 'ActualizarDiasActividadEmpresa';
+        dataInfo = {
+          diaInicio: $('#combo_dia_inicio').val(),
+          diaCierre: $('#combo_dia_final').val(),
+          action: _action8
+        };
+
+        //*Se envían datos del form y action, al controlador mediante ajax
+        $.ajax({
+          data: dataInfo,
+          url: '../app/control/despInfoEmpresa.php',
+          type: 'POST',
+          success: function success(resp) {
+            //*Acción a ejecutar si la respuesta existe
+            switch (resp) {
+              case '1':
+                swal('Listo', 'Los dias activas han sido actualizados', 'success');
+                CargarTablaInfoContacto();
+                CargarDatosInfoEmpresa();
+                // *La función se ejecutó correctamente
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error');
+          }
+        });
+      }
+    });
+  }
+});
+
+$.validator.addMethod('time24', function (value, element, param) {
+  return value == '' || value.match(/^([01][0-9]|2[0-3]):[0-5][0-9]$/);
+}, 'Enter a valid time: hh:mm');
+
+$.validator.addMethod('comparar_dia_menor', function (value, element) {
+  return $('#combo_dia_inicio').val() < $('#combo_dia_final').val();
+}, 'El dia de apertura debe ser anterior al dia de cierre');
+
+$.validator.addMethod('comparar_dia_mayor', function (value, element) {
+  return $('#combo_dia_final').val() > $('#combo_dia_inicio').val();
+}, 'El dia de cierre debe ser posterior al dia de apertura');
+
+$.validator.addMethod('comparar_hora_menor', function (value, element) {
+  return $('#txt_hora_inicio').val() < $('#txt_hora_final').val();
+}, 'La hora apertura debe ser anterior a la hora de cierre');
+
+$.validator.addMethod('comparar_hora_mayor', function (value, element) {
+  return $('#txt_hora_final').val() > $('#txt_hora_inicio').val();
+}, 'La hora de cierre debe ser posterior a la hora de apertura');
+
+function cargarImagenesIndex() {
+  var action = 'CargarImagenesIndex';
+  //   var cargaHtml = '';
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despImagenesIndex.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      var arr = JSON.parse(respuesta);
+      console.log(arr);
+      switch (respuesta) {
+        case 'error':
+          break;
+        default:
+          var cargaHtmlUno = '\n              <img src="dist/img/' + arr[0].ImgUrl + '" class="img-slider">\n              <!-- random image -->\n              <div class="caption center-align">\n              <h2>This is our big Tagline!</h2>\n              <h5 class="light grey-text text-lighten-3">Here\'s our small slogan.</h5>\n              </div>';
+          var cargaHtmlDos = '\n              <img src="dist/img/' + arr[1].ImgUrl + '" class="img-slider">\n              <!-- random image -->\n              <div class="caption left-align">\n                <h3>Left Aligned Caption</h3>\n                <h5 class="light grey-text text-lighten-3">Here\'s our small slogan.</h5>\n            </div>';
+          var cargaHtmlTres = '\n              <img src="dist/img/' + arr[2].ImgUrl + '" class="img-slider">\n              <!-- random image -->\n              <div class="caption right-align">\n              <h3>Right Aligned Caption</h3>\n              <h5 class="light grey-text text-lighten-3">Here\'s our small slogan.</h5>\n                </div>';
+          //   console.log(cargaHtml);
+          $('#img_uno_index').html(cargaHtmlUno);
+          $('#img_dos_index').html(cargaHtmlDos);
+          $('#img_tres_index').html(cargaHtmlTres);
+          break;
+      }
+    }
+  });
+}
 
 'use strict';
 
@@ -2604,7 +3299,7 @@ function cargarMantenedorPromosCliente(estado, caracter) {
               arrayNoEnCarta.push(item.Nombre);
             }
 
-            cargaHtml += '<div class="col s12 m4 l4">';
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += '<div class="descuento"><p class="center-align">-' + item.Descuento + '%</p></div>';
             cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
@@ -2858,7 +3553,7 @@ $('#form_mantenedor_promo_cliente').validate({
     },
     imagen_promo: {
       // required: true,
-      //   extension: 'jpeg|jpg|png'
+      extension: 'jpeg|jpg|png'
     },
     imagen_promo_text: {
       // required: true
@@ -2951,8 +3646,8 @@ $('#form_mantenedor_promo_cliente').validate({
         // *Dependiendo de la acción se anexan más datos al formulario (formData)
 
         if ($('#lbl_id_promo_cliente').text() == '') {
-          var _action6 = 'IngresarPromoCliente';
-          formData.append('action', _action6);
+          var _action9 = 'IngresarPromoCliente';
+          formData.append('action', _action9);
           if ($('#imagen_promo').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
             console.log('imagen');
@@ -3301,8 +3996,8 @@ $('#form_mantenedor_promo_chef').validate({
         // *Dependiendo de la acción se anexan más datos al formulario (formData)
 
         if ($('#lbl_id_promo_chef').text() == '') {
-          var _action7 = 'IngresarPromoChef';
-          formData.append('action', _action7);
+          var _action10 = 'IngresarPromoChef';
+          formData.append('action', _action10);
           if ($('#imagen_promo_chef').val() != '' || imgExtension == 'jpg' || imgExtension == 'png' || imgExtension == 'jpeg') {
             formData.append('imagenUrl', $('#imagen_promo_chef')[0].files[0]);
             console.log('imagen');
@@ -3323,7 +4018,7 @@ $('#form_mantenedor_promo_chef').validate({
             console.log('No Imagen');
           }
         }
-        console.log(formData);
+        console.log(agregados);
         $.ajax({
           data: formData,
           url: '../app/control/despPromos.php',
@@ -3572,7 +4267,10 @@ function comprobarEstadoSesion() {
           swal('Lo sentimos', 'Se ha te ha denegado la utilización de este sistema.', 'info');
           setTimeout(function () {
             location.href = 'index-cliente.php';
-          }, 3000);
+          }, 2000);
+          break;
+        case '2':
+          location.href = 'index.php';
           break;
       }
     },
@@ -3581,6 +4279,204 @@ function comprobarEstadoSesion() {
     }
   });
 }
+
+// *Consulta ajax para consultar el estado y existencia del correo
+
+$('#form_recuperar_pass').validate({
+  //*configuración de jquery validaty para la validación de campos
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    //*Se establecen reglas de validación para campos del form
+    txt_email: {
+      required: true,
+      emailCom: true
+    }
+  },
+  messages: {
+    //*Se establecen mensajes de error a imprimir
+    txt_email: {
+      required: 'Campo requerido *',
+      emailCom: 'Ingresa un correo válido'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    var timerInterval = void 0;
+    swal({
+      title: 'Espere',
+      html: 'La petición se está procesando.',
+      timer: 5000,
+      onOpen: function onOpen() {
+        swal.showLoading();
+      },
+      onClose: function onClose() {
+        clearInterval(timerInterval);
+      }
+    }).then(function (result) {
+      if (
+      // Read more about handling dismissals
+      result.dismiss === swal.DismissReason.timer) {
+        console.log('I was closed by the timer');
+      }
+    });
+    var action = 'ValidarCorreo';
+    //*Se envían datos del form y action, al controlador mediante ajax
+    $.ajax({
+      data: $('#form_recuperar_pass').serialize() + '&action=' + action,
+      url: '../app/control/despRecuperarPass.php',
+      type: 'POST',
+      success: function success(resp) {
+        console.log(resp);
+        //*Acción a ejecutar si la respuesta existe
+        switch (resp) {
+          case '1':
+            swal('Listo', 'Se ha enviado un correo a la dirección ingresada.', 'success');
+            break;
+          case '2':
+            swal('Error', 'El correo ingresado no existe.', 'error');
+            break;
+          case '3':
+            swal('Error', 'El correo ingresado no posee los permisos para acceder al sistema.', 'error');
+            break;
+        }
+      },
+      error: function error() {
+        alert('Lo sentimos ha ocurrido un error');
+      }
+    });
+  }
+});
+
+function consultarEstadoToken() {
+  var action = 'ConsultarEstadoToken';
+  var token = $('#token').val();
+  var idUsuario = $('#idUsuario').val();
+  $.ajax({
+    data: 'token=' + token + '&action=' + action,
+    url: '../app/control/despRecuperarPass.php',
+    type: 'POST',
+    success: function success(resp) {
+      if (!resp) {
+        location.href = 'index.php';
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
+
+$('#form_cambiar_password_rec').validate({
+  //*configuración de jquery validaty para la validación de campos
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    //*Se establecen reglas de validación para campos del form
+    txt_nueva_password: {
+      required: true,
+      minlength: 7,
+      maxlength: 100
+    },
+    txt_confirmar_nueva_password: {
+      required: true,
+      minlength: 7,
+      maxlength: 100,
+      equalTo: '#txt_nueva_password'
+    }
+  },
+  messages: {
+    //*Se establecen mensajes de error a imprimir
+    txt_nueva_password: {
+      required: 'Campo requerido *',
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres'
+    },
+    txt_confirmar_nueva_password: {
+      required: 'Campo requerido *',
+      minlength: 'Mínimo 7 caracteres',
+      maxlength: 'Máximo 100 caracteres',
+      equalTo: 'Las contraseñas no coinciden'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    // *Sweet alert para mostrar mensaje de confirmación de acción
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        var action = 'CambiarPasswordUsuario';
+        var token = $('#token').val();
+        var idTipoUsuario = $('#tipoUsuario').val();
+        var nuevaPass = $('#txt_confirmar_nueva_password').val();
+
+        //*Se envían datos del form y action, al controlador mediante ajax
+        $.ajax({
+          data: {
+            action: action,
+            token: token,
+            tipoUsuario: idTipoUsuario,
+            nuevaPass: nuevaPass
+          },
+          url: '../app/control/despRecuperarPass.php',
+          type: 'POST',
+          success: function success(resp) {
+            console.log(resp);
+            //*Acción a ejecutar si la respuesta existe
+            switch (resp) {
+              case '1':
+                swal('Listo', 'Tu contraseña ha sido cambiada.', 'success');
+                location.href = 'login.php';
+                break;
+              case '2':
+                swal('Error', 'Lo sentimos la contraseña no se ha podido reestablecer.', 'error');
+                setTimeout(function () {
+                  location.href = 'index.php';
+                }, 2000);
+                break;
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error');
+          }
+        });
+      }
+    });
+  }
+});
 
 'use strict';
 
@@ -3614,7 +4510,7 @@ $('#form_registro').validate({
     },
     txt_password: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 200
     }
   },
@@ -3636,7 +4532,7 @@ $('#form_registro').validate({
     },
     txt_password: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres',
+      minlength: 'Mínimo 7 caracteres',
       maxlength: 'Máximo 200 caracteres'
     }
   },
@@ -3730,7 +4626,7 @@ function cargarMantenedorRellenos(estado, caracter) {
             if (item.idEstado == 2) {
               arrayNoEnCartaRellenos.push(item.Nombre);
             }
-            cargaHtml += '<div class="col s12 m4 l4">';
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
             cargaHtml += '<img class="activator" src="uploads/' + item.ImgUrl + '">';
@@ -3738,7 +4634,7 @@ function cargarMantenedorRellenos(estado, caracter) {
             cargaHtml += '<div class="card-content">';
             cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + '<i class="material-icons right">more_vert</i></span>';
             cargaHtml += '<div class="precios-productos">';
-            cargaHtml += '<span class="grey-text text-darken-4">Precio Adicional: $' + item.Precio + '</span>';
+            cargaHtml += '<span class="grey-text text-darken-4">Precio: $' + item.Precio + '</span>';
             // *Si el indice es igual a 'Ninguno' el texto se marca en rojo
             if (item.Indice != 'Ninguno') {
               cargaHtml += '<span class="grey-text text-darken-4">Opci\xF3n de elecci\xF3n: ' + item.Indice + '</span>';
@@ -3944,6 +4840,9 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
     },
     combo_indice_relleno: {
       required: true
+    },
+    imagen_rellenos: {
+      extension: 'jpeg|jpg|png'
     }
   },
   messages: {
@@ -4009,8 +4908,8 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'relleno'
         // *Dependiendo de la acción se anexan más datos al formulario (formData)
         if ($('#lbl_id_rellenos').text() == '') {
-          var _action8 = 'IngresarRelleno';
-          formData.append('action', _action8);
+          var _action11 = 'IngresarRelleno';
+          formData.append('action', _action11);
           if ($('#imagen_rellenos').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
           } else {
@@ -4072,9 +4971,10 @@ function cargarTotalIndiceRellenos() {
           console.log('Lo sentimos ha ocurrido un error al cargar la cantidad de indices de relleno');
           break;
         default:
-          cargaHtml += '<p>' + respuesta + '</p>';
-          cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="sumarIndiceRelleno()"><i class="fa fa-plus"></i></a>';
-          cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceRelleno()"><i class="fa fa-minus"></i></a>';
+          cargaHtml += '<p>Opciones disponibles: ' + respuesta;
+          cargaHtml += '<a class="btn-indice btn-floating btn-medium waves-effect waves-light blue tooltipped" data-position="bottom" data-tooltip="A\xF1adir \xEDndice de elecci\xF3n" onclick="sumarIndiceRelleno()"><i class="fa fa-plus"></i></a>';
+          cargaHtml += '<a class="btn-indice btn-floating btn-medium waves-effect waves-light red tooltipped" data-position="bottom" data-tooltip="Eliminar \xEDndice de elecci\xF3n" onclick="restarIndiceRelleno()"><i class="fa fa-minus"></i></a>';
+          cargaHtml += '</p>';
           $('#indice_relleno_carga').html(cargaHtml);
           break;
       }
@@ -4114,7 +5014,7 @@ function restarIndiceRelleno() {
                   cargarTotalIndiceRellenos();
                   cargarMantenedorRellenos();
                   cargarIndiceRelleno();
-                  swal('Listo', 'Se ha restado un \xEDndice, ' + respuestaDatosVinculados + ' rellenos han quedado sin \xEDndice de selecci\xF3n, por lo tanto no podr\xE0n ser seleccionadas por el cliente.', 'success');
+                  swal('Listo', 'Se ha restado un \xEDndice, ' + respuestaDatosVinculados + ' rellenos han quedado sin \xEDndice de selecci\xF3n, por lo tanto no podr\xE1n ser seleccionadas por el cliente.', 'success');
                   break;
                 case '2':
                   // *Error al eliminar
@@ -4155,7 +5055,7 @@ function sumarIndiceRelleno() {
               cargarTotalIndiceRellenos();
               cargarMantenedorRellenos();
               cargarIndiceRelleno();
-              swal('Listo', 'Se ha restado un índice', 'success');
+              swal('Listo', 'Se ha sumado un índice de elección', 'success');
               break;
             case '2':
               // *Ingreso erróneo
@@ -4632,10 +5532,10 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_pago').validate({
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
         if ($('#lbl_id_tipo_pago').text() == '') {
-          var _action9 = 'IngresarTipoPago';
+          var _action12 = 'IngresarTipoPago';
           dataInfo = {
             nombre: $('#txt_nombre').val(),
-            action: _action9
+            action: _action12
           };
         } else {
           var actionUpdate = 'ActualizarTipoPago';
@@ -4870,10 +5770,10 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_promo').validate({
         // *Si no contiene valor se interpreta que se ingresará una nueva 'promo'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
         if ($('#lbl_id_tipo_promo').text() == '') {
-          var _action10 = 'IngresarTipoPromo';
+          var _action13 = 'IngresarTipoPromo';
           dataInfo = {
             nombre: $('#txt_nombre').val(),
-            action: _action10
+            action: _action13
           };
         } else {
           var actionUpdate = 'ActualizarTipoPromo';

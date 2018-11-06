@@ -99,7 +99,7 @@ $sesionUsuario->validarSesion();
                             <label for="txt_password">Password</label>
                         </div>
                         <div class="right">
-                            <a href="#">Olvidé mi contraseña</a>
+                            <a href="recuperar-pass.php">Olvidé mi contraseña</a>
                         </div>
                         <div class="botones-login">
                             <div class="btn-div">

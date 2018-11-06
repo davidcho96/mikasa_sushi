@@ -26,27 +26,30 @@ $sesionUsuario->validacionSesionAdmin();
 </head>
 <body>
     <?php require 'templates/nav-admin.php' ?>
-    <div class="title-mantenedor">
-        <h1>Gestión Tipos de pago</h1>
-        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" href="#modal_mantenedor_tipo_promo"><i class="material-icons">add</i></a>
+    <div class="title-mantenedor center-align">
+        <h1>Gestión Tipos de promo
+        <a class="btn-floating btn-large waves-effect waves-light red modal-trigger tooltipped" data-position="bottom" data-tooltip="Añadir tipo de promo" href="#modal_mantenedor_tipo_promo"><i class="material-icons">add</i></a>
+        </h1>
     </div>
 
-    <div class="contenido-mantenedor row">
-        <div class="col l6 m8 s12">
-            <div class="input-field">
+    <div class="contenido-mantenedor row container">
+        <div class="col l12 m12 s12">
+            <div class="input-field col l6 m6 s12">
                 <label for="txt_buscar_tipo_promo">Buscar Tipo Promo</label>
                 <input type="text" id="txt_buscar_tipo_promo">
             </div>
-            <table id="tabla_tipo_promo">
-            <thead>
-                <h5>Tipo Promo</h5>
-                <tr>
-                    <td>Tipo de promo</td>
-                    <td colspan='2'>Acciones</td>
-                </tr>
-            </thead>
-            <tbody id="body_tabla_tipo_promo"></tbody>
-            </table>
+           <div class="col l12 s12 m12">
+                <table id="tabla_tipo_promo">
+                <thead>
+                    <h5>Tipo Promo</h5>
+                    <tr>
+                        <td>Tipo de promo</td>
+                        <td colspan='2'>Acciones</td>
+                    </tr>
+                </thead>
+                <tbody id="body_tabla_tipo_promo"></tbody>
+                </table>
+           </div>
         </div>
     </div>
 
@@ -71,15 +74,17 @@ $sesionUsuario->validacionSesionAdmin();
     </div>
 
     <script src="dist/js/script.min.js"></script>
-    <script src="src/js/es6/tipo-promo-functions.js"></script>
+    <!-- <script src="src/js/es6/tipo-promo-functions.js"></script> -->
     <script>
     $(document).ready(function(){
         CargarTablaTipoPromo();
+        comprobarEstadoSesion();
         setInterval(function(){
+            comprobarEstadoSesion();
             CargarTablaTipoPromo();
         }, 25000);
         $('#modal_mantenedor_tipo_promo').modal({
-                dismissible: true,
+                dismissible: false,
                 onCloseEnd: function() {
                 $('#form_mantenedor_tipo_promo')[0].reset();
                 $('#lbl_id_tipo_promo').text('');

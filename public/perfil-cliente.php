@@ -118,6 +118,10 @@ $sesionUsuario->validacionSesionCliente();
     <script>
         $(document).ready(function() {
             cargarDatosPerfilCliente();
+            comprobarEstadoSesion();
+            setInterval(function(){
+                comprobarEstadoSesion();
+            }, 25000);
         });
     </script>
 </body>

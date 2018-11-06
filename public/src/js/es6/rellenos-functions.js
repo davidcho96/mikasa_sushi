@@ -40,7 +40,7 @@ function cargarMantenedorRellenos(estado, caracter) {
             if (item.idEstado == 2) {
               arrayNoEnCartaRellenos.push(item.Nombre);
             }
-            cargaHtml += '<div class="col s12 m4 l4">';
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml +=
               '<div class="card-image waves-effect waves-block waves-light">';
@@ -51,7 +51,7 @@ function cargarMantenedorRellenos(estado, caracter) {
               item.Nombre
             }<i class="material-icons right">more_vert</i></span>`;
             cargaHtml += '<div class="precios-productos">';
-            cargaHtml += `<span class="grey-text text-darken-4">Precio Adicional: $${
+            cargaHtml += `<span class="grey-text text-darken-4">Precio: $${
               item.Precio
             }</span>`;
             // *Si el indice es igual a 'Ninguno' el texto se marca en rojo
@@ -295,6 +295,9 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
     },
     combo_indice_relleno: {
       required: true
+    },
+    imagen_rellenos: {
+      extension: 'jpeg|jpg|png'
     }
   },
   messages: {
@@ -436,9 +439,10 @@ function cargarTotalIndiceRellenos() {
           );
           break;
         default:
-          cargaHtml += `<p>${respuesta}</p>`;
-          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light blue" onclick="sumarIndiceRelleno()"><i class="fa fa-plus"></i></a>`;
-          cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light red" onclick="restarIndiceRelleno()"><i class="fa fa-minus"></i></a>`;
+          cargaHtml += `<p>Opciones disponibles: ${respuesta}`;
+          cargaHtml += `<a class="btn-indice btn-floating btn-medium waves-effect waves-light blue tooltipped" data-position="bottom" data-tooltip="Añadir índice de elección" onclick="sumarIndiceRelleno()"><i class="fa fa-plus"></i></a>`;
+          cargaHtml += `<a class="btn-indice btn-floating btn-medium waves-effect waves-light red tooltipped" data-position="bottom" data-tooltip="Eliminar índice de elección" onclick="restarIndiceRelleno()"><i class="fa fa-minus"></i></a>`;
+          cargaHtml += '</p>';
           $('#indice_relleno_carga').html(cargaHtml);
           break;
       }
@@ -480,7 +484,7 @@ function restarIndiceRelleno() {
                   cargarIndiceRelleno();
                   swal(
                     'Listo',
-                    `Se ha restado un índice, ${respuestaDatosVinculados} rellenos han quedado sin índice de selección, por lo tanto no podràn ser seleccionadas por el cliente.`,
+                    `Se ha restado un índice, ${respuestaDatosVinculados} rellenos han quedado sin índice de selección, por lo tanto no podrán ser seleccionadas por el cliente.`,
                     'success'
                   );
                   break;
@@ -523,7 +527,7 @@ function sumarIndiceRelleno() {
               cargarTotalIndiceRellenos();
               cargarMantenedorRellenos();
               cargarIndiceRelleno();
-              swal('Listo', 'Se ha restado un índice', 'success');
+              swal('Listo', 'Se ha sumado un índice de elección', 'success');
               break;
             case '2':
               // *Ingreso erróneo

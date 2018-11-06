@@ -2,6 +2,7 @@
 
 //*BD = Base de datos
 
+
 require_once '../db_connection/connection.php'; //*Clase conexión BD
 
 class Empleado extends connection{
@@ -67,7 +68,18 @@ class Empleado extends connection{
 
 	public function setApellidos($apellidos){
 		$this->apellidos = $apellidos;
-    }
+	}
+	
+	// *Generará un código random que será utilizado posteriormente para recuperar la contraseña
+	public function randomCode(){
+		$caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789'; //* Caracteres posibles
+		$code = '';
+		$max = strlen($caracteres) - 1;
+		for ($i = 0; $i < 7; $i++) {
+			 $code .= $caracteres[mt_rand(0, $max)];
+			}
+		return $code;
+	}
     
     public function login(){
         try{
@@ -99,16 +111,6 @@ class Empleado extends connection{
 					}
 					break;
 				}
-				// if($result != 'error'){
-				// 	$passHash = $result;
-				// 	if(password_verify($this->getPassword(), $passHash)){
-				// 		return $tipoUser; //*Registro exitoso
-				// 	}else {
-				// 		return 'error'; //*Registro erróneo
-				// 	}
-				// }else{
-				// 	return 'error'; //*Registro erróneo
-				// }
 			}
 			//*Se libera la respuesta en BD
 			$stmt->free_result();
@@ -157,14 +159,14 @@ class Empleado extends connection{
 		}
 	}
 	
-	public function cargarTablaEmpleados(){
+	public function cargarTablaEmpleados($correo){
 		try{
 			$db = connection::getInstance();
 			$conn = $db->getConnection();
 			// $email = $this->getCorreo();
-			$stmt=$conn->prepare('call listarEmpleado()');
+			$stmt=$conn->prepare('call listarEmpleado(?)');
 			//*Se pasan los parámetros a la consulta
-			// $stmt->bind_param('s', $this->getCorreo());
+			$stmt->bind_param('s', $correo);
 			//*Se ejecuta la consulta en BD
 			$stmt->execute();
 			//*Se obtiene el resultado
@@ -239,8 +241,8 @@ class Empleado extends connection{
 						"idEstado"=>$idEstado,
 						"idTipoEmpleado"=>$idTipoEmpleado
 					);
-					return json_encode($datos);
 				}
+				return json_encode($datos);
 			// }else{
 				// return 'error';
 			// }
@@ -261,8 +263,67 @@ class Empleado extends connection{
 			if($stmt->fetch()>0){
 				echo $result;
 			}else{
-				echo 2;
+				echo 3;
 			}
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function consultarExistenciaEmpleado(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare("call consultarExistenciaEmpleado(?,
+			@result, @idTipo)");
+			//*Se pasan los parámetros a la consulta
+			$stmt->bind_param('s', $this->getCorreo());
+			//*Se ejecuta la consulta en BD
+			$stmt->execute();
+			//*Se obtiene el resultado
+			$stmt->bind_result($result, $tipo);
+			//*Se comprueba la respuesta
+			if($stmt->fetch()>0){
+				switch($result){
+					case 'error':
+						return 2;
+					break;
+					case 'errorEstado':
+						return 3;
+					break;
+					default:
+						return 1;
+					break;
+				}
+			}
+			//*Se libera la respuesta en BD
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function recuperarPass($token){
+		try{
+			// *Se encripta la pass para ser ingresada en la BD
+			$password_ = password_hash($this->getPassword(), PASSWORD_DEFAULT, ['cost'=>12]);
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+
+			// *Se prepara la query 
+			$stmt=$conn->prepare('call recuperarPassEmpleado(?, ?, @out_value)');
+			// *Se pasan los valores a la query
+			$stmt->bind_param('ss', $password_, $this->getCorreo());
+			// *Se ejecuta la query
+			$stmt->execute();
+			// *Se obtiene el resultado de la query
+			$stmt->bind_result($result);
+			if($stmt->fetch()>0){
+				return $result;
+			}else{
+				// *Error
+				return '2';
+			}
+			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}

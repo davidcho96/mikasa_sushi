@@ -32,7 +32,7 @@ $('#form_registro').validate({
     },
     txt_password: {
       required: true,
-      minlength: 10,
+      minlength: 7,
       maxlength: 200
     }
   },
@@ -54,7 +54,7 @@ $('#form_registro').validate({
     },
     txt_password: {
       required: 'Campo requerido *',
-      minlength: 'Mínimo 10 caracteres',
+      minlength: 'Mínimo 7 caracteres',
       maxlength: 'Máximo 200 caracteres'
     }
   },
