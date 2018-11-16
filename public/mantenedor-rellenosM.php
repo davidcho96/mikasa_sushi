@@ -44,9 +44,10 @@ $sesionUsuario->validacionSesionAdmin();
                 <input type="text" id="txt_buscar_rellenos">
             </div>
         </div>
-        <div id="indice_relleno_carga" class='indices-carga'></div>
-        <div id="mensaje_no_indice_rellenos"></div>
-        <div id="mensaje_no_carta_rellenos"></div>
+        <div id="mensaje_no_indice_rellenos" class='col l12 m12 s12'></div>
+        <div id="mensaje_no_carta_rellenos" class='col l12 m12 s12'></div>
+        <div id="mensaje_poco_stock_rellenos" class="col l12 m12 s12"></div>
+        <div id="indice_relleno_carga" class='indices-carga col l12 m12 s12'></div>
         <div id="rellenos_carga" class="row"></div>
         
         <div id="modal_mantenedor_relleno" class="modal">
@@ -81,7 +82,31 @@ $sesionUsuario->validacionSesionAdmin();
                             
                         </select>
                     </div>
-                    <div class="file-field input-field">
+                    <div class="input-field col l8 m8 s6">
+                        <input id="txt_cantidad_stock_relleno" name="txt_cantidad_stock_relleno" type="number">
+                        <label for="txt_cantidad_stock_relleno">Cantidad en stock</label>
+                    </div>
+                    <div class="input-field col l4 m4 s6">
+                        <label class="active">Medida Stock</label>
+                        <select name="combo_unidad_medida_stock" id="combo_unidad_relleno_stock" class="browser-default">
+                            
+                        </select>
+                    </div>
+                    <div class="input-field col l12 m12 s12">
+                        <input id="txt_cantidad_minima_relleno" name="txt_cantidad_minima_relleno" type="number">
+                        <label for="txt_cantidad_minima_relleno">Cantidad Mínima</label>
+                    </div>
+                    <div class="input-field col l8 m8 s6">
+                        <input id="txt_cantidad_uso_roll_relleno" name="txt_cantidad_uso_roll_relleno" type="number">
+                        <label for="txt_cantidad_uso_roll_relleno">Cantidad uso en roll</label>
+                    </div>
+                    <div class="input-field col l4 m4 s6">
+                        <label class="active">Medida Uso</label>
+                        <select name="combo_unidad_medida_uso" id="combo_unidad_relleno_uso" class="browser-default">
+                            
+                        </select>
+                    </div>
+                    <div class="file-field input-field col l12">
                         <div class="btn black">
                             <span>Imagen</span>
                             <input type="file" name="imagen_rellenos" id="imagen_rellenos" accept="image/x-png,image/jpg,image/jpeg">
@@ -90,7 +115,7 @@ $sesionUsuario->validacionSesionAdmin();
                                 <input class="file-path" type="text" id="imagen_rellenos_text" name="imagen_rellenos_text">
                             </div>
                     </div>
-                    <div class="center">
+                    <div class="center input-field col l12">
                         <input type="submit" class="btn black" id="btn_mant_relleno" value="Confirmar">
                         <button id="cancelar_mantenedor_relleno" class="btn red">Cancelar</button>
                     </div>
@@ -108,6 +133,7 @@ $sesionUsuario->validacionSesionAdmin();
             cargarIndiceRelleno();
             cargarTotalIndiceRellenos();
             comprobarEstadoSesion();
+            cargarComboUnidadMedida();
             setInterval(function(){
                 comprobarEstadoSesion();
                 cargarMantenedorRellenos();

@@ -10,6 +10,11 @@ class Cobertura extends connection{
 	private $idEstado;
 	private $precioAdicional;
 	private $imgUrl;
+	private $cantidadStock;
+    private $unidadStock;
+    private $cantidadUso;
+    private $unidadUso;
+    private $cantidadMinima;
 
 	public function getIdCobertura(){
 		return $this->idCobertura;
@@ -66,7 +71,47 @@ class Cobertura extends connection{
 	public function setImgUrl($imgUrl){
 		$this->imgUrl = $imgUrl;
 	}
-    
+	
+	public function getCantidadStock(){
+		return $this->cantidadStock;
+	}
+
+	public function setCantidadStock($cantidadStock){
+		$this->cantidadStock = $cantidadStock;
+	}
+
+	public function getUnidadStock(){
+		return $this->unidadStock;
+	}
+
+	public function setUnidadStock($unidadStock){
+		$this->unidadStock = $unidadStock;
+	}
+
+	public function getCantidadUso(){
+		return $this->cantidadUso;
+	}
+
+	public function setCantidadUso($cantidadUso){
+		$this->cantidadUso = $cantidadUso;
+	}
+
+	public function getUnidadUso(){
+		return $this->unidadUso;
+	}
+
+	public function setUnidadUso($unidadUso){
+		$this->unidadUso = $unidadUso;
+	}
+
+	public function getCantidadMinima(){
+		return $this->cantidadMinima;
+	}
+
+	public function setCantidadMinima($cantidadMinima){
+		$this->cantidadMinima = $cantidadMinima;
+	}
+
     public function cargarCoberturas(){
         try{
             $db = connection::getInstance();
@@ -76,7 +121,7 @@ class Cobertura extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($id, $nombre, $descripcion, $idIndice, $indice, $precioAdicional, $estado, $idEstado, $imgUrl);
+            $stmt->bind_result($id, $nombre, $descripcion, $idIndice, $indice, $precioAdicional, $estado, $idEstado, $imgUrl, $stock, $minimo);
             $datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -89,7 +134,9 @@ class Cobertura extends connection{
 						"Precio"=>$precioAdicional,
 						"Estado"=>$estado,
 						"IdEstado"=>$idEstado,
-						"ImgUrl"=>$imgUrl
+						"ImgUrl"=>$imgUrl,
+						"StockTotal"=>$stock,
+						"MinimoStock"=>$minimo
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -134,7 +181,7 @@ class Cobertura extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($id, $descripcion, $indice, $precioAdicional, $estado, $nombre, $imgUrl);
+            $stmt->bind_result($id, $descripcion, $indice, $precioAdicional, $estado, $nombre, $imgUrl, $stock, $stockUnidad, $uso, $usoUnidad, $minima);
 			$datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -145,7 +192,12 @@ class Cobertura extends connection{
                         "Indice"=>$indice,
 						"Precio"=>$precioAdicional,
 						"Estado"=>$estado,
-						"ImgUrl"=>$imgUrl
+						"ImgUrl"=>$imgUrl,
+						"Stock"=>$stock,
+						"StockUnidad"=>$stockUnidad,
+						"Uso"=>$uso,
+						"UsoUnidad"=>$usoUnidad,
+						"Minima"=>$minima
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -161,9 +213,9 @@ class Cobertura extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call actualizarDatosCoberturas(?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call actualizarDatosCoberturas(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('issisiss', $this->getIdCobertura(), $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $correo);
+			$stmt->bind_param('issisisdidids', $this->getIdCobertura(), $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getUnidadUso(), $this->getCantidadMinima(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta
@@ -185,9 +237,9 @@ class Cobertura extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call ingresarCoberturas(?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call ingresarCoberturas(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('ssiiiss', $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $correo);
+			$stmt->bind_param('ssiiisdidids', $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getUnidadUso(), $this->getCantidadMinima(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta
@@ -231,7 +283,7 @@ class Cobertura extends connection{
             $db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-            $stmt=$conn->prepare('select * from `vistaCartaCoberturas` ');
+            $stmt=$conn->prepare('select * from `vistaCartaCoberturasCarta` ');
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta

@@ -75,8 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     echo 4;
                 break;
                 case '1':
-                    $token = sha1($empleado->randomCode());
-                    $enlace = $_SERVER["SERVER_NAME"].'/restablecer-pass.php?token='.$token.'&idTipoUsuario='.password_hash('empleado', PASSWORD_DEFAULT, ['cost'=>12]);
+                    $token = sha1($cliente->randomCode());
+                    $enlace = $_SERVER["SERVER_NAME"].'/restablecer-pass.php?token='.$token.'&idTipoUsuario='.password_hash('cliente', PASSWORD_DEFAULT, ['cost'=>12]);
                     $mail->Host = 'smtp.gmail.com';
                     $mail->SMTPAuth = true;
                     $mail->Username = 'davidchomc8@gmail.com';
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $mail->Port = 465;
                 
                     $mail->setFrom('davidchomc8@gmail.com', 'Mikasa Sushi');
-                    $mail->addAddress($empleado->getCorreo());     
+                    $mail->addAddress($cliente->getCorreo());     
                 
                     $mail->Subject = 'Gracias por unirte a Mikasa';
                     $mail->CharSet = 'UTF-8';
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         echo 2;
                     } else {
                         $reseteoPass->setToken($token);
-                        $reseteoPass->setCorreo($empleado->getCorreo());
+                        $reseteoPass->setCorreo($cliente->getCorreo());
                         $reseteoPass->ingresarReseteoPass();
                         echo 1;
                     }
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CambiarPasswordUsuario':
             $token = $_POST['token'];
             $idTipo = $_POST['tipoUsuario'];
-            if(password_verify($idTipo, 'cliente')){
+            if(password_verify('cliente', $idTipo)){
                 $cliente->setCorreo($reseteoPass->consultarCorreoToken($token));
                 $cliente->setPassword($_POST['nuevaPass']);
                 if($cliente->recuperarPass($token) == 1){

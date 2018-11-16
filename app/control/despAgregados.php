@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CargarMantenedorAgregados':
                 echo $agregados->CargarMantenedorAgregados();
         break;
+        case 'CargarCartaAgregados':
+                echo $agregados->CargarCartaAgregados();
+        break;
         case 'EliminarAgregado':
             if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL'){
                 $agregados->setIdAgregados($_POST['id']);

@@ -190,7 +190,9 @@ $('#form_cambiar_password_rec').validate({
             switch (resp) {
               case '1':
                 swal('Listo', 'Tu contraseña ha sido cambiada.', 'success');
-                location.href = 'login.php';
+                setTimeout(function() {
+                  location.href = 'login.php';
+                }, 2000);
                 break;
               case '2':
                 swal(

@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CargarMantenedorTipoPago':
             echo $tipopago->CargarMantenedorTipoPago();
         break;
+        case 'CargarComboBoxTipoPago':
+            echo $tipopago->cargarComboBoxTipoPago();
+        break;
         case 'EliminarTipoPago':
             if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL'){
                 $tipopago->setIdTipoPago($_POST['id']);

@@ -249,5 +249,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo $promos->actualizarDatosPromoChef($_SESSION['user'][1]);
         }
         break;
+
+        case 'ComprobarTipoDePromo':
+            $id = $_POST['id'];
+            $promos->setIdPromo($id);
+            echo $promos->comprobarTipoDePromo();
+        break;
+
+        case 'ComprobarTipoCoberturasPromoChef':
+            $id = $_POST['id'];
+            $promos->setIdPromo($id);
+            echo $promos->comprobarTipoCoberturasPromoChef();
+        break;
     }
 }

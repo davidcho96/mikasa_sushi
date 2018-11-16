@@ -29,13 +29,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo $coberturas->ObtenerInformacionCobertura();
         break;
         case 'ActualizarDatosCobertura':
-        if($validate->check(['nombre', 'descripcion', 'precio', 'estado', 'indice'], $_REQUEST)){
+        if($validate->check(['nombre', 'descripcion', 'precio', 'estado', 'indice', 'stock', 'unidadStock', 'uso', 'unidadUso', 'minima'], $_REQUEST)){
             $id = $_POST['id'];
             $nombre = $validate->str($_POST['nombre'], '100', '3');
             $descripcion = $validate->str($_POST['descripcion'], '1000', '3');
             $precio = $validate->int($_POST['precio'], 1000000, 0);
             $idIndice = $_POST['indice'];
             $idEstado = $_POST['estado'];
+            // $stock = $validate->int($_POST['stock'], 1000, 1);
+            // $uso = $validate->int($_POST['uso'], 10000, 1);
+            // $minima = $validate->int($_POST['minima'], 1000, 1);
+
+            $stock = $_POST['stock'];
+            $uso = $_POST['uso'];
+            $minima = $_POST['minima'];
+
             if(empty($_FILES["imagenUrl"]["name"])){
                 $fileText = 'Misma';
             }else{
@@ -70,18 +78,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $coberturas->setPrecioAdicional($precio);
             $coberturas->setIdEstado($idEstado);
             $coberturas->setImgUrl($fileText);
+            $coberturas->setCantidadStock($stock);
+            $coberturas->setUnidadStock($_POST['unidadStock']);
+            $coberturas->setCantidadUso($uso);
+            $coberturas->setUnidadUso($_POST['unidadUso']);
+            $coberturas->setCantidadMinima($minima);
 
             echo $coberturas->actualizarDatos($_SESSION['user'][1]);
         }
         break;
 
         case 'IngresarCobertura':
-        if($validate->check(['nombre', 'descripcion', 'precio', 'indice', 'estado'], $_REQUEST)){
+        if($validate->check(['nombre', 'descripcion', 'precio', 'indice', 'estado', 'stock', 'unidadStock', 'uso', 'unidadUso', 'minima'], $_REQUEST)){
             $nombre = $validate->str($_POST['nombre'], '100', '3');
             $descripcion = $validate->str($_POST['descripcion'], '1000', '3');
             $precio = $validate->int($_POST['precio'], 1000000, 0);
             $idIndice = $_POST['indice'];
             $idEstado = $_POST['estado'];
+            // $stock = $validate->int($_POST['stock'], 1000, 1);
+            // $uso = $validate->int($_POST['uso'], 10000, 1);
+            // $minima = $validate->int($_POST['minima'], 1000, 1);
+
+            $stock = $_POST['stock'];
+            $uso = $_POST['uso'];
+            $minima = $_POST['minima'];
 
             if(empty($_FILES["imagenUrl"]["name"])){
                 $fileText = 'default_food.jpg';
@@ -116,6 +136,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $coberturas->setIdIndice($idIndice);
             $coberturas->setIdEstado($idEstado);
             $coberturas->setImgUrl($fileText);
+            $coberturas->setCantidadStock($stock);
+            $coberturas->setUnidadStock($_POST['unidadStock']);
+            $coberturas->setCantidadUso($uso);
+            $coberturas->setUnidadUso($_POST['unidadUso']);
+            $coberturas->setCantidadMinima($minima);
 
             echo $coberturas->ingresarCoberturas($_SESSION['user'][1]);
         }

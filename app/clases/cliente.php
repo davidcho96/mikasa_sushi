@@ -81,7 +81,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 	}
 	
 	// *Generará un código random que será utilizado posteriormente para recuperar la contraseña
-	private function randomCode(){
+	public function randomCode(){
 		$caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789'; //* Caracteres posibles
 		$code = '';
 		$max = strlen($caracteres) - 1;
@@ -491,16 +491,16 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 			// *Se prepara la query 
 			$stmt=$conn->prepare('call recuperarPassCliente (?, ?, @out_value)');
 			// *Se pasan los valores a la query
-			$stmt->bind_param('ss', $password_, $this->getIdCliente());
+			$stmt->bind_param('ss', $password_, $this->getCorreo());
 			// *Se ejecuta la query
 			$stmt->execute();
 			// *Se obtiene el resultado de la query
 			$stmt->bind_result($result);
 			if($stmt->fetch()>0){
-				echo $result;
+				return $result;
 			}else{
 				// *Error
-				echo '2';
+				return '2';
 			}
 			$stmt->free_result();
 		}catch(Exception $error){

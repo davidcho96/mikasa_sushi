@@ -244,7 +244,6 @@ $('#btn_add_tipo_coberturas_promo_chef').click(function() {
     total = 0;
   }
 
-  console.log(obtenerTotalListaTipoCoberturas());
   if ($('#txt_cantidad_tipo_coberturas_chef').val() < 10) {
     M.toast({
       html: 'Debes ingresar una cantidad válida (mínimo 10).',
@@ -252,15 +251,23 @@ $('#btn_add_tipo_coberturas_promo_chef').click(function() {
       classes: 'red'
     });
   } else if (total < 200) {
-    var listaHtml = `<li id-tipo-cobertura-chef='${$(
-      '#combo_tipo_coberturas_promo_form_chef'
-    ).val()}' cantidad-tipo-cobertura-chef='${$(
-      '#txt_cantidad_tipo_coberturas_chef'
-    ).val()}'>${$('#txt_cantidad_tipo_coberturas_chef').val()} - ${$(
-      '#combo_tipo_coberturas_promo_form_chef option:selected'
-    ).text()} <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>`;
+    if ($('#txt_cantidad_tipo_coberturas_chef').val() % 10 == 0) {
+      var listaHtml = `<li id-tipo-cobertura-chef='${$(
+        '#combo_tipo_coberturas_promo_form_chef'
+      ).val()}' cantidad-tipo-cobertura-chef='${$(
+        '#txt_cantidad_tipo_coberturas_chef'
+      ).val()}'>${$('#txt_cantidad_tipo_coberturas_chef').val()} - ${$(
+        '#combo_tipo_coberturas_promo_form_chef option:selected'
+      ).text()} <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>`;
 
-    $('#lista_tipo_coberturas_chef').append(listaHtml);
+      $('#lista_tipo_coberturas_chef').append(listaHtml);
+    } else {
+      M.toast({
+        html: 'Selecciona una cantidad que sea múltiplo de 10',
+        displayLength: 3000,
+        classes: 'red'
+      });
+    }
   } else {
     M.toast({
       html: 'Haz sobre pasado las 200 piezas.',
@@ -313,7 +320,8 @@ $('#form_mantenedor_promo_cliente').validate({
       required: true,
       min: 10,
       max: 200,
-      digits: true
+      digits: true,
+      multiploDeDiez: true
     },
     txt_precio_promo: {
       required: true,
@@ -740,7 +748,8 @@ $('#form_mantenedor_promo_chef').validate({
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 10',
       max: 'La cantidad máxima es 200',
-      digits: 'Ingresa solo números'
+      digits: 'Ingresa solo números',
+      multiploDeDiez: true
     },
     txt_precio_promo_chef: {
       required: 'Campo requerido *',
@@ -917,39 +926,6 @@ function obtenerTotalListaTipoCoberturas() {
     return total;
   }
 }
-
-// $('#txt_cantidad_tipo_coberturas_chef').change(function() {
-//   var arrayTipoCoberturas = $('#lista_tipo_coberturas_chef li').toArray();
-//   var nuevoValor;
-//   if (arrayTipoCoberturas.length > 0) {
-//     nuevoValor =
-//       $('#txt_cantidad_piezas_chef').val() - obtenerTotalListaTipoCoberturas();
-//   }
-//   if ($(this).val() < 0) {
-//     $(this).val(0);
-//   }
-//   console.log(nuevoValor);
-//   if (
-//     $('#txt_cantidad_piezas_chef').val() >= 10 &&
-//     $(this).val() > nuevoValor
-//   ) {
-//     $('#txt_cantidad_tipo_coberturas_chef').val(nuevoValor);
-//   }
-// });
-
-// $('#txt_cantidad_piezas_chef').change(function() {
-//   if ($(this).val() < 10) {
-//     $(this).val(10);
-//   }
-//   console.log(obtenerTotalListaTipoCoberturas());
-//   if (obtenerTotalListaTipoCoberturas() != null) {
-//     var valor = obtenerTotalListaTipoCoberturas();
-//     if ($('#txt_cantidad_piezas_chef').val() < valor) {
-//       $('#txt_cantidad_piezas_chef').val(valor);
-//     }
-//     console.log(valor);
-//   }
-// });
 
 $('#txt_cantidad_piezas_chef').change(function() {
   if (obtenerTotalListaTipoCoberturas() != null) {
@@ -1155,3 +1131,11 @@ function comprobarEstadoSesion() {
     }
   });
 }
+
+$.validator.addMethod(
+  'multiploDeDiez',
+  function(value, element) {
+    return this.optional(element) || value % 10 == 0;
+  },
+  'Selecciona una cantidad que sea múltiplo de diez.'
+);

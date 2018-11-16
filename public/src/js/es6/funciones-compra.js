@@ -3,6 +3,8 @@ let cantidadPiezasArmaTuPromo = 0;
 let cantidadOpcionesCoberturas = 2;
 let cantidadOpcionesRellenos = 0;
 let arrayRollsCreados = [];
+let coberturasPromoAGustoChef = [];
+let cantidadSeleccionCoberturasChef = 0;
 // *---------------------------------------------------
 
 function cargarPromosCarta(estado, caracter) {
@@ -45,16 +47,16 @@ function cargarPromosCarta(estado, caracter) {
             }<i class="material-icons right">more_vert</i></span>`;
             cargaHtml += '<div class="precios-productos">';
             if (item.Descuento > 0) {
-              cargaHtml += `<span class="grey-text text-darken-4"><strike>Precio normal: $${
+              cargaHtml += `<span class="red-text"><strike>Antes: $${
                 item.Precio
               }</strike></span>`;
+              cargaHtml += `<span class="green-text">Ahora: $${item.Precio -
+                (item.Precio / 100) * item.Descuento}</span>`;
             } else {
-              cargaHtml += `<span class="grey-text text-darken-4">Precio normal: $${
+              cargaHtml += `<span class="green-text">Precio: $${
                 item.Precio
               }</span>`;
             }
-            cargaHtml += `<span class="grey-text text-darken-4">Precio descuento: $${item.Precio -
-              (item.Precio / 100) * item.Descuento}</span>`;
             cargaHtml += '</div>';
             cargaHtml += '<div class="divider"></div>';
             cargaHtml += '<div class="btn-mant-productos">';
@@ -120,6 +122,8 @@ function cargarRadioButtonCoberturas(estado, caracter) {
                 result.push([collection[i]]);
               }
             }
+            cantidadOpcionesCoberturas = result.length;
+
             return result;
           }
           var obj = groupBy(arr, 'Indice');
@@ -130,12 +134,16 @@ function cargarRadioButtonCoberturas(estado, caracter) {
               cargaHtml += '<div class="radio_coberturas">';
               cargaHtml += '<p>';
               cargaHtml += '<label>';
-              cargaHtml += `<input name='cobertura${
-                elementos.Indice
-              }' type='radio' nombre='${elementos.Nombre}' value='${
-                elementos.IdCobertura
-              }'></input>`;
-              cargaHtml += `<span>${elementos.Nombre}</span>`;
+              cargaHtml += `<input name='cobertura' type='radio' nombre='${
+                elementos.Nombre
+              }' value='${elementos.IdCobertura}'></input>`;
+              if (elementos.Precio != 0) {
+                cargaHtml += `<span>${elementos.Nombre}/+$${
+                  elementos.Precio
+                }</span>`;
+              } else {
+                cargaHtml += `<span>${elementos.Nombre}</span>`;
+              }
               cargaHtml += '</label>';
               cargaHtml += '</p>';
               cargaHtml += '</div>';
@@ -187,6 +195,8 @@ function cargarRadioButtonRellenos(estado, caracter) {
                 result.push([collection[i]]);
               }
             }
+
+            cantidadOpcionesRellenos = result.length;
             return result;
           }
           var obj = groupBy(arr, 'Indice');
@@ -196,13 +206,19 @@ function cargarRadioButtonRellenos(estado, caracter) {
             $.each(item, function(i, elementos) {
               cargaHtml += '<div class="radio_rellenos">';
               cargaHtml += '<p>';
-              cargaHtml += '<label>';
+              cargaHtml += '<label class="radio-button-text">';
               cargaHtml += `<input name='relleno${
                 elementos.Indice
               }' type='radio' nombre='${elementos.Nombre}' value='${
                 elementos.IdRelleno
               }'></input>`;
-              cargaHtml += `<span>${elementos.Nombre}</span>`;
+              if (elementos.Precio != 0) {
+                cargaHtml += `<span>${elementos.Nombre}/+$${
+                  elementos.Precio
+                }</span>`;
+              } else {
+                cargaHtml += `<span>${elementos.Nombre}</span>`;
+              }
               cargaHtml += '</label>';
               cargaHtml += '</p>';
               cargaHtml += '</div>';
@@ -219,117 +235,351 @@ function cargarRadioButtonRellenos(estado, caracter) {
   });
 }
 
+function cargarComboCantidadRollsArmaTuPromo() {
+  var cantidadOpciones = cantidadPiezasArmaTuPromo / 10;
+  var insertHtml = '';
+  if (cantidadOpciones != 0) {
+    for (var i = 1; i <= cantidadOpciones; i++) {
+      insertHtml += `<option value='${i * 10}'>${i * 10}</option>`;
+    }
+  } else {
+    insertHtml += '<option value="0">Selección completada</option>';
+  }
+  $('#cantidad_de_piezas_add_carro').html(insertHtml);
+}
+
 // *Comprueba el tipo de preparación de la promo mediante el id
 function ComprobarTipoDePromo(id) {
-  $('#modal_add_arma_tu_promo').modal('open');
-  cargarRadioButtonCoberturas();
-  cargarRadioButtonRellenos();
-  // var action = 'ComprobarTipoDePromo';
-  // $.ajax({
-  //   data: {
-  //     action: action,
-  //     id: id
-  //   },
-  //   url: '../app/control/despPromos.php',
-  //   type: 'POST',
-  //   success: function(resp) {
-  //     if (resp == 2) {
-  //     }
-  //   }
-  // });
+  var idPromo = id;
+  var action = 'ComprobarTipoDePromo';
+  $.ajax({
+    data: {
+      action: action,
+      id: idPromo
+    },
+    url: '../app/control/despPromos.php',
+    type: 'POST',
+    success: function(resp) {
+      var arrayResp = JSON.parse(resp);
+      $.each(arrayResp, function(indice, item) {
+        if (item.IdTipoPreparacion == 2) {
+          $('#accion_promo_compra').text(`Arma tu promo ${item.Nombre}`);
+          $('#modal_add_arma_tu_promo').modal('open');
+          $('#lbl_id_promo_compra').val(idPromo);
+          cantidadPiezasArmaTuPromo = item.Cantidad;
+          cargarComboCantidadRollsArmaTuPromo();
+          cargarRadioButtonCoberturas();
+          cargarRadioButtonRellenos();
+        } else {
+          $('#lbl_id_promo_compra_chef').val(idPromo);
+          var actionPromoChef = 'ComprobarTipoCoberturasPromoChef';
+          var cargaHtml = '';
+          $.ajax({
+            data: {
+              action: actionPromoChef,
+              id: idPromo
+            },
+            url: '../app/control/despPromos.php',
+            type: 'POST',
+            success: function(resp) {
+              var arrayResp = JSON.parse(resp);
+              switch (arrayResp) {
+                // *No hay tipo de cobertura con más de una opción
+                case '1':
+                  alert('No hay opciones de selección');
+                  break;
+                default:
+                  $('#modal_promo_chef_compra').modal('open');
+                  $('#accion_promo_compra_chef').text(
+                    `A gusto del chef ${item.Nombre}`
+                  );
+                  $.each(arrayResp, function(indice, item) {
+                    var index = indice;
+                    var a = JSON.stringify(eval(item.Coberturas));
+                    var arrayCoberturas = JSON.parse(a);
+                    cargaHtml += `<p class="modal-titulo-eleccion-ingredientes">Cobertura ${
+                      item.NombreTipoCobertura
+                    }</p>`;
+                    console.log(arrayResp);
+                    cargaHtml += '<div class="content_coberturas">';
+                    $.each(arrayCoberturas, function(i, elem) {
+                      cargaHtml += '<div class="radio_coberturas">';
+                      cargaHtml += '<p>';
+                      cargaHtml += '<label class="radio-button-text">';
+                      cargaHtml += `<input name='coberturaChef${index +
+                        1}' type='radio' value='${elem.id}' data-cantidad='${
+                        elem.cantidad
+                      }'></input>`;
+                      cargaHtml += `<span>${elem.nombre}</span>`;
+                      cargaHtml += '</label>';
+                      cargaHtml += '</p>';
+                      cargaHtml += '</div>';
+                    });
+                    cargaHtml += '</div>';
+                    $('#carga_chekbox_coberturas_chef').html(cargaHtml);
+                    cantidadSeleccionCoberturasChef++;
+                  });
+                  // indice++;
+                  break;
+              }
+            },
+            error: function() {
+              alert(
+                'Lo sentimos ha ocurrido un error al comprobar la promo seleccionada'
+              );
+            }
+          });
+        }
+      });
+    },
+    error: function() {
+      alert(
+        'Lo sentimos ha ocurrido un error al comprobar la promo seleccionada'
+      );
+    }
+  });
 }
 
 // *Los datos seleccionados se añaden a la lista para llevar la cuenta total de productos
 // *Almacena los rolls creados
 $('#btn_add_roll_promo').click(function() {
-  $('#lista_rolls_compra').empty();
-  var arrayRoll = [];
-  var arrayCoberturaDetalleRoll = [];
-  var arrayRellenoDetalleRoll = [];
-  var listaHtml = '';
-  var cantidadPiezas = $('#cantidad_de_piezas_add_carro').val();
-  for (var i = 1; i <= 3; i++) {
-    var idCobertura = $(`input[name=cobertura${i}]:checked`).val();
-    var nombreCobertura = $(`input[name=cobertura${i}]:checked`).attr('nombre');
+  if (cantidadPiezasArmaTuPromo == 0) {
+    alert('Ya haz seleccionado la cantidad posible.');
+  } else {
+    $('#lista_rolls_compra').empty();
+    var arrayRoll = [];
+    var arrayCoberturaDetalleRoll = [];
+    var arrayRellenoDetalleRoll = [];
+    var listaHtml = '';
+    var cantidadPiezas = $('#cantidad_de_piezas_add_carro').val();
+    // for (var i = 1; i <= cantidadOpcionesCoberturas; i++) {
+    var idCobertura = $(`input[name=cobertura]:checked`).val();
+    var nombreCobertura = $(`input[name=cobertura]:checked`).attr('nombre');
     if (idCobertura == null || nombreCobertura == null) {
       M.toast({
-        html: 'Selecciona al menos una cobertura por opción.',
+        html: 'Debes seleccionar una cobertura',
         displayLength: 3000,
         classes: 'red'
       });
       arrayCoberturaDetalleRoll = [];
-      break;
     } else {
       arrayCoberturaDetalleRoll.push({
         Id: idCobertura,
         Nombre: nombreCobertura
       });
     }
-  }
-  for (var j = 1; j <= 1; j++) {
-    var idRelleno = $(`input[name=relleno${j}]:checked`).val();
-    var nombreRelleno = $(`input[name=relleno${j}]:checked`).attr('nombre');
-    if (idRelleno == null || nombreRelleno == null) {
-      M.toast({
-        html: 'Selecciona al menos un relleno por opción.',
-        displayLength: 3000,
-        classes: 'red'
-      });
-      arrayCoberturaDetalleRoll = [];
-      arrayRellenoDetalleRoll = [];
-      break;
-    } else {
-      arrayRellenoDetalleRoll.push({
-        Id: idRelleno,
-        Nombre: nombreRelleno
-      });
+    // }
+    for (var j = 1; j <= cantidadOpcionesRellenos; j++) {
+      var idRelleno = $(`input[name=relleno${j}]:checked`).val();
+      var nombreRelleno = $(`input[name=relleno${j}]:checked`).attr('nombre');
+      if (idRelleno == null || nombreRelleno == null) {
+        M.toast({
+          html: 'Selecciona al menos un relleno por opción.',
+          displayLength: 3000,
+          classes: 'red'
+        });
+        arrayCoberturaDetalleRoll = [];
+        arrayRellenoDetalleRoll = [];
+        break;
+      } else {
+        arrayRellenoDetalleRoll.push({
+          Id: idRelleno,
+          Nombre: nombreRelleno
+        });
+      }
     }
-  }
-  if (
-    arrayCoberturaDetalleRoll.length > 0 &&
-    arrayRellenoDetalleRoll.length > 0
-  ) {
-    arrayRoll.push(cantidadPiezas);
-    arrayRoll.push({ Coberturas: arrayCoberturaDetalleRoll });
-    arrayRoll.push({ Rellenos: arrayRellenoDetalleRoll });
-    arrayRollsCreados.push({ arrayRoll: arrayRoll });
+    if (
+      arrayCoberturaDetalleRoll.length > 0 &&
+      arrayRellenoDetalleRoll.length > 0
+    ) {
+      arrayRoll.push(cantidadPiezas);
+      cantidadPiezasArmaTuPromo -= cantidadPiezas;
+      arrayRoll.push({ Coberturas: arrayCoberturaDetalleRoll });
+      arrayRoll.push({ Rellenos: arrayRellenoDetalleRoll });
+      arrayRollsCreados.push({ arrayRoll: arrayRoll });
 
-    $.each(arrayRollsCreados, function(indice, item) {
-      listaHtml += '<li>';
-      listaHtml += `<span>${item.arrayRoll[0]} piezas con: </span>`;
-      $.each(item.arrayRoll, function(indice, elem) {
-        $.each(elem.Coberturas, function(ind, elem) {
-          listaHtml += `<span>${elem.Nombre}/ </span>`;
+      $.each(arrayRollsCreados, function(indice, item) {
+        listaHtml += '<li class="collection-item">';
+        listaHtml += `<span>${item.arrayRoll[0]} piezas con: </span>`;
+        $.each(item.arrayRoll, function(indice, elem) {
+          $.each(elem.Coberturas, function(ind, elem) {
+            listaHtml += `<span>${elem.Nombre} | </span>`;
+          });
+          $.each(elem.Rellenos, function(ind, elem) {
+            listaHtml += `<span>${elem.Nombre} | </span>`;
+          });
         });
-        $.each(elem.Rellenos, function(ind, elem) {
-          listaHtml += `<span>${elem.Nombre}/ </span>`;
-        });
+        listaHtml += `<a onclick='eliminarRollCompraList(${indice})' href="#">Eliminar<a/>`;
+        listaHtml += '</li>';
       });
-      listaHtml += `<a onclick='eliminarRollCompraList(${indice})' href="#">Eliminar<a/>`;
-      listaHtml += '</li>';
-    });
-    $('#lista_rolls_compra').append(listaHtml);
+      cargarComboCantidadRollsArmaTuPromo();
+      $('#lista_rolls_compra').append(listaHtml);
+    }
   }
 });
 
 // *Elimina el rol específico de la lista arma tu promo
 function eliminarRollCompraList(indice) {
   var listaHtml = '';
+  var cantidadEliminada = arrayRollsCreados[indice].arrayRoll[0];
   arrayRollsCreados.splice(indice);
+  cantidadPiezasArmaTuPromo =
+    parseInt(cantidadPiezasArmaTuPromo) + parseInt(cantidadEliminada);
   $('#lista_rolls_compra').empty();
   $.each(arrayRollsCreados, function(indice, item) {
-    listaHtml += '<li>';
+    listaHtml += '<li class="collection-item">';
     listaHtml += `<span>${item.arrayRoll[0]} piezas con: </span>`;
     $.each(item.arrayRoll, function(indice, elem) {
       $.each(elem.Coberturas, function(ind, elem) {
-        listaHtml += `<span>${elem.Nombre}/ </span>`;
+        listaHtml += `<span>${elem.Nombre} | </span>`;
       });
       $.each(elem.Rellenos, function(ind, elem) {
-        listaHtml += `<span>${elem.Nombre}/ </span>`;
+        listaHtml += `<span>${elem.Nombre} | </span>`;
       });
     });
     listaHtml += `<a onclick='eliminarRollCompraList(${indice})' href="#">Eliminar<a/>`;
     listaHtml += '</li>';
   });
   $('#lista_rolls_compra').append(listaHtml);
+  cargarComboCantidadRollsArmaTuPromo();
 }
+
+$('#cancelar_arma_tu_promo_compra').on('click', function(evt) {
+  evt.preventDefault();
+  $('#modal_add_arma_tu_promo').modal('close');
+  // *Borra los datos de la lista
+  cantidadPiezasArmaTuPromo = 0;
+  cantidadOpcionesCoberturas = 0;
+  cantidadOpcionesRellenos = 0;
+  arrayRollsCreados = [];
+});
+
+$('#cancelar_promo_chef_compra').on('click', function(evt) {
+  evt.preventDefault();
+  $('#modal_promo_chef_compra').modal('close');
+  // *Borra los datos de la lista
+  cantidadPiezasArmaTuPromo = 0;
+  cantidadOpcionesCoberturas = 0;
+  cantidadOpcionesRellenos = 0;
+  arrayRollsCreados = [];
+  cantidadSeleccionCoberturasChef = 0;
+});
+
+$('#form_arma_tu_promo').submit(function(evt) {
+  evt.preventDefault();
+  if (arrayRollsCreados.length == 0 || cantidadPiezasArmaTuPromo != 0) {
+    alert('Por favor selecciona las piezas que deseas comprar');
+  } else {
+    var dataInfo = ';';
+    var action = 'IngresarPromoCompra';
+    var arrayRollsAIngresar = JSON.stringify(arrayRollsCreados);
+    var id_promo = $('#lbl_id_promo_compra').val();
+    dataInfo = {
+      rollscompra: arrayRollsAIngresar,
+      id_promo: id_promo,
+      action: action
+    };
+    $.ajax({
+      data: dataInfo,
+      url: '../app/control/despPromoCompra.php',
+      type: 'POST',
+      success: function(resp) {
+        switch (resp) {
+          case '1':
+            $('#modal_add_arma_tu_promo').modal('close');
+            M.toast({
+              html: 'Se añadió un producto al carro',
+              displayLength: 3000,
+              classes: 'light-green accent-3'
+            });
+            pulseBoton();
+            break;
+          case '2':
+            swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+            break;
+        }
+      },
+      error: function() {
+        alert('Lo sentimos ha ocurrido un error.');
+      }
+    });
+  }
+});
+
+// function pulseBoton() {
+//   $('#btn_carrito').toggleClass('pulse-button animated tada');
+//   setTimeout(function() {
+//     $('#btn_carrito').toggleClass('pulse-button animated tada');
+//   }, 6000);
+// }
+
+$('#form_arma_tu_promo_chef').submit(function(evt) {
+  swal({
+    title: 'Espera',
+    html: 'Estamos procesando tu pedido',
+    timer: 1000,
+    onOpen: () => {
+      swal.showLoading();
+    }
+  });
+  evt.preventDefault();
+  for (var j = 1; j <= cantidadSeleccionCoberturasChef; j++) {
+    var idCobertura = parseInt(
+      $(`input[name=coberturaChef${j}]:checked`).val()
+    );
+    var cantidad = parseInt(
+      $(`input[name=coberturaChef${j}]:checked`).attr('data-cantidad')
+    );
+    if (idCobertura == null) {
+      M.toast({
+        html: 'Selecciona al menos una cobertura por opción.',
+        displayLength: 3000,
+        classes: 'red'
+      });
+      break;
+    } else {
+      arrayRollsCreados.push({
+        Cantidad: cantidad,
+        IdCobertura: idCobertura
+      });
+    }
+  }
+  if (arrayRollsCreados.length == 0) {
+    alert('Por favor selecciona las piezas que deseas comprar');
+  } else {
+    var dataInfo = '';
+    var action = 'IngresarPromoCompraChef';
+    var id_promo = $('#lbl_id_promo_compra_chef').val();
+    var arrayRollsAIngresarChef = JSON.stringify(arrayRollsCreados);
+    dataInfo = {
+      rollscompra: arrayRollsAIngresarChef,
+      id_promo: id_promo,
+      action: action
+    };
+    $.ajax({
+      data: dataInfo,
+      url: '../app/control/despPromoCompra.php',
+      type: 'POST',
+      success: function(resp) {
+        console.log(resp);
+        switch (resp) {
+          case '1':
+            $('#modal_promo_chef_compra').modal('close');
+            M.toast({
+              html: 'Se añadió un producto al carro',
+              displayLength: 3000,
+              classes: 'light-green accent-3'
+            });
+            pulseBoton();
+            break;
+          case '2':
+            swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+            break;
+        }
+      },
+      error: function() {
+        alert('Lo sentimos ha ocurrido un error.');
+      }
+    });
+  }
+});

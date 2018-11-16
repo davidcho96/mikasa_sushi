@@ -10,6 +10,11 @@ class Relleno extends connection{
 	private $idEstado;
 	private $precioAdicional;
 	private $imgUrl;
+	private $cantidadStock;
+    private $unidadStock;
+    private $cantidadUso;
+    private $unidadUso;
+    private $cantidadMinima;
 
     public function getIdRelleno(){
 		return $this->idRelleno;
@@ -66,6 +71,46 @@ class Relleno extends connection{
 	public function setImgUrl($imgUrl){
 		$this->imgUrl = $imgUrl;
 	}
+
+	public function getCantidadStock(){
+		return $this->cantidadStock;
+	}
+
+	public function setCantidadStock($cantidadStock){
+		$this->cantidadStock = $cantidadStock;
+	}
+
+	public function getUnidadStock(){
+		return $this->unidadStock;
+	}
+
+	public function setUnidadStock($unidadStock){
+		$this->unidadStock = $unidadStock;
+	}
+
+	public function getCantidadUso(){
+		return $this->cantidadUso;
+	}
+
+	public function setCantidadUso($cantidadUso){
+		$this->cantidadUso = $cantidadUso;
+	}
+
+	public function getUnidadUso(){
+		return $this->unidadUso;
+	}
+
+	public function setUnidadUso($unidadUso){
+		$this->unidadUso = $unidadUso;
+	}
+
+	public function getCantidadMinima(){
+		return $this->cantidadMinima;
+	}
+
+	public function setCantidadMinima($cantidadMinima){
+		$this->cantidadMinima = $cantidadMinima;
+	}
 	
     public function cargarRellenos(){
         try{
@@ -76,7 +121,7 @@ class Relleno extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($id, $nombre, $descripcion, $idIndice, $indice, $precioAdicional, $estado, $idEstado, $imgUrl);
+            $stmt->bind_result($id, $nombre, $descripcion, $idIndice, $indice, $precioAdicional, $estado, $idEstado, $imgUrl, $stock, $minimo);
             $datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -89,7 +134,9 @@ class Relleno extends connection{
 						"Precio"=>$precioAdicional,
 						"Estado"=>$estado,
 						"idEstado"=>$idEstado,
-						'ImgUrl'=>$imgUrl
+						"ImgUrl"=>$imgUrl,
+						"StockTotal"=>$stock,
+						"MinimoStock"=>$minimo
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -134,7 +181,7 @@ class Relleno extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($id, $descripcion, $idIndice, $precioAdicional, $idEstado, $nombre, $imgUrl);
+            $stmt->bind_result($id, $descripcion, $idIndice, $precioAdicional, $idEstado, $nombre, $imgUrl, $stock, $stockUnidad, $uso, $usoUnidad, $minima);
 			$datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -145,7 +192,12 @@ class Relleno extends connection{
 						"Indice"=>$idIndice,
 						"Precio"=>$precioAdicional,
 						"Estado"=>$idEstado,
-						"ImgUrl"=>$imgUrl
+						"ImgUrl"=>$imgUrl,
+						"Stock"=>$stock,
+						"StockUnidad"=>$stockUnidad,
+						"Uso"=>$uso,
+						"UsoUnidad"=>$usoUnidad,
+						"Minima"=>$minima
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -161,9 +213,9 @@ class Relleno extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call actualizarDatosRellenos(?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call actualizarDatosRellenos(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('issisiss', $this->getIdRelleno(), $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $correo);
+			$stmt->bind_param('issisisdidids', $this->getIdRelleno(), $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getUnidadUso(), $this->getCantidadMinima(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta
@@ -185,9 +237,9 @@ class Relleno extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call ingresarRellenos(?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call ingresarRellenos(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('ssiiiss', $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $correo);
+			$stmt->bind_param('ssiiisdidids', $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getUnidadUso(), $this->getCantidadMinima(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta

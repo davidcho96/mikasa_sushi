@@ -151,4 +151,29 @@ class TipoPago extends connection{
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
+
+	public function cargarComboBoxTipoPago(){
+		try{
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call cargarComboTipoPago()');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($id, $descripcion);
+            $datos = array();
+			// if($stmt->fetch()>0){
+				while($stmt->fetch()){
+					$datos[]=array(
+                        "IdTipoPago"=>$id,
+						"Descripcion"=>$descripcion
+					);
+				}
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
 }

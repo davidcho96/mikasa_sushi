@@ -4,6 +4,7 @@ function cargarMantenedorRellenos(estado, caracter) {
   // *Los arrays almacenarán los datos de aquellas coberturas que no puedan ser seleccionados por el cliente
   var arrayIndiceNingunoRellenos = [];
   var arrayNoEnCartaRellenos = [];
+  var arrayProductosPocoStock = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: `action=${action}`,
@@ -13,7 +14,7 @@ function cargarMantenedorRellenos(estado, caracter) {
       // *----------------------------------------------------------------------
       // *Se filtra el array obtenido en base a los parámetros obtenidos
       var arr = JSON.parse(respuesta);
-      // *Se parsea la respuesta json obtenida
+      // *Se parsea la respuesta json obtenid|a
       if (estado == null || estado == 'Todos') {
         arrFilter = JSON.parse(respuesta);
       } else {
@@ -36,10 +37,15 @@ function cargarMantenedorRellenos(estado, caracter) {
             if (item.Indice == 'Ninguno') {
               arrayIndiceNingunoRellenos.push(item.Nombre);
             }
+            // *Si el stock es inferior al minimo se ingresará el elemento al id
+            if (item.StockTotal < item.MinimoStock) {
+              arrayProductosPocoStock.push(item.Nombre);
+            }
             // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
             if (item.idEstado == 2) {
               arrayNoEnCartaRellenos.push(item.Nombre);
             }
+
             cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml +=
@@ -87,6 +93,19 @@ function cargarMantenedorRellenos(estado, caracter) {
             cargaHtml += '</div>';
             cargaHtml += '</div>';
           });
+
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayProductosPocoStock.length > 0) {
+            var htmlPocoStock = `<div class="mensaje-precaucion-indice" id="mensaje_stock_rellenos"><p><b>Atención!:</b> Existen ${
+              arrayProductosPocoStock.length
+            } rellenos (${arrayProductosPocoStock.join(
+              ', '
+            )}) que poseen poco stock. Recuerda que estos no podrán ser elegidos por el cliente.</p></div>`;
+            $('#mensaje_poco_stock_rellenos').html(htmlPocoStock);
+          } else {
+            $('#mensaje_stock_rellenos').remove();
+          }
+
           // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
           if (arrayIndiceNingunoRellenos.length > 0) {
             var htmlNoIndice = `<div class="mensaje-precaucion-indice" id="mensaje_indice_rellenos"><p><b>Atención!:</b> Existen ${
@@ -219,6 +238,15 @@ function actualizarRellenoM(id) {
         $('#combo_estado_relleno').val(item.Estado);
         $('#combo_indice_relleno').val(item.Indice);
         $('#imagen_rellenos_text').val(item.ImgUrl);
+        // *------------------------------
+        $(`label[for='txt_cantidad_stock_relleno']`).addClass('active');
+        $('#txt_cantidad_stock_relleno').val(item.Stock);
+        $(`label[for='txt_cantidad_minima_relleno']`).addClass('active');
+        $('#txt_cantidad_minima_relleno').val(item.Minima);
+        $(`label[for='txt_cantidad_uso_roll_relleno']`).addClass('active');
+        $('#txt_cantidad_uso_roll_relleno').val(item.Uso);
+        $('#combo_unidad_relleno_stock').val(item.StockUnidad);
+        $('#combo_unidad_relleno_uso').val(item.UsoUnidad);
       });
     },
     error: function() {
@@ -298,6 +326,34 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
     },
     imagen_rellenos: {
       extension: 'jpeg|jpg|png'
+    },
+    txt_cantidad_stock_relleno: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_stock: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_uso_roll_relleno: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_uso: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_minima_relleno: {
+      required: true,
+      min: 0.1,
+      max: 10000,
+      number: true
     }
   },
   messages: {
@@ -329,6 +385,34 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
     },
     imagen_rellenos_text: {
       // required: 'Selecciona una imagen'
+    },
+    txt_cantidad_stock_relleno: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_stock: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_uso_roll_relleno: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_uso: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_minima_relleno: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 10000',
+      number: 'Sólo números permitidos'
     }
   },
   invalidHandler: function(form) {
@@ -365,6 +449,11 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
         formData.append('precio', $('#txt_precio_relleno').val());
         formData.append('estado', $('#combo_estado_relleno').val());
         formData.append('indice', $('#combo_indice_relleno').val());
+        formData.append('stock', $('#txt_cantidad_stock_relleno').val());
+        formData.append('unidadStock', $('#combo_unidad_relleno_stock').val());
+        formData.append('uso', $('#txt_cantidad_uso_roll_relleno').val());
+        formData.append('unidadUso', $('#combo_unidad_relleno_uso').val());
+        formData.append('minima', $('#txt_cantidad_minima_relleno').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'relleno'
         // *Dependiendo de la acción se anexan más datos al formulario (formData)

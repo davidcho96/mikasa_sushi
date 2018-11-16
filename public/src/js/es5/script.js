@@ -460,12 +460,164 @@ $('#combo_estado_agregados_filtro').keyup(function (item) {
 
 //! Añadir función para validar extensión de imagen
 
+function cargarDatosCarrito() {
+  var actionPromo = 'ObtenerDatosCarrito';
+  var cargaHtml = '';
+
+  //   *Se cargan los datos de las promos creadas en el carrito
+  $.ajax({
+    data: 'action=' + actionPromo,
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *----------------------------------------------------------------------
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          cargaHtml += '<li>';
+          $.each(arr, function (indice, item) {
+            // *------------------------------------------
+            cargaHtml += '<div class="collapsible-header">';
+            cargaHtml += '<img src="uploads/' + item.ImgUrl + '" alt="" height="85px" width="90px">';
+            cargaHtml += '<p class="collapsible-text">' + item.Nombre + '</p>';
+            cargaHtml += '<div class="collapsible-price">';
+            cargaHtml += '<p>Total: </p><p class=\'green-text\'>$' + item.PrecioTotal + '</p>';
+            cargaHtml += '<a class="eliminar-carro" onclick="eliminarPromoCarro(' + item.IdDetalle + ')"><i class="material-icons red-text">close</i></a>';
+            cargaHtml += '</div>';
+            cargaHtml += '</div>';
+          });
+          cargaHtml += '</li>';
+          //   *--------------------------------------------------
+          $('#carga_items_carrito').html(cargaHtml);
+          // console.log(respuesta);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+function cargarAgregadosCarrito() {
+  var actionAgregados = 'ObtenerDatosAgregadosCarrito';
+  var cargaHtmlAgregados = '';
+  //   *Se cargan los datos de los ingredientes en el carrito
+  $.ajax({
+    data: 'action=' + actionAgregados,
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *----------------------------------------------------------------------
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          cargaHtmlAgregados += '<li>';
+          $.each(arr, function (indice, item) {
+            // *------------------------------------------
+            cargaHtmlAgregados += '<div class="collapsible-header">';
+            cargaHtmlAgregados += '<img src="uploads/' + item.ImgUrl + '" alt="" height="85px" width="90px">';
+            cargaHtmlAgregados += '<p class="collapsible-text">' + item.Nombre + ' ' + item.Unidades + ' Unidades</p>';
+            cargaHtmlAgregados += '<div class="collapsible-price">';
+            cargaHtmlAgregados += '<p>Total: </p><p class=\'green-text\'>$' + item.PrecioTotal + '</p>';
+            cargaHtmlAgregados += '<a onclick="eliminarAgregadosCarro(' + item.IdDetalle + ')" class="eliminar-carro"><i class="material-icons red-text">close</i></a>';
+            cargaHtmlAgregados += '</div>';
+            cargaHtmlAgregados += '</div>';
+          });
+          cargaHtmlAgregados += '</li>';
+          //   *--------------------------------------------------
+          $('#carga_items_carrito').append(cargaHtmlAgregados);
+
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+function eliminarAgregadosCarro(id) {
+  var action = 'EliminarAgregadoCarrito';
+  $.ajax({
+    data: { action: action, idDetalle: id },
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    success: function success(resp) {
+      console.log(resp);
+      switch (resp) {
+        case '1':
+          M.toast({
+            html: 'Se ha eliminado un producto del carro de compras.',
+            displayLength: 2000,
+            classes: 'red'
+          });
+          cargarDatosCarrito();
+          cargarAgregadosCarrito();
+          ObtenerPrecioTotalCarrito();
+          break;
+        case '2':
+          swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
+
+function eliminarPromoCarro(id) {
+  var action = 'EliminarPromoCarrito';
+  $.ajax({
+    data: { action: action, idDetalle: id },
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    success: function success(resp) {
+      console.log(resp);
+      switch (resp) {
+        case '1':
+          M.toast({
+            html: 'Se ha eliminado un producto del carro de compras.',
+            displayLength: 3000,
+            classes: 'red'
+          });
+          cargarAgregadosCarrito();
+          cargarDatosCarrito();
+          ObtenerPrecioTotalCarrito();
+          break;
+        case '2':
+          swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
+
 function cargarMantenedorCoberturas(estado, caracter) {
   var action = 'CargarMantenedorCoberturas';
   var cargaHtml = '';
   // *Los arrays almacenarán los datos de aquellas coberturas que no puedan ser seleccionados por el cliente
   var arrayIndiceNinguno = [];
   var arrayNoEnCarta = [];
+  var arrayProductosPocoStock = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: 'action=' + action,
@@ -502,6 +654,11 @@ function cargarMantenedorCoberturas(estado, caracter) {
               arrayNoEnCarta.push(item.Nombre);
             }
 
+            // *Si el stock es inferior al minimo se ingresará el elemento al id
+            if (item.StockTotal < item.MinimoStock) {
+              arrayProductosPocoStock.push(item.Nombre);
+            }
+
             cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
@@ -532,6 +689,14 @@ function cargarMantenedorCoberturas(estado, caracter) {
             cargaHtml += '</div>';
             cargaHtml += '</div>';
           });
+
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayProductosPocoStock.length > 0) {
+            var htmlPocoStock = '<div class="mensaje-precaucion-indice" id="mensaje_stock_coberturas"><p><b>Atenci\xF3n!:</b> Existen ' + arrayProductosPocoStock.length + ' coberturas (' + arrayProductosPocoStock.join(', ') + ') que poseen poco stock. Recuerda que estos no podr\xE1n ser elegidos por el cliente.</p></div>';
+            $('#mensaje_poco_stock_coberturas').html(htmlPocoStock);
+          } else {
+            $('#mensaje_stock_coberturas').remove();
+          }
 
           // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
           if (arrayIndiceNinguno.length > 0) {
@@ -666,6 +831,15 @@ function actualizarCoberturaM(id) {
         $('#combo_estado_cobertura').val(item.Estado);
         $('#imagen_coberturas_text').val(item.ImgUrl);
         $('#combo_indice_cobertura').val(item.Indice);
+        // *------------------------------
+        $('label[for=\'txt_cantidad_stock_cobertura\']').addClass('active');
+        $('#txt_cantidad_stock_cobertura').val(item.Stock);
+        $('label[for=\'txt_cantidad_minima_cobertura\']').addClass('active');
+        $('#txt_cantidad_minima_cobertura').val(item.Minima);
+        $('label[for=\'txt_cantidad_uso_roll_cobertura\']').addClass('active');
+        $('#txt_cantidad_uso_roll_cobertura').val(item.Uso);
+        $('#combo_unidad_cobertura_stock').val(item.StockUnidad);
+        $('#combo_unidad_cobertura_uso').val(item.UsoUnidad);
       });
     },
     error: function error() {
@@ -746,6 +920,34 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
     },
     imagen_coberturas_text: {
       // required: true
+    },
+    txt_cantidad_stock_cobertura: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_stock: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_uso_roll_cobertura: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_uso: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_minima_cobertura: {
+      required: true,
+      min: 0.1,
+      max: 10000,
+      number: true
     }
   },
   messages: {
@@ -777,6 +979,34 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
     },
     imagen_coberturas_text: {
       // required: 'Selecciona una imagen'
+    },
+    txt_cantidad_stock_cobertura: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_stock: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_uso_roll_cobertura: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_uso: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_minima_cobertura: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 10000',
+      number: 'Sólo números permitidos'
     }
   },
   invalidHandler: function invalidHandler(form) {
@@ -808,6 +1038,11 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
         formData.append('precio', $('#txt_precio_cobertura').val());
         formData.append('estado', $('#combo_estado_cobertura').val());
         formData.append('indice', $('#combo_indice_cobertura').val());
+        formData.append('stock', $('#txt_cantidad_stock_cobertura').val());
+        formData.append('unidadStock', $('#combo_unidad_cobertura_stock').val());
+        formData.append('uso', $('#txt_cantidad_uso_roll_cobertura').val());
+        formData.append('unidadUso', $('#combo_unidad_cobertura_uso').val());
+        formData.append('minima', $('#txt_cantidad_minima_cobertura').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará una nueva 'cobertura'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
@@ -831,6 +1066,7 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
           }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
+        console.log($('#txt_cantidad_stock_cobertura').val());
         $.ajax({
           data: formData,
           url: '../app/control/despCoberturas.php',
@@ -1485,6 +1721,111 @@ $('#txt_filtro_cliente').on('keyup', function () {
   });
 });
 
+function cargarAgregadosCarta(estado, caracter) {
+  var action = 'CargarCartaAgregados';
+  var cargaHtml = '';
+  var arrayNoEnCarta = [];
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despAgregados.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      console.log('respuesta exitosa');
+      // *----------------------------------------------------------------------
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
+            if (item.IdEstado == 2) {
+              arrayNoEnCarta.push(item.Nombre);
+            }
+
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
+            cargaHtml += '<div class="card col s12 m12 l12">';
+            if (item.Descuento > 0) {
+              cargaHtml += '<div class="descuento"><p class="center-align">-' + item.Descuento + '%</p></div>';
+            }
+            cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
+            cargaHtml += '<img class="activator" src="uploads/' + item.ImgUrl + '">';
+            cargaHtml += '</div>';
+            cargaHtml += '<div class="card-content">';
+            cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + ' ' + item.Unidades + 'u<i class="material-icons right">more_vert</i></span>';
+            cargaHtml += '<div class="precios-productos">';
+            if (item.Descuento > 0) {
+              cargaHtml += '<span class="red-text">Antes: <strike>$' + item.Precio + '</strike></span>';
+              cargaHtml += '<span class="green-text">Ahora: $' + (item.Precio - item.Precio / 100 * item.Descuento) + '</span>';
+            } else {
+              cargaHtml += '<span class="green-text">Precio: $' + item.Precio + '</span>';
+            }
+            cargaHtml += '</div>';
+            cargaHtml += '<div class="divider"></div>';
+            cargaHtml += '<div class="btn-mant-productos">';
+            cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light black" onclick="addAgregadosCarrito(' + item.IdAgregado + ')"><i class="material-icons">add_shopping_cart</i></a>';
+            cargaHtml += '</div>';
+            cargaHtml += '</div>';
+            cargaHtml += '<div class="card-reveal">';
+            cargaHtml += '<span class="card-title grey-text text-darken-4">' + item.Nombre + '<i class="material-icons right">close</i></span>';
+            cargaHtml += '<p>' + item.Descripcion + '</p>';
+            cargaHtml += '</div>';
+            cargaHtml += '</div>';
+            cargaHtml += '</div>';
+          });
+
+          $('#carga_agregados_cliente').html(cargaHtml);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+function addAgregadosCarrito(id) {
+  var action = 'IngresarAgregadoCarrito';
+  $.ajax({
+    data: { action: action, idAgregado: id },
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    success: function success(resp) {
+      console.log(resp);
+      switch (resp) {
+        case '1':
+          M.toast({
+            html: 'Se añadió un producto al carro',
+            displayLength: 3000,
+            classes: 'light-green accent-3'
+          });
+          pulseBoton();
+          break;
+        case '2':
+          swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
+
+function pulseBoton() {
+  $('#btn_carrito').toggleClass('pulse-button animated tada');
+  setTimeout(function () {
+    $('#btn_carrito').toggleClass('pulse-button animated tada');
+  }, 6000);
+}
+
 function cargarDatosPerfilCliente() {
   var action = 'ObtenerDatosPerfil';
   //*Se envían datos del form y action, al controlador mediante ajax
@@ -1809,341 +2150,891 @@ jQuery.validator.addMethod('notEqual', function (value, element, param) {
 });
 // });
 
-// // *Variables globales utilizadas para la generación de rolls
-// let cantidadPiezasArmaTuPromo = 0;
-// let cantidadOpcionesCoberturas = 2;
-// let cantidadOpcionesRellenos = 0;
-// let arrayRollsCreados = [];
-// // *---------------------------------------------------
+function cargarComboBoxTipoPago() {
+  var action = 'CargarComboBoxTipoPago';
+  var cargaHtml = '';
 
-// function cargarPromosCarta(estado, caracter) {
-//   var action = 'CargarPromosCarta';
-//   var cargaHtml = '';
-//   //*Se envían datos del form y action, al controlador mediante ajax
-//   $.ajax({
-//     data: `action=${action}`,
-//     url: '../app/control/despPromos.php',
-//     type: 'POST',
-//     success: function(respuesta) {
-//       // *----------------------------------------------------------------------
-//       var arr = JSON.parse(respuesta);
-//       // *Se parsea la respuesta json obtenida
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despTipoPago.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      var arr = JSON.parse(respuesta);
+      $.each(arr, function (indice, item) {
+        cargaHtml += '<option value="' + item.IdTipoPago + '">' + item.Descripcion + '</option>';
+      });
+      $('select[name="combo_tipo_pago"]').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
 
-//       // *-----------------------------------------------------------------------
-//       //*Acción a ejecutar si la respuesta existe
-//       switch (respuesta) {
-//         case 'error':
-//           alert('Lo sentimos ha ocurrido un error');
-//           break;
-//         default:
-//           //* Por defecto los datos serán cargados en pantalla
-//           $.each(arr, function(indice, item) {
-//             // *Se cargarán los datos en el menú index
-//             cargaHtml += '<div class="col s12 m6 l4 xl3">';
-//             cargaHtml += '<div class="card col s12 m12 l12">';
-//             if (item.Descuento > 0) {
-//               cargaHtml += `<div class="descuento"><p class="center-align">-${
-//                 item.Descuento
-//               }%</p></div>`;
-//             }
-//             cargaHtml +=
-//               '<div class="card-image waves-effect waves-block waves-light">';
-//             cargaHtml += `<img class="activator" src="uploads/${item.ImgUrl}">`;
-//             cargaHtml += '</div>';
-//             cargaHtml += '<div class="card-content">';
-//             cargaHtml += `<span class="card-title activator grey-text text-darken-4">${
-//               item.Nombre
-//             }<i class="material-icons right">more_vert</i></span>`;
-//             cargaHtml += '<div class="precios-productos">';
-//             if (item.Descuento > 0) {
-//               cargaHtml += `<span class="grey-text text-darken-4"><strike>Precio normal: $${
-//                 item.Precio
-//               }</strike></span>`;
-//             } else {
-//               cargaHtml += `<span class="grey-text text-darken-4">Precio normal: $${
-//                 item.Precio
-//               }</span>`;
-//             }
-//             cargaHtml += `<span class="grey-text text-darken-4">Precio descuento: $${item.Precio -
-//               (item.Precio / 100) * item.Descuento}</span>`;
-//             cargaHtml += '</div>';
-//             cargaHtml += '<div class="divider"></div>';
-//             cargaHtml += '<div class="btn-mant-productos">';
+function cargarComboBoxTipoEntrega() {
+  var action = 'CargarComboBoxTipoEntrega';
+  var cargaHtml = '';
 
-//             if (item.IdTipoPreparacion == 2) {
-//               cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(${
-//                 item.IdPromo
-//               })"><i class="material-icons">add_shopping_cart</i></a>`;
-//             } else if (item.IdTipoPreparacion == 1) {
-//               cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(${
-//                 item.IdPromo
-//               })"><i class="material-icons">add_shopping_cart</i></a>`;
-//             }
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despTipoEntrega.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      var arr = JSON.parse(respuesta);
+      $.each(arr, function (indice, item) {
+        cargaHtml += '<option value="' + item.IdTipoEntrega + '">' + item.Descripcion + '</option>';
+      });
+      $('select[name="combo_tipo_entrega"]').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
 
-//             cargaHtml += '</div>';
-//             cargaHtml += '</div>';
-//             cargaHtml += '</div>';
-//             cargaHtml += '</div>';
-//           });
+function cargarDatosCarritoCompraFinalizarCompra() {
+  var actionPromo = 'ObtenerDatosCarrito';
+  var actionAgregados = 'ObtenerDatosAgregadosCarrito';
+  var cargaHtml = '';
+  var cargaHtmlAgregados = '';
 
-//           $('#carga_promos_cliente').html(cargaHtml);
-//           break;
-//       }
-//     },
-//     error: function() {
-//       alert('Lo sentimos ha ocurrido un error');
-//     }
-//   });
+  //   *Se cargan los datos de las promos creadas en el carrito
+  $.ajax({
+    data: 'action=' + actionPromo,
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *----------------------------------------------------------------------
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      console.log(respuesta);
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            // *------------------------------------------
+            cargaHtml += '<li class="collection-item items-carrito">';
+            cargaHtml += '<span>' + item.Nombre + '</span>';
+            cargaHtml += '<span class=\'green-text\'>$' + item.PrecioTotal + '</span>';
+            cargaHtml += '</li>';
+          });
+          //   *--------------------------------------------------
+          $('#lista_productos_carrito').append(cargaHtml);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+
+  //   *Se cargan los datos de los ingredientes en el carrito
+  $.ajax({
+    data: 'action=' + actionAgregados,
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *----------------------------------------------------------------------
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            // *------------------------------------------
+            cargaHtmlAgregados += '<li class="collection-item items-carrito">';
+            cargaHtmlAgregados += '<span class="collapsible-text">' + item.Nombre + ' ' + item.Unidades + ' Unidades</span>';
+            cargaHtmlAgregados += '<span class=\'green-text\'>$' + item.PrecioTotal + '</span>';
+            cargaHtmlAgregados += '</li>';
+          });
+          //   *--------------------------------------------------
+          $('#lista_productos_carrito').append(cargaHtmlAgregados);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+function verificarListaCarrito() {
+  if ($('#lista_productos_carrito').has('li').length == 0) {
+    var cargaHtmlEmpty = '';
+    cargaHtmlEmpty += '<li class="collection-item items-carrito">';
+    cargaHtmlEmpty += '<span>No hay productos en el carrito de compras</span>';
+    cargaHtmlEmpty += '</li>';
+    $('#lista_productos_carrito').append(cargaHtmlEmpty);
+  }
+}
+
+$('input[name="radio_receptor"]').change(function () {
+  if ($(this).val() == 2) {
+    $('#input_receptor_pedido').removeClass('hide');
+    $('#form_compra_cliente').validate(); //sets up the validator
+    $('#txt_nombre_receptor').rules('add', {
+      required: true,
+      minlength: 3,
+      maxlength: 100,
+      lettersonly: true,
+      messages: {
+        required: 'Campo requerido *',
+        minlength: 'Mínimo 3 caracteres',
+        maxlength: 'Máximo 3 caracteres',
+        lettersonly: 'Ingresa solo letras'
+      }
+    });
+  } else {
+    $(this).rules('remove');
+    $('#input_receptor_pedido').addClass('hide');
+  }
+});
+
+var formCompra = $('#form_compra_cliente').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    txt_hora_entrega: {
+      required: true
+    },
+    txt_direccion_entrega: {
+      required: true,
+      minlength: 3,
+      maxlength: 100
+    },
+    radio_receptor: {
+      required: true
+    },
+    combo_tipo_pago: {
+      required: true
+    },
+    combo_tipo_entrega: {
+      required: true
+    }
+  },
+  messages: {
+    txt_hora_entrega: {
+      required: 'Campo requerido *'
+    },
+    txt_direccion_entrega: {
+      required: 'Campo requerido *',
+      minlength: 'Mínimo 3 caracteres',
+      maxlength: 'Máximo 100 caracteres'
+    },
+    radio_receptor: {
+      required: 'Campo requerido *'
+    },
+    combo_tipo_pago: {
+      required: 'Selecciona una opción'
+    },
+    combo_tipo_entrega: {
+      required: 'Selecciona una opción'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    validarFechaCompra($('#txt_hora_entrega').val()).done(function (data) {
+      console.log(data);
+      // if (data == true) {
+      switch (data) {
+        case 'errorDiaEntrega':
+          swal('Error!', 'La compra no puede llevarse a cabo debido a que el local está cerrado.', 'error');
+          break;
+        case 'errorHoraEntrega':
+          swal('Error!', 'La compra no puede llevarse a cabo debido a que el local está cerrado.', 'error');
+          break;
+        case 'puedescomprar':
+          swal({
+            title: '¿Estás seguro?',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si',
+            cancelButtonText: 'Cancelar'
+          }).then(function (result) {
+            if (result.value) {
+              swal({
+                title: 'Espera',
+                html: 'Estamos procesando tu compra.',
+                timer: 1800,
+                onOpen: function onOpen() {
+                  swal.showLoading();
+                }
+              });
+              var action = 'GenerarVenta';
+              var dataInfo = '';
+              var receptor = '';
+              if ($('input[name=radio_receptor]:checked').val() == 2) {
+                receptor = $('#txt_nombre_receptor').val();
+              } else {
+                receptor = '1';
+              }
+
+              dataInfo = {
+                action: action,
+                tipo_pago: $('#combo_tipo_pago_form_cliente').val(),
+                tipo_entrega: $('#combo_tipo_entrega_form').val(),
+                hora_entrega: $('#txt_hora_entrega').val(),
+                direccion_entrega: $('#txt_direccion_entrega').val(),
+                receptor: receptor
+              };
+              $.ajax({
+                data: dataInfo,
+                url: '../app/control/despPromoCompra.php',
+                type: 'POST',
+                async: false,
+                success: function success(resp) {
+                  console.log(dataInfo);
+                  switch (resp) {
+                    case '1':
+                      swal('Listo', 'Su solicitud de compra ha sido enviada por favor espere a que esta sea aceptada.', 'success');
+                      setTimeout(function () {
+                        location.href = 'index-cliente.php';
+                      }, 1500);
+                      // *La función se ejecutó correctamente
+                      break;
+                    case '2':
+                      swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                      break;
+                    case '3':
+                      swal('Error!', 'Para generar la compra primero debes haber agregado productos al carro de compras.', 'error');
+                      break;
+                  }
+                },
+                error: function error() {
+                  alert('Lo sentimos ha ocurrido un error.');
+                }
+              });
+            }
+          });
+          break;
+      }
+      // } else {
+      //   swal(
+      //     'Error!',
+      //     'La compra no puede llevarse a cabo debido a que el local está cerrado.',
+      //     'error'
+      //   );
+      // }
+    });
+  }
+});
+
+function ObtenerPrecioTotalCarrito() {
+  var action = 'ObtenerPrecioTotalCarrito';
+  var cargaHtml = '';
+  //   *Se cargan los datos de los ingredientes en el carrito
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *----------------------------------------------------------------------
+      // var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          cargaHtml += respuesta;
+          //   *--------------------------------------------------
+          $('#total_compra').append(cargaHtml);
+          $('#total_compra_carro').html(cargaHtml);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+function validarFechaCompra(hora) {
+  var action = 'ValidarFechaCompra';
+  return $.ajax({
+    data: { action: action, horaEntrega: hora },
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    async: false,
+    success: function success(resp) {
+      return resp;
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+// *Variables globales utilizadas para la generación de rolls
+var cantidadPiezasArmaTuPromo = 0;
+var cantidadOpcionesCoberturas = 2;
+var cantidadOpcionesRellenos = 0;
+var arrayRollsCreados = [];
+var coberturasPromoAGustoChef = [];
+var cantidadSeleccionCoberturasChef = 0;
+// *---------------------------------------------------
+
+function cargarPromosCarta(estado, caracter) {
+  var action = 'CargarPromosCarta';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despPromos.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *----------------------------------------------------------------------
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            // *Se cargarán los datos en el menú index
+            cargaHtml += '<div class="col s12 m6 l4 xl3">';
+            cargaHtml += '<div class="card col s12 m12 l12">';
+            if (item.Descuento > 0) {
+              cargaHtml += '<div class="descuento"><p class="center-align">-' + item.Descuento + '%</p></div>';
+            }
+            cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
+            cargaHtml += '<img class="activator" src="uploads/' + item.ImgUrl + '">';
+            cargaHtml += '</div>';
+            cargaHtml += '<div class="card-content">';
+            cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + '<i class="material-icons right">more_vert</i></span>';
+            cargaHtml += '<div class="precios-productos">';
+            if (item.Descuento > 0) {
+              cargaHtml += '<span class="red-text"><strike>Antes: $' + item.Precio + '</strike></span>';
+              cargaHtml += '<span class="green-text">Ahora: $' + (item.Precio - item.Precio / 100 * item.Descuento) + '</span>';
+            } else {
+              cargaHtml += '<span class="green-text">Precio: $' + item.Precio + '</span>';
+            }
+            cargaHtml += '</div>';
+            cargaHtml += '<div class="divider"></div>';
+            cargaHtml += '<div class="btn-mant-productos">';
+
+            if (item.IdTipoPreparacion == 2) {
+              cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(' + item.IdPromo + ')"><i class="material-icons">add_shopping_cart</i></a>';
+            } else if (item.IdTipoPreparacion == 1) {
+              cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(' + item.IdPromo + ')"><i class="material-icons">add_shopping_cart</i></a>';
+            }
+
+            cargaHtml += '</div>';
+            cargaHtml += '</div>';
+            cargaHtml += '</div>';
+            cargaHtml += '</div>';
+          });
+
+          $('#carga_promos_cliente').html(cargaHtml);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+// *Función para cargar los checkbox de coberturas en arma tu promo
+function cargarRadioButtonCoberturas(estado, caracter) {
+  var action = 'CargarCoberturasCarta';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despCoberturas.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *----------------------------------------------------------------------
+      var arr = JSON.parse(respuesta);
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          // *Las coberturas se cargan de forma ordenada según su índice
+          var groupBy = function groupBy(collection, property) {
+            var i = 0,
+                val,
+                index,
+                values = [],
+                result = [];
+            for (; i < collection.length; i++) {
+              val = collection[i][property];
+              index = values.indexOf(val);
+              if (index > -1) result[index].push(collection[i]);else {
+                values.push(val);
+                result.push([collection[i]]);
+              }
+            }
+            cantidadOpcionesCoberturas = result.length;
+
+            return result;
+          };
+
+          var obj = groupBy(arr, 'Indice');
+          $.each(obj, function (indice, item) {
+            cargaHtml += '<div class="content_coberturas">';
+            cargaHtml += '<p>' + (indice + 1) + '.- </p>';
+            $.each(item, function (i, elementos) {
+              cargaHtml += '<div class="radio_coberturas">';
+              cargaHtml += '<p>';
+              cargaHtml += '<label>';
+              cargaHtml += '<input name=\'cobertura\' type=\'radio\' nombre=\'' + elementos.Nombre + '\' value=\'' + elementos.IdCobertura + '\'></input>';
+              if (elementos.Precio != 0) {
+                cargaHtml += '<span>' + elementos.Nombre + '/+$' + elementos.Precio + '</span>';
+              } else {
+                cargaHtml += '<span>' + elementos.Nombre + '</span>';
+              }
+              cargaHtml += '</label>';
+              cargaHtml += '</p>';
+              cargaHtml += '</div>';
+            });
+            cargaHtml += '</div>';
+            $('#carga_chekbox_cobertura').html(cargaHtml);
+          });
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+// *Función para cargar los checkbox de rellenos en arma tu promo
+function cargarRadioButtonRellenos(estado, caracter) {
+  var action = 'CargarRellenosCarta';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despRellenos.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *----------------------------------------------------------------------
+      var arr = JSON.parse(respuesta);
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          // *Los rellenos se cargan de forma ordenada según su índice
+          var groupBy = function groupBy(collection, property) {
+            var i = 0,
+                val,
+                index,
+                values = [],
+                result = [];
+            for (; i < collection.length; i++) {
+              val = collection[i][property];
+              index = values.indexOf(val);
+              if (index > -1) result[index].push(collection[i]);else {
+                values.push(val);
+                result.push([collection[i]]);
+              }
+            }
+
+            cantidadOpcionesRellenos = result.length;
+            return result;
+          };
+
+          var obj = groupBy(arr, 'Indice');
+          $.each(obj, function (indice, item) {
+            cargaHtml += '<div class="content_rellenos">';
+            cargaHtml += '<p>' + (indice + 1) + '.- </p>';
+            $.each(item, function (i, elementos) {
+              cargaHtml += '<div class="radio_rellenos">';
+              cargaHtml += '<p>';
+              cargaHtml += '<label class="radio-button-text">';
+              cargaHtml += '<input name=\'relleno' + elementos.Indice + '\' type=\'radio\' nombre=\'' + elementos.Nombre + '\' value=\'' + elementos.IdRelleno + '\'></input>';
+              if (elementos.Precio != 0) {
+                cargaHtml += '<span>' + elementos.Nombre + '/+$' + elementos.Precio + '</span>';
+              } else {
+                cargaHtml += '<span>' + elementos.Nombre + '</span>';
+              }
+              cargaHtml += '</label>';
+              cargaHtml += '</p>';
+              cargaHtml += '</div>';
+            });
+            cargaHtml += '</div>';
+            $('#carga_chekbox_rellenos').html(cargaHtml);
+          });
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+function cargarComboCantidadRollsArmaTuPromo() {
+  var cantidadOpciones = cantidadPiezasArmaTuPromo / 10;
+  var insertHtml = '';
+  if (cantidadOpciones != 0) {
+    for (var i = 1; i <= cantidadOpciones; i++) {
+      insertHtml += '<option value=\'' + i * 10 + '\'>' + i * 10 + '</option>';
+    }
+  } else {
+    insertHtml += '<option value="0">Selección completada</option>';
+  }
+  $('#cantidad_de_piezas_add_carro').html(insertHtml);
+}
+
+// *Comprueba el tipo de preparación de la promo mediante el id
+function ComprobarTipoDePromo(id) {
+  var idPromo = id;
+  var action = 'ComprobarTipoDePromo';
+  $.ajax({
+    data: {
+      action: action,
+      id: idPromo
+    },
+    url: '../app/control/despPromos.php',
+    type: 'POST',
+    success: function success(resp) {
+      var arrayResp = JSON.parse(resp);
+      $.each(arrayResp, function (indice, item) {
+        if (item.IdTipoPreparacion == 2) {
+          $('#accion_promo_compra').text('Arma tu promo ' + item.Nombre);
+          $('#modal_add_arma_tu_promo').modal('open');
+          $('#lbl_id_promo_compra').val(idPromo);
+          cantidadPiezasArmaTuPromo = item.Cantidad;
+          cargarComboCantidadRollsArmaTuPromo();
+          cargarRadioButtonCoberturas();
+          cargarRadioButtonRellenos();
+        } else {
+          $('#lbl_id_promo_compra_chef').val(idPromo);
+          var actionPromoChef = 'ComprobarTipoCoberturasPromoChef';
+          var cargaHtml = '';
+          $.ajax({
+            data: {
+              action: actionPromoChef,
+              id: idPromo
+            },
+            url: '../app/control/despPromos.php',
+            type: 'POST',
+            success: function success(resp) {
+              var arrayResp = JSON.parse(resp);
+              switch (arrayResp) {
+                // *No hay tipo de cobertura con más de una opción
+                case '1':
+                  alert('No hay opciones de selección');
+                  break;
+                default:
+                  $('#modal_promo_chef_compra').modal('open');
+                  $('#accion_promo_compra_chef').text('A gusto del chef ' + item.Nombre);
+                  $.each(arrayResp, function (indice, item) {
+                    var index = indice;
+                    var a = JSON.stringify(eval(item.Coberturas));
+                    var arrayCoberturas = JSON.parse(a);
+                    cargaHtml += '<p class="modal-titulo-eleccion-ingredientes">Cobertura ' + item.NombreTipoCobertura + '</p>';
+                    console.log(arrayResp);
+                    cargaHtml += '<div class="content_coberturas">';
+                    $.each(arrayCoberturas, function (i, elem) {
+                      cargaHtml += '<div class="radio_coberturas">';
+                      cargaHtml += '<p>';
+                      cargaHtml += '<label class="radio-button-text">';
+                      cargaHtml += '<input name=\'coberturaChef' + (index + 1) + '\' type=\'radio\' value=\'' + elem.id + '\' data-cantidad=\'' + elem.cantidad + '\'></input>';
+                      cargaHtml += '<span>' + elem.nombre + '</span>';
+                      cargaHtml += '</label>';
+                      cargaHtml += '</p>';
+                      cargaHtml += '</div>';
+                    });
+                    cargaHtml += '</div>';
+                    $('#carga_chekbox_coberturas_chef').html(cargaHtml);
+                    cantidadSeleccionCoberturasChef++;
+                  });
+                  // indice++;
+                  break;
+              }
+            },
+            error: function error() {
+              alert('Lo sentimos ha ocurrido un error al comprobar la promo seleccionada');
+            }
+          });
+        }
+      });
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error al comprobar la promo seleccionada');
+    }
+  });
+}
+
+// *Los datos seleccionados se añaden a la lista para llevar la cuenta total de productos
+// *Almacena los rolls creados
+$('#btn_add_roll_promo').click(function () {
+  if (cantidadPiezasArmaTuPromo == 0) {
+    alert('Ya haz seleccionado la cantidad posible.');
+  } else {
+    $('#lista_rolls_compra').empty();
+    var arrayRoll = [];
+    var arrayCoberturaDetalleRoll = [];
+    var arrayRellenoDetalleRoll = [];
+    var listaHtml = '';
+    var cantidadPiezas = $('#cantidad_de_piezas_add_carro').val();
+    // for (var i = 1; i <= cantidadOpcionesCoberturas; i++) {
+    var idCobertura = $('input[name=cobertura]:checked').val();
+    var nombreCobertura = $('input[name=cobertura]:checked').attr('nombre');
+    if (idCobertura == null || nombreCobertura == null) {
+      M.toast({
+        html: 'Debes seleccionar una cobertura',
+        displayLength: 3000,
+        classes: 'red'
+      });
+      arrayCoberturaDetalleRoll = [];
+    } else {
+      arrayCoberturaDetalleRoll.push({
+        Id: idCobertura,
+        Nombre: nombreCobertura
+      });
+    }
+    // }
+    for (var j = 1; j <= cantidadOpcionesRellenos; j++) {
+      var idRelleno = $('input[name=relleno' + j + ']:checked').val();
+      var nombreRelleno = $('input[name=relleno' + j + ']:checked').attr('nombre');
+      if (idRelleno == null || nombreRelleno == null) {
+        M.toast({
+          html: 'Selecciona al menos un relleno por opción.',
+          displayLength: 3000,
+          classes: 'red'
+        });
+        arrayCoberturaDetalleRoll = [];
+        arrayRellenoDetalleRoll = [];
+        break;
+      } else {
+        arrayRellenoDetalleRoll.push({
+          Id: idRelleno,
+          Nombre: nombreRelleno
+        });
+      }
+    }
+    if (arrayCoberturaDetalleRoll.length > 0 && arrayRellenoDetalleRoll.length > 0) {
+      arrayRoll.push(cantidadPiezas);
+      cantidadPiezasArmaTuPromo -= cantidadPiezas;
+      arrayRoll.push({ Coberturas: arrayCoberturaDetalleRoll });
+      arrayRoll.push({ Rellenos: arrayRellenoDetalleRoll });
+      arrayRollsCreados.push({ arrayRoll: arrayRoll });
+
+      $.each(arrayRollsCreados, function (indice, item) {
+        listaHtml += '<li class="collection-item">';
+        listaHtml += '<span>' + item.arrayRoll[0] + ' piezas con: </span>';
+        $.each(item.arrayRoll, function (indice, elem) {
+          $.each(elem.Coberturas, function (ind, elem) {
+            listaHtml += '<span>' + elem.Nombre + ' | </span>';
+          });
+          $.each(elem.Rellenos, function (ind, elem) {
+            listaHtml += '<span>' + elem.Nombre + ' | </span>';
+          });
+        });
+        listaHtml += '<a onclick=\'eliminarRollCompraList(' + indice + ')\' href="#">Eliminar<a/>';
+        listaHtml += '</li>';
+      });
+      cargarComboCantidadRollsArmaTuPromo();
+      $('#lista_rolls_compra').append(listaHtml);
+    }
+  }
+});
+
+// *Elimina el rol específico de la lista arma tu promo
+function eliminarRollCompraList(indice) {
+  var listaHtml = '';
+  var cantidadEliminada = arrayRollsCreados[indice].arrayRoll[0];
+  arrayRollsCreados.splice(indice);
+  cantidadPiezasArmaTuPromo = parseInt(cantidadPiezasArmaTuPromo) + parseInt(cantidadEliminada);
+  $('#lista_rolls_compra').empty();
+  $.each(arrayRollsCreados, function (indice, item) {
+    listaHtml += '<li class="collection-item">';
+    listaHtml += '<span>' + item.arrayRoll[0] + ' piezas con: </span>';
+    $.each(item.arrayRoll, function (indice, elem) {
+      $.each(elem.Coberturas, function (ind, elem) {
+        listaHtml += '<span>' + elem.Nombre + ' | </span>';
+      });
+      $.each(elem.Rellenos, function (ind, elem) {
+        listaHtml += '<span>' + elem.Nombre + ' | </span>';
+      });
+    });
+    listaHtml += '<a onclick=\'eliminarRollCompraList(' + indice + ')\' href="#">Eliminar<a/>';
+    listaHtml += '</li>';
+  });
+  $('#lista_rolls_compra').append(listaHtml);
+  cargarComboCantidadRollsArmaTuPromo();
+}
+
+$('#cancelar_arma_tu_promo_compra').on('click', function (evt) {
+  evt.preventDefault();
+  $('#modal_add_arma_tu_promo').modal('close');
+  // *Borra los datos de la lista
+  cantidadPiezasArmaTuPromo = 0;
+  cantidadOpcionesCoberturas = 0;
+  cantidadOpcionesRellenos = 0;
+  arrayRollsCreados = [];
+});
+
+$('#cancelar_promo_chef_compra').on('click', function (evt) {
+  evt.preventDefault();
+  $('#modal_promo_chef_compra').modal('close');
+  // *Borra los datos de la lista
+  cantidadPiezasArmaTuPromo = 0;
+  cantidadOpcionesCoberturas = 0;
+  cantidadOpcionesRellenos = 0;
+  arrayRollsCreados = [];
+  cantidadSeleccionCoberturasChef = 0;
+});
+
+$('#form_arma_tu_promo').submit(function (evt) {
+  evt.preventDefault();
+  if (arrayRollsCreados.length == 0 || cantidadPiezasArmaTuPromo != 0) {
+    alert('Por favor selecciona las piezas que deseas comprar');
+  } else {
+    var dataInfo = ';';
+    var action = 'IngresarPromoCompra';
+    var arrayRollsAIngresar = JSON.stringify(arrayRollsCreados);
+    var id_promo = $('#lbl_id_promo_compra').val();
+    dataInfo = {
+      rollscompra: arrayRollsAIngresar,
+      id_promo: id_promo,
+      action: action
+    };
+    $.ajax({
+      data: dataInfo,
+      url: '../app/control/despPromoCompra.php',
+      type: 'POST',
+      success: function success(resp) {
+        switch (resp) {
+          case '1':
+            $('#modal_add_arma_tu_promo').modal('close');
+            M.toast({
+              html: 'Se añadió un producto al carro',
+              displayLength: 3000,
+              classes: 'light-green accent-3'
+            });
+            pulseBoton();
+            break;
+          case '2':
+            swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+            break;
+        }
+      },
+      error: function error() {
+        alert('Lo sentimos ha ocurrido un error.');
+      }
+    });
+  }
+});
+
+// function pulseBoton() {
+//   $('#btn_carrito').toggleClass('pulse-button animated tada');
+//   setTimeout(function() {
+//     $('#btn_carrito').toggleClass('pulse-button animated tada');
+//   }, 6000);
 // }
 
-// // *Función para cargar los checkbox de coberturas en arma tu promo
-// function cargarRadioButtonCoberturas(estado, caracter) {
-//   var action = 'CargarCoberturasCarta';
-//   var cargaHtml = '';
-//   //*Se envían datos del form y action, al controlador mediante ajax
-//   $.ajax({
-//     data: `action=${action}`,
-//     url: '../app/control/despCoberturas.php',
-//     type: 'POST',
-//     success: function(respuesta) {
-//       // *----------------------------------------------------------------------
-//       var arr = JSON.parse(respuesta);
-//       // *-----------------------------------------------------------------------
-//       //*Acción a ejecutar si la respuesta existe
-//       switch (respuesta) {
-//         case 'error':
-//           alert('Lo sentimos ha ocurrido un error');
-//           break;
-//         default:
-//           // *Las coberturas se cargan de forma ordenada según su índice
-//           function groupBy(collection, property) {
-//             var i = 0,
-//               val,
-//               index,
-//               values = [],
-//               result = [];
-//             for (; i < collection.length; i++) {
-//               val = collection[i][property];
-//               index = values.indexOf(val);
-//               if (index > -1) result[index].push(collection[i]);
-//               else {
-//                 values.push(val);
-//                 result.push([collection[i]]);
-//               }
-//             }
-//             return result;
-//           }
-//           var obj = groupBy(arr, 'Indice');
-//           $.each(obj, function(indice, item) {
-//             cargaHtml += '<div class="content_coberturas">';
-//             cargaHtml += `<p>${indice + 1}.- </p>`;
-//             $.each(item, function(i, elementos) {
-//               cargaHtml += '<div class="radio_coberturas">';
-//               cargaHtml += '<p>';
-//               cargaHtml += '<label>';
-//               cargaHtml += `<input name='cobertura${
-//                 elementos.Indice
-//               }' type='radio' nombre='${elementos.Nombre}' value='${
-//                 elementos.IdCobertura
-//               }'></input>`;
-//               cargaHtml += `<span>${elementos.Nombre}</span>`;
-//               cargaHtml += '</label>';
-//               cargaHtml += '</p>';
-//               cargaHtml += '</div>';
-//             });
-//             cargaHtml += '</div>';
-//             $('#carga_chekbox_cobertura').html(cargaHtml);
-//           });
-//           break;
-//       }
-//     },
-//     error: function() {
-//       alert('Lo sentimos ha ocurrido un error');
-//     }
-//   });
-// }
-
-// // *Función para cargar los checkbox de rellenos en arma tu promo
-// function cargarRadioButtonRellenos(estado, caracter) {
-//   var action = 'CargarRellenosCarta';
-//   var cargaHtml = '';
-//   //*Se envían datos del form y action, al controlador mediante ajax
-//   $.ajax({
-//     data: `action=${action}`,
-//     url: '../app/control/despRellenos.php',
-//     type: 'POST',
-//     success: function(respuesta) {
-//       // *----------------------------------------------------------------------
-//       var arr = JSON.parse(respuesta);
-//       // *-----------------------------------------------------------------------
-//       //*Acción a ejecutar si la respuesta existe
-//       switch (respuesta) {
-//         case 'error':
-//           alert('Lo sentimos ha ocurrido un error');
-//           break;
-//         default:
-//           // *Los rellenos se cargan de forma ordenada según su índice
-//           function groupBy(collection, property) {
-//             var i = 0,
-//               val,
-//               index,
-//               values = [],
-//               result = [];
-//             for (; i < collection.length; i++) {
-//               val = collection[i][property];
-//               index = values.indexOf(val);
-//               if (index > -1) result[index].push(collection[i]);
-//               else {
-//                 values.push(val);
-//                 result.push([collection[i]]);
-//               }
-//             }
-//             return result;
-//           }
-//           var obj = groupBy(arr, 'Indice');
-//           $.each(obj, function(indice, item) {
-//             cargaHtml += '<div class="content_rellenos">';
-//             cargaHtml += `<p>${indice + 1}.- </p>`;
-//             $.each(item, function(i, elementos) {
-//               cargaHtml += '<div class="radio_rellenos">';
-//               cargaHtml += '<p>';
-//               cargaHtml += '<label>';
-//               cargaHtml += `<input name='relleno${
-//                 elementos.Indice
-//               }' type='radio' nombre='${elementos.Nombre}' value='${
-//                 elementos.IdRelleno
-//               }'></input>`;
-//               cargaHtml += `<span>${elementos.Nombre}</span>`;
-//               cargaHtml += '</label>';
-//               cargaHtml += '</p>';
-//               cargaHtml += '</div>';
-//             });
-//             cargaHtml += '</div>';
-//             $('#carga_chekbox_rellenos').html(cargaHtml);
-//           });
-//           break;
-//       }
-//     },
-//     error: function() {
-//       alert('Lo sentimos ha ocurrido un error');
-//     }
-//   });
-// }
-
-// // *Comprueba el tipo de preparación de la promo mediante el id
-// function ComprobarTipoDePromo(id) {
-//   $('#modal_add_arma_tu_promo').modal('open');
-//   cargarRadioButtonCoberturas();
-//   cargarRadioButtonRellenos();
-//   // var action = 'ComprobarTipoDePromo';
-//   // $.ajax({
-//   //   data: {
-//   //     action: action,
-//   //     id: id
-//   //   },
-//   //   url: '../app/control/despPromos.php',
-//   //   type: 'POST',
-//   //   success: function(resp) {
-//   //     if (resp == 2) {
-//   //     }
-//   //   }
-//   // });
-// }
-
-// // *Los datos seleccionados se añaden a la lista para llevar la cuenta total de productos
-// // *Almacena los rolls creados
-// $('#btn_add_roll_promo').click(function() {
-//   $('#lista_rolls_compra').empty();
-//   var arrayRoll = [];
-//   var arrayCoberturaDetalleRoll = [];
-//   var arrayRellenoDetalleRoll = [];
-//   var listaHtml = '';
-//   var cantidadPiezas = $('#cantidad_de_piezas_add_carro').val();
-//   for (var i = 1; i <= 3; i++) {
-//     var idCobertura = $(`input[name=cobertura${i}]:checked`).val();
-//     var nombreCobertura = $(`input[name=cobertura${i}]:checked`).attr('nombre');
-//     if (idCobertura == null || nombreCobertura == null) {
-//       M.toast({
-//         html: 'Selecciona al menos una cobertura por opción.',
-//         displayLength: 3000,
-//         classes: 'red'
-//       });
-//       arrayCoberturaDetalleRoll = [];
-//       break;
-//     } else {
-//       arrayCoberturaDetalleRoll.push({
-//         Id: idCobertura,
-//         Nombre: nombreCobertura
-//       });
-//     }
-//   }
-//   for (var j = 1; j <= 1; j++) {
-//     var idRelleno = $(`input[name=relleno${j}]:checked`).val();
-//     var nombreRelleno = $(`input[name=relleno${j}]:checked`).attr('nombre');
-//     if (idRelleno == null || nombreRelleno == null) {
-//       M.toast({
-//         html: 'Selecciona al menos un relleno por opción.',
-//         displayLength: 3000,
-//         classes: 'red'
-//       });
-//       arrayCoberturaDetalleRoll = [];
-//       arrayRellenoDetalleRoll = [];
-//       break;
-//     } else {
-//       arrayRellenoDetalleRoll.push({
-//         Id: idRelleno,
-//         Nombre: nombreRelleno
-//       });
-//     }
-//   }
-//   if (
-//     arrayCoberturaDetalleRoll.length > 0 &&
-//     arrayRellenoDetalleRoll.length > 0
-//   ) {
-//     arrayRoll.push(cantidadPiezas);
-//     arrayRoll.push({ Coberturas: arrayCoberturaDetalleRoll });
-//     arrayRoll.push({ Rellenos: arrayRellenoDetalleRoll });
-//     arrayRollsCreados.push({ arrayRoll: arrayRoll });
-
-//     $.each(arrayRollsCreados, function(indice, item) {
-//       listaHtml += '<li>';
-//       listaHtml += `<span>${item.arrayRoll[0]} piezas con: </span>`;
-//       $.each(item.arrayRoll, function(indice, elem) {
-//         $.each(elem.Coberturas, function(ind, elem) {
-//           listaHtml += `<span>${elem.Nombre}/ </span>`;
-//         });
-//         $.each(elem.Rellenos, function(ind, elem) {
-//           listaHtml += `<span>${elem.Nombre}/ </span>`;
-//         });
-//       });
-//       listaHtml += `<a onclick='eliminarRollCompraList(${indice})' href="#">Eliminar<a/>`;
-//       listaHtml += '</li>';
-//     });
-//     $('#lista_rolls_compra').append(listaHtml);
-//   }
-// });
-
-// // *Elimina el rol específico de la lista arma tu promo
-// function eliminarRollCompraList(indice) {
-//   var listaHtml = '';
-//   arrayRollsCreados.splice(indice);
-//   $('#lista_rolls_compra').empty();
-//   $.each(arrayRollsCreados, function(indice, item) {
-//     listaHtml += '<li>';
-//     listaHtml += `<span>${item.arrayRoll[0]} piezas con: </span>`;
-//     $.each(item.arrayRoll, function(indice, elem) {
-//       $.each(elem.Coberturas, function(ind, elem) {
-//         listaHtml += `<span>${elem.Nombre}/ </span>`;
-//       });
-//       $.each(elem.Rellenos, function(ind, elem) {
-//         listaHtml += `<span>${elem.Nombre}/ </span>`;
-//       });
-//     });
-//     listaHtml += `<a onclick='eliminarRollCompraList(${indice})' href="#">Eliminar<a/>`;
-//     listaHtml += '</li>';
-//   });
-//   $('#lista_rolls_compra').append(listaHtml);
-// }
+$('#form_arma_tu_promo_chef').submit(function (evt) {
+  swal({
+    title: 'Espera',
+    html: 'Estamos procesando tu pedido',
+    timer: 1000,
+    onOpen: function onOpen() {
+      swal.showLoading();
+    }
+  });
+  evt.preventDefault();
+  for (var j = 1; j <= cantidadSeleccionCoberturasChef; j++) {
+    var idCobertura = parseInt($('input[name=coberturaChef' + j + ']:checked').val());
+    var cantidad = parseInt($('input[name=coberturaChef' + j + ']:checked').attr('data-cantidad'));
+    if (idCobertura == null) {
+      M.toast({
+        html: 'Selecciona al menos una cobertura por opción.',
+        displayLength: 3000,
+        classes: 'red'
+      });
+      break;
+    } else {
+      arrayRollsCreados.push({
+        Cantidad: cantidad,
+        IdCobertura: idCobertura
+      });
+    }
+  }
+  if (arrayRollsCreados.length == 0) {
+    alert('Por favor selecciona las piezas que deseas comprar');
+  } else {
+    var dataInfo = '';
+    var action = 'IngresarPromoCompraChef';
+    var id_promo = $('#lbl_id_promo_compra_chef').val();
+    var arrayRollsAIngresarChef = JSON.stringify(arrayRollsCreados);
+    dataInfo = {
+      rollscompra: arrayRollsAIngresarChef,
+      id_promo: id_promo,
+      action: action
+    };
+    $.ajax({
+      data: dataInfo,
+      url: '../app/control/despPromoCompra.php',
+      type: 'POST',
+      success: function success(resp) {
+        console.log(resp);
+        switch (resp) {
+          case '1':
+            $('#modal_promo_chef_compra').modal('close');
+            M.toast({
+              html: 'Se añadió un producto al carro',
+              displayLength: 3000,
+              classes: 'light-green accent-3'
+            });
+            pulseBoton();
+            break;
+          case '2':
+            swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+            break;
+        }
+      },
+      error: function error() {
+        alert('Lo sentimos ha ocurrido un error.');
+      }
+    });
+  }
+});
 
 function cargaModalEmpleado(id) {
   $('#modal_actualiza_empleado').modal('open');
@@ -3102,6 +3993,334 @@ function cargarImagenesIndex() {
   });
 }
 
+// *Se cargan los combobox del mantenedor
+function cargarComboUnidadMedida() {
+  var action = 'CargarComboUnidadMedida';
+  $('select').formSelect();
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despUnidadMedida.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *cargaHtml es para los combobox del formulario
+      var arr = JSON.parse(respuesta);
+      $.each(arr, function (indice, item) {
+        cargaHtml += '<option value=\'' + item.IdUnidad + '\'>' + item.Nombre + '</option>';
+      });
+      $('select[name*="combo_unidad_medida"]').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+// *-----------------------------------------------------------------
+
+function CargarTablaIngredientes() {
+  var action = 'CargarMantenedorIngredientes';
+  var cargaHtml = '';
+  var arrayProductosPocoStock = [];
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despIngredientes.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            // *Si el stock es inferior al minimo se ingresará el elemento al id
+            if (item.StockTotal < item.MinimoStock) {
+              arrayProductosPocoStock.push(item.Nombre);
+            }
+            cargaHtml += '<tr>';
+            cargaHtml += '<td>' + item.Nombre + '</td>';
+            cargaHtml += '<td>' + item.Stock + '</td>';
+            cargaHtml += '<td>' + item.Uso + '</td>';
+            cargaHtml += '<td>' + item.Minimo + '</td>';
+            cargaHtml += "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='actualizarIngrediente(" + item.IdIngrediente + ")'><i class='material-icons'>edit</i></a></td>";
+            cargaHtml += "<td><a class='btn-floating btn-medium waves-effect waves-light red' onclick='eliminarIngrediente(" + item.IdIngrediente + ")'><i class='material-icons'>delete</i></a></td>";
+            cargaHtml += '</tr>';
+          });
+
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayProductosPocoStock.length > 0) {
+            var htmlPocoStock = '<div class="mensaje-precaucion-indice" id="mensaje_stock_ingredientes"><p><b>Atenci\xF3n!:</b> Existen ' + arrayProductosPocoStock.length + ' ingredientes (' + arrayProductosPocoStock.join(', ') + ') que poseen poco stock. Recuerda reabastecerlos.</p></div>';
+            $('#mensaje_no_stock_ingredientes').html(htmlPocoStock);
+          } else {
+            $('#mensaje_stock_ingredientes').remove();
+          }
+
+          $('#body_tabla_ingredientes').html(cargaHtml);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+// *Función para filtrar los datos en la tabla
+$('#txt_buscar_ingrediente').on('keyup', function () {
+  var caracterFiltro = $(this).val().toLowerCase();
+  $('#body_tabla_ingredientes tr').filter(function () {
+    $(this).toggle($(this).text().toLowerCase().indexOf(caracterFiltro) > -1);
+  });
+});
+
+// *La función recibe el id del elemento y ejecuta la query en BD
+function eliminarIngrediente(id) {
+  var action = 'EliminarIngrediente';
+  swal({
+    title: '¿Estás seguro?',
+    text: 'Al ser eliminada este ingrediente ya no será utilizable ni comprobable.',
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Si',
+    cancelButtonText: 'Cancelar'
+  }).then(function (result) {
+    if (result.value) {
+      $.ajax({
+        data: {
+          action: action,
+          id: id
+        },
+        url: '../app/control/despIngredientes.php',
+        type: 'POST',
+        success: function success(resp) {
+          console.log(resp);
+          switch (resp) {
+            case '1':
+              swal('Listo', 'El elemento fue eliminado', 'success');
+              CargarTablaIngredientes();
+              break;
+            case '2':
+              swal('Error', 'El elemento no pudo ser eliminado', 'error');
+              break;
+          }
+        },
+        error: function error() {
+          alert('Lo sentimos ha habido un error inesperado');
+        }
+      });
+    }
+  });
+}
+
+// *Al presionar el botón cancelar del modal de ingreso de datos el formulario se formateará
+// *De esta forma detectará si existe el valor del label id y definirá la acción a realizar
+$('#cancelar_mantenedor_ingrediente').on('click', function (evt) {
+  evt.preventDefault();
+  $('#modal_mantenedor_ingrediente').modal('close');
+});
+
+var validarFormActualizarAgregados = $('#form_mantenedor_ingrediente').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    txt_nombre_ingrediente: {
+      required: true,
+      minlength: 3,
+      maxlength: 100
+    },
+    txt_cantidad_stock: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_stock: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_uso_roll: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_uso: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_minima: {
+      required: true,
+      min: 0.1,
+      max: 10000,
+      number: true
+    }
+  },
+  messages: {
+    txt_nombre_ingrediente: {
+      required: 'Campo requerido *',
+      minlength: 'Mínimo 3 caracteres',
+      maxlength: 'Máximo 100 caracteres'
+    },
+    txt_cantidad_stock: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_stock: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_uso_roll: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_uso: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_minima: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 10000',
+      number: 'Sólo números permitidos'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    // *Sweet alert para mostrar mensaje de confirmación de acción
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        // *La variable formData inicializa el formulario al cual se le pasan los datos usando append
+        var formData = new FormData();
+
+        formData.append('nombre', $('#txt_nombre_ingrediente').val());
+        formData.append('stock', $('#txt_cantidad_stock').val());
+        formData.append('unidadStock', $('#combo_unidad_ingrediente_stock').val());
+        formData.append('uso', $('#txt_cantidad_uso_roll').val());
+        formData.append('unidadUso', $('#combo_unidad_ingrediente_uso').val());
+        formData.append('minima', $('#txt_cantidad_minima').val());
+
+        // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
+        // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
+        // *Dependiendo de la acción se anexan más datos al formulario (formData)
+
+        if ($('#lbl_id_ingrediente').text() == '') {
+          var _action9 = 'IngresarIngrediente';
+          formData.append('action', _action9);
+        } else {
+          var actionUpdate = 'ActualizarDatosIngrediente';
+          formData.append('id', $('#lbl_id_ingrediente').text());
+          formData.append('action', actionUpdate);
+        }
+        //*Se envían datos del form y action, al controlador mediante ajax
+        console.log(formData);
+        $.ajax({
+          data: formData,
+          url: '../app/control/despIngredientes.php',
+          type: 'POST',
+          contentType: false,
+          processData: false,
+          success: function success(resp) {
+            console.log(resp);
+            //*Acción a ejecutar si la respuesta existe
+            switch (resp) {
+              case '1':
+                $('#modal_mantenedor_ingrediente').modal('close');
+                swal('Listo', 'Los datos han sido ingresados', 'success');
+                CargarTablaIngredientes();
+                // *La función se ejecutó correctamente
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+              default:
+                console.log(resp);
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error');
+          }
+        });
+      }
+    });
+  }
+});
+
+// *Al presionar el botón de editar del producto se cargarán los datos en los campos permitiendo editar los valores actuales
+function actualizarIngrediente(id) {
+  $('#modal_mantenedor_ingrediente').modal('open');
+  $('#accion_ingredientes').text('Actualizar Ingrediente');
+  var action = 'CargarModalIngrediente';
+  var mensajeHtml = '<div class="mensaje-precaucion" id="mensaje_precaucion_ingredientes"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  $('#content_mensaje_precaucion_ingrediente').html(mensajeHtml);
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: {
+      id: id,
+      action: action
+    },
+    url: '../app/control/despIngredientes.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      var arr = JSON.parse(respuesta);
+      $.each(arr, function (indice, item) {
+        // *Los label adquieren la clase active para no quedar sobre el texto definido en val
+        $('#lbl_id_ingrediente').text(item.Id);
+        $("label[for='txt_nombre_ingrediente']").addClass('active');
+        $('#txt_nombre_ingrediente').val(item.Nombre);
+        $('label[for=\'txt_cantidad_stock\']').addClass('active');
+        $('#txt_cantidad_stock').val(item.Stock);
+        $('label[for=\'txt_cantidad_minima\']').addClass('active');
+        $('#txt_cantidad_minima').val(item.Minima);
+        $('label[for=\'txt_cantidad_uso_roll\']').addClass('active');
+        $('#txt_cantidad_uso_roll').val(item.Uso);
+        $('#combo_unidad_ingrediente_stock').val(item.StockUnidad);
+        $('#combo_unidad_ingrediente_uso').val(item.UsoUnidad);
+      });
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un problema');
+    }
+  });
+}
+
 'use strict';
 
 // *Login clientes
@@ -3475,7 +4694,6 @@ $('#btn_add_tipo_coberturas_promo_chef').click(function () {
     total = 0;
   }
 
-  console.log(obtenerTotalListaTipoCoberturas());
   if ($('#txt_cantidad_tipo_coberturas_chef').val() < 10) {
     M.toast({
       html: 'Debes ingresar una cantidad válida (mínimo 10).',
@@ -3483,9 +4701,17 @@ $('#btn_add_tipo_coberturas_promo_chef').click(function () {
       classes: 'red'
     });
   } else if (total < 200) {
-    var listaHtml = '<li id-tipo-cobertura-chef=\'' + $('#combo_tipo_coberturas_promo_form_chef').val() + '\' cantidad-tipo-cobertura-chef=\'' + $('#txt_cantidad_tipo_coberturas_chef').val() + '\'>' + $('#txt_cantidad_tipo_coberturas_chef').val() + ' - ' + $('#combo_tipo_coberturas_promo_form_chef option:selected').text() + ' <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>';
+    if ($('#txt_cantidad_tipo_coberturas_chef').val() % 10 == 0) {
+      var listaHtml = '<li id-tipo-cobertura-chef=\'' + $('#combo_tipo_coberturas_promo_form_chef').val() + '\' cantidad-tipo-cobertura-chef=\'' + $('#txt_cantidad_tipo_coberturas_chef').val() + '\'>' + $('#txt_cantidad_tipo_coberturas_chef').val() + ' - ' + $('#combo_tipo_coberturas_promo_form_chef option:selected').text() + ' <a id="eliminar_lista_tipo_cobertura_chef" href="#">Eliminar<a/></li>';
 
-    $('#lista_tipo_coberturas_chef').append(listaHtml);
+      $('#lista_tipo_coberturas_chef').append(listaHtml);
+    } else {
+      M.toast({
+        html: 'Selecciona una cantidad que sea múltiplo de 10',
+        displayLength: 3000,
+        classes: 'red'
+      });
+    }
   } else {
     M.toast({
       html: 'Haz sobre pasado las 200 piezas.',
@@ -3534,7 +4760,8 @@ $('#form_mantenedor_promo_cliente').validate({
       required: true,
       min: 10,
       max: 200,
-      digits: true
+      digits: true,
+      multiploDeDiez: true
     },
     txt_precio_promo: {
       required: true,
@@ -3646,8 +4873,8 @@ $('#form_mantenedor_promo_cliente').validate({
         // *Dependiendo de la acción se anexan más datos al formulario (formData)
 
         if ($('#lbl_id_promo_cliente').text() == '') {
-          var _action9 = 'IngresarPromoCliente';
-          formData.append('action', _action9);
+          var _action10 = 'IngresarPromoCliente';
+          formData.append('action', _action10);
           if ($('#imagen_promo').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
             console.log('imagen');
@@ -3920,7 +5147,8 @@ $('#form_mantenedor_promo_chef').validate({
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 10',
       max: 'La cantidad máxima es 200',
-      digits: 'Ingresa solo números'
+      digits: 'Ingresa solo números',
+      multiploDeDiez: true
     },
     txt_precio_promo_chef: {
       required: 'Campo requerido *',
@@ -3996,8 +5224,8 @@ $('#form_mantenedor_promo_chef').validate({
         // *Dependiendo de la acción se anexan más datos al formulario (formData)
 
         if ($('#lbl_id_promo_chef').text() == '') {
-          var _action10 = 'IngresarPromoChef';
-          formData.append('action', _action10);
+          var _action11 = 'IngresarPromoChef';
+          formData.append('action', _action11);
           if ($('#imagen_promo_chef').val() != '' || imgExtension == 'jpg' || imgExtension == 'png' || imgExtension == 'jpeg') {
             formData.append('imagenUrl', $('#imagen_promo_chef')[0].files[0]);
             console.log('imagen');
@@ -4073,39 +5301,6 @@ function obtenerTotalListaTipoCoberturas() {
     return total;
   }
 }
-
-// $('#txt_cantidad_tipo_coberturas_chef').change(function() {
-//   var arrayTipoCoberturas = $('#lista_tipo_coberturas_chef li').toArray();
-//   var nuevoValor;
-//   if (arrayTipoCoberturas.length > 0) {
-//     nuevoValor =
-//       $('#txt_cantidad_piezas_chef').val() - obtenerTotalListaTipoCoberturas();
-//   }
-//   if ($(this).val() < 0) {
-//     $(this).val(0);
-//   }
-//   console.log(nuevoValor);
-//   if (
-//     $('#txt_cantidad_piezas_chef').val() >= 10 &&
-//     $(this).val() > nuevoValor
-//   ) {
-//     $('#txt_cantidad_tipo_coberturas_chef').val(nuevoValor);
-//   }
-// });
-
-// $('#txt_cantidad_piezas_chef').change(function() {
-//   if ($(this).val() < 10) {
-//     $(this).val(10);
-//   }
-//   console.log(obtenerTotalListaTipoCoberturas());
-//   if (obtenerTotalListaTipoCoberturas() != null) {
-//     var valor = obtenerTotalListaTipoCoberturas();
-//     if ($('#txt_cantidad_piezas_chef').val() < valor) {
-//       $('#txt_cantidad_piezas_chef').val(valor);
-//     }
-//     console.log(valor);
-//   }
-// });
 
 $('#txt_cantidad_piezas_chef').change(function () {
   if (obtenerTotalListaTipoCoberturas() != null) {
@@ -4279,6 +5474,10 @@ function comprobarEstadoSesion() {
     }
   });
 }
+
+$.validator.addMethod('multiploDeDiez', function (value, element) {
+  return this.optional(element) || value % 10 == 0;
+}, 'Selecciona una cantidad que sea múltiplo de diez.');
 
 // *Consulta ajax para consultar el estado y existencia del correo
 
@@ -4459,7 +5658,9 @@ $('#form_cambiar_password_rec').validate({
             switch (resp) {
               case '1':
                 swal('Listo', 'Tu contraseña ha sido cambiada.', 'success');
-                location.href = 'login.php';
+                setTimeout(function () {
+                  location.href = 'login.php';
+                }, 2000);
                 break;
               case '2':
                 swal('Error', 'Lo sentimos la contraseña no se ha podido reestablecer.', 'error');
@@ -4592,6 +5793,7 @@ function cargarMantenedorRellenos(estado, caracter) {
   // *Los arrays almacenarán los datos de aquellas coberturas que no puedan ser seleccionados por el cliente
   var arrayIndiceNingunoRellenos = [];
   var arrayNoEnCartaRellenos = [];
+  var arrayProductosPocoStock = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: 'action=' + action,
@@ -4601,7 +5803,7 @@ function cargarMantenedorRellenos(estado, caracter) {
       // *----------------------------------------------------------------------
       // *Se filtra el array obtenido en base a los parámetros obtenidos
       var arr = JSON.parse(respuesta);
-      // *Se parsea la respuesta json obtenida
+      // *Se parsea la respuesta json obtenid|a
       if (estado == null || estado == 'Todos') {
         arrFilter = JSON.parse(respuesta);
       } else {
@@ -4622,10 +5824,15 @@ function cargarMantenedorRellenos(estado, caracter) {
             if (item.Indice == 'Ninguno') {
               arrayIndiceNingunoRellenos.push(item.Nombre);
             }
+            // *Si el stock es inferior al minimo se ingresará el elemento al id
+            if (item.StockTotal < item.MinimoStock) {
+              arrayProductosPocoStock.push(item.Nombre);
+            }
             // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
             if (item.idEstado == 2) {
               arrayNoEnCartaRellenos.push(item.Nombre);
             }
+
             cargaHtml += '<div class="col s12 m6 l4 xl3">';
             cargaHtml += '<div class="card col s12 m12 l12">';
             cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
@@ -4656,6 +5863,15 @@ function cargarMantenedorRellenos(estado, caracter) {
             cargaHtml += '</div>';
             cargaHtml += '</div>';
           });
+
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayProductosPocoStock.length > 0) {
+            var htmlPocoStock = '<div class="mensaje-precaucion-indice" id="mensaje_stock_rellenos"><p><b>Atenci\xF3n!:</b> Existen ' + arrayProductosPocoStock.length + ' rellenos (' + arrayProductosPocoStock.join(', ') + ') que poseen poco stock. Recuerda que estos no podr\xE1n ser elegidos por el cliente.</p></div>';
+            $('#mensaje_poco_stock_rellenos').html(htmlPocoStock);
+          } else {
+            $('#mensaje_stock_rellenos').remove();
+          }
+
           // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
           if (arrayIndiceNingunoRellenos.length > 0) {
             var htmlNoIndice = '<div class="mensaje-precaucion-indice" id="mensaje_indice_rellenos"><p><b>Atenci\xF3n!:</b> Existen ' + arrayIndiceNingunoRellenos.length + ' rellenos (' + arrayIndiceNingunoRellenos.join(', ') + ') que no poseen un \xEDndice de selecci\xF3n. Recuerda que estos no podr\xE1n ser elegidos por el cliente.</p></div>';
@@ -4768,6 +5984,15 @@ function actualizarRellenoM(id) {
         $('#combo_estado_relleno').val(item.Estado);
         $('#combo_indice_relleno').val(item.Indice);
         $('#imagen_rellenos_text').val(item.ImgUrl);
+        // *------------------------------
+        $('label[for=\'txt_cantidad_stock_relleno\']').addClass('active');
+        $('#txt_cantidad_stock_relleno').val(item.Stock);
+        $('label[for=\'txt_cantidad_minima_relleno\']').addClass('active');
+        $('#txt_cantidad_minima_relleno').val(item.Minima);
+        $('label[for=\'txt_cantidad_uso_roll_relleno\']').addClass('active');
+        $('#txt_cantidad_uso_roll_relleno').val(item.Uso);
+        $('#combo_unidad_relleno_stock').val(item.StockUnidad);
+        $('#combo_unidad_relleno_uso').val(item.UsoUnidad);
       });
     },
     error: function error() {
@@ -4843,6 +6068,34 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
     },
     imagen_rellenos: {
       extension: 'jpeg|jpg|png'
+    },
+    txt_cantidad_stock_relleno: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_stock: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_uso_roll_relleno: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_uso: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_minima_relleno: {
+      required: true,
+      min: 0.1,
+      max: 10000,
+      number: true
     }
   },
   messages: {
@@ -4874,6 +6127,34 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
     },
     imagen_rellenos_text: {
       // required: 'Selecciona una imagen'
+    },
+    txt_cantidad_stock_relleno: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_stock: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_uso_roll_relleno: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_uso: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_minima_relleno: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 10000',
+      number: 'Sólo números permitidos'
     }
   },
   invalidHandler: function invalidHandler(form) {
@@ -4904,12 +6185,17 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
         formData.append('precio', $('#txt_precio_relleno').val());
         formData.append('estado', $('#combo_estado_relleno').val());
         formData.append('indice', $('#combo_indice_relleno').val());
+        formData.append('stock', $('#txt_cantidad_stock_relleno').val());
+        formData.append('unidadStock', $('#combo_unidad_relleno_stock').val());
+        formData.append('uso', $('#txt_cantidad_uso_roll_relleno').val());
+        formData.append('unidadUso', $('#combo_unidad_relleno_uso').val());
+        formData.append('minima', $('#txt_cantidad_minima_relleno').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'relleno'
         // *Dependiendo de la acción se anexan más datos al formulario (formData)
         if ($('#lbl_id_rellenos').text() == '') {
-          var _action11 = 'IngresarRelleno';
-          formData.append('action', _action11);
+          var _action12 = 'IngresarRelleno';
+          formData.append('action', _action12);
           if ($('#imagen_rellenos').val() != '') {
             formData.append('imagenUrl', $('input[type=file]')[0].files[0]);
           } else {
@@ -5532,10 +6818,10 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_pago').validate({
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'agregado'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
         if ($('#lbl_id_tipo_pago').text() == '') {
-          var _action12 = 'IngresarTipoPago';
+          var _action13 = 'IngresarTipoPago';
           dataInfo = {
             nombre: $('#txt_nombre').val(),
-            action: _action12
+            action: _action13
           };
         } else {
           var actionUpdate = 'ActualizarTipoPago';
@@ -5770,10 +7056,10 @@ var validarFormActualizarTipoPago = $('#form_mantenedor_tipo_promo').validate({
         // *Si no contiene valor se interpreta que se ingresará una nueva 'promo'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
         if ($('#lbl_id_tipo_promo').text() == '') {
-          var _action13 = 'IngresarTipoPromo';
+          var _action14 = 'IngresarTipoPromo';
           dataInfo = {
             nombre: $('#txt_nombre').val(),
-            action: _action13
+            action: _action14
           };
         } else {
           var actionUpdate = 'ActualizarTipoPromo';

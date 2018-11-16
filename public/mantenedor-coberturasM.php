@@ -46,6 +46,7 @@ $sesionUsuario->validacionSesionAdmin();
         
         <div id="mensaje_no_indice_cobertura" class="col l12 m12 s12"></div>
         <div id="mensaje_no_carta_cobertura" class="col l12 m12 s12"></div>
+        <div id="mensaje_poco_stock_coberturas" class="col l12 m12 s12"></div>
         <div id="indice_cobertura_carga" class='indices-carga col l12 m12 s12'></div>
         <div id="coberturas_carga" class="row">
         </div>
@@ -55,7 +56,7 @@ $sesionUsuario->validacionSesionAdmin();
         
                 <div id="content_mensaje_precaucion_coberturas"></div>
         
-                <h5 class="center" id="accion_coberturas">Ingresar Agregado</h5>
+                <h5 class="center" id="accion_coberturas">Ingresar Cobertura</h5>
                 <form action="" name="form_mantenedor_cobertura" id="form_mantenedor_cobertura">
                 <label id="lbl_id_cobertura" class="lbl-id"></label>
                     <div class="input-field">
@@ -82,7 +83,31 @@ $sesionUsuario->validacionSesionAdmin();
                             
                         </select>
                     </div>
-                    <div class="file-field input-field">
+                    <div class="input-field col l8 m8 s6">
+                        <input id="txt_cantidad_stock_cobertura" name="txt_cantidad_stock_cobertura" type="number" step=any>
+                        <label for="txt_cantidad_stock_cobertura">Cantidad en stock</label>
+                    </div>
+                    <div class="input-field col l4 m4 s6">
+                        <label class="active">Medida Stock</label>
+                        <select name="combo_unidad_medida_stock" id="combo_unidad_cobertura_stock" class="browser-default">
+                            
+                        </select>
+                    </div>
+                    <div class="input-field col l12 m12 s12">
+                        <input id="txt_cantidad_minima_cobertura" name="txt_cantidad_minima_cobertura" type="number">
+                        <label for="txt_cantidad_minima_cobertura">Cantidad Mínima</label>
+                    </div>
+                    <div class="input-field col l8 m8 s6">
+                        <input id="txt_cantidad_uso_roll_cobertura" name="txt_cantidad_uso_roll_cobertura" type="number">
+                        <label for="txt_cantidad_uso_roll_cobertura">Cantidad uso en roll</label>
+                    </div>
+                    <div class="input-field col l4 m4 s6">
+                        <label class="active">Medida Uso</label>
+                        <select name="combo_unidad_medida_uso" id="combo_unidad_cobertura_uso" class="browser-default">
+                            
+                        </select>
+                    </div>
+                    <div class="file-field input-field col l12">
                         <div class="btn black">
                             <span>Imagen</span>
                             <input type="file" name="imagen_coberturas" id="imagen_coberturas" accept="image/x-png,image/jpg,image/jpeg">
@@ -91,7 +116,7 @@ $sesionUsuario->validacionSesionAdmin();
                                 <input class="file-path" type="text" id="imagen_coberturas_text" name="imagen_coberturas_text">
                             </div>
                     </div>
-                    <div class="center">
+                    <div class="center input-field col l12">
                         <input type="submit" class="btn black" id="btn_mantenedor_cobertura" value="Confirmar">
                         <button id="cancelar_mantenedor_cobertura" class="btn red">Cancelar</button>
                     </div>
@@ -111,6 +136,7 @@ $sesionUsuario->validacionSesionAdmin();
             cargarIndiceCobertura();
             cargarTotalIndiceCoberturas();
             comprobarEstadoSesion();
+            cargarComboUnidadMedida();
             setInterval(function(){
                 comprobarEstadoSesion();
                 cargarMantenedorCoberturas();

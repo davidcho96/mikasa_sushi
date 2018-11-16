@@ -105,17 +105,17 @@ $sesionUsuario->validarSesion();
                             <div class="btn-div">
                                 <input type="submit" class="btn black btn-login" value="Iniciar sesión">
                             </div>
-                            <div class="linea">
+                            <!-- <div class="linea">
                                 <hr class="hr2 black">
                                 <div class="header-line">ó</div>
                                 <hr class="hr1 black">
-                            </div>
-                            <div class="btn-div">
+                            </div> -->
+                            <!-- <div class="btn-div">
                                 <button class="btn blue btn-login">
                                     <i class="fa fa-facebook"></i>
                                     Continuar con Facebook
                                 </button>
-                            </div>
+                            </div> -->
                         </div>
                         <div class="center-align">
                             <p>¿Aún no te registras? Haz clic

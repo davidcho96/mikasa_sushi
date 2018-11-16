@@ -495,4 +495,60 @@ class Promos extends connection{
             echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
         }
     }
+
+    public function comprobarTipoDePromo(){
+        try{
+            $db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call comprobarTipoPromo(?)');
+            $stmt->bind_param('i', $this->getIdPromo());
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($nombre, $cantidad, $precio, $descuento, $idTipoPromo, $idTipoPreparacion);
+            $datos = array();
+            // if($stmt->fetch()>0){
+                while($stmt->fetch()){
+                    $datos[]=array(
+                        "Nombre"=>$nombre,
+                        "Cantidad"=>$cantidad,
+                        "Precio"=>$precio,
+                        "Descuento"=>$descuento,
+                        "IdTipoPromo"=>$idTipoPromo,
+                        "IdTipoPreparacion"=>$idTipoPreparacion
+                    );
+                }
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+        }catch(Exception $error){
+            echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+        }
+    }
+
+    public function comprobarTipoCoberturasPromoChef(){
+        try{
+            $db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call obtenerTipoCoberturasPromo(?)');
+            $stmt->bind_param('i', $this->getIdPromo());
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($id, $nombre, $coberturas);
+            $datos = array();
+                while($stmt->fetch()){
+                    $datos[]=array(
+                        "IdTipoCobertura"=>$id,
+                        "NombreTipoCobertura"=>$nombre,
+                        "Coberturas"=>'['.$coberturas.']'
+                    );
+                }
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+        }catch(Exception $error){
+            echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+        }
+    }
 }

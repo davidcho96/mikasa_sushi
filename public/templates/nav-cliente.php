@@ -9,7 +9,7 @@
         <nav class="white">
             <div class="nav-wrapper">
                 <div>
-                    <a href="" class="brand-logo">
+                    <a href="index-cliente.php" class="brand-logo">
                         <img src="dist/img/logo.png" alt="" class="nav-image-no-circle">
                     </a>
                 </div>
@@ -20,11 +20,11 @@
                     <li>
                         <a href="index-cliente.php" class="black-text bottom-hover-nav">Inicio</a>
                     </li>
-                    <li>
+                    <!-- <li>
                         <a class="black-text bottom-hover-nav" href="promos.php">Promos</a>
-                    </li>
+                    </li> -->
                     <li>
-                        <a href="agregados.php" class="black-text bottom-hover-nav">Agregados</a>
+                        <a href="agregados-mikasa.php" class="black-text bottom-hover-nav">Agregados</a>
                     </li>
                     <li>
                         <a href="mis-compras.php" class="black-text bottom-hover-nav">Mis Compras</a>
@@ -33,7 +33,7 @@
                         <a href="#" class="black-text bottom-hover-nav dropdown-trigger" data-target="dropdown1">Cuenta<i class="material-icons right">keyboard_arrow_down</i></a>
                     </li>
                     <li>
-                        <a href="carrito.php" class="black-text bottom-hover-nav"><i class="material-icons">shopping_cart</i></a>
+                        <a href="carro-compras.php" class="black-text bottom-hover-nav"><i class="material-icons" id="btn_carrito">shopping_cart</i></a>
                     </li>
                 </ul>
             </div>
@@ -50,17 +50,17 @@
             <li class="">
                 <a href="index-cliente.php" class="black-text">Inicio</a>
             </li>
-            <li>
+            <!-- <li>
                 <a class="black-text" href="promos.php">Promos</a>
-            </li>
+            </li> -->
             <li>
-                <a href="agregados.php" class="black-text">Agregados</a>
+                <a href="agregados-mikasa.php" class="black-text">Agregados</a>
             </li>
             <li>
                 <a href="mis-compras.php" class="black-text">Mis Compras</a>
             </li>
             <li>
-                <a href="carrito.php" class="black-text">Carrito</a>
+                <a href="carro-compras.php" class="black-text">Carrito</a>
             </li>
         </ul>
     </div>

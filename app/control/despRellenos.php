@@ -37,6 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $precio = $validate->int($_POST['precio'], 1000000, 0);
             $idIndice = $_POST['indice'];
             $idEstado = $_POST['estado'];
+            // $stock = $validate->int($_POST['stock'], 1000, 1);
+            // $uso = $validate->int($_POST['uso'], 10000, 1);
+            // $minima = $validate->int($_POST['minima'], 1000, 1);
+            
+            $stock = $_POST['stock'];
+            $uso = $_POST['uso'];
+            $minima = $_POST['minima'];
+
             if(empty($_FILES["imagenUrl"]["name"])){
                 $fileText = 'Misma';
             }else{
@@ -71,6 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rellenos->setPrecioAdicional($precio);
             $rellenos->setIdEstado($idEstado);
             $rellenos->setImgUrl($fileText);
+            $rellenos->setCantidadStock($stock);
+            $rellenos->setUnidadStock($_POST['unidadStock']);
+            $rellenos->setCantidadUso($uso);
+            $rellenos->setUnidadUso($_POST['unidadUso']);
+            $rellenos->setCantidadMinima($minima);
 
             echo $rellenos->actualizarDatos($_SESSION['user'][1]);
         }
@@ -83,6 +96,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $precio = $validate->int($_POST['precio'], 1000000, 0);
             $idIndice = $_POST['indice'];
             $idEstado = $_POST['estado'];
+            // $stock = $validate->int($_POST['stock'], 1000, 1);
+            // $uso = $validate->int($_POST['uso'], 10000, 1);
+            // $minima = $validate->int($_POST['minima'], 1000, 1);
+
+            $stock = $_POST['stock'];
+            $uso = $_POST['uso'];
+            $minima = $_POST['minima'];
 
             if(empty($_FILES["imagenUrl"]["name"])){
                 $fileText = 'default_food.jpg';
@@ -117,6 +137,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rellenos->setIdIndice($idIndice);
             $rellenos->setIdEstado($idEstado);
             $rellenos->setImgUrl($fileText);
+            $rellenos->setCantidadStock($stock);
+            $rellenos->setUnidadStock($_POST['unidadStock']);
+            $rellenos->setCantidadUso($uso);
+            $rellenos->setUnidadUso($_POST['unidadUso']);
+            $rellenos->setCantidadMinima($minima);
 
             echo $rellenos->ingresarRellenos($_SESSION['user'][1]);
 

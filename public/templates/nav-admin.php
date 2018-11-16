@@ -19,7 +19,7 @@
             </a>
         </li>
         <li>
-            <a href="">
+            <a href="ventas-mikasa.php">
                 <i class="material-icons">attach_money</i>
                 Ventas
             </a>
@@ -68,6 +68,9 @@
                     </a>
                     <div class="collapsible-body">
                         <ul>
+                            <li>
+                                <a href="mantenedor-ingredientes.php">Ingredientes</a>
+                            </li>
                             <li>
                                 <a href="mantenedor-agregadosM.php">Agregados</a>
                             </li>

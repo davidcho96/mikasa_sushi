@@ -439,8 +439,9 @@ nav {
 
 .precios-productos {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   margin-bottom: 10px;
+  margin-top: 20px;
 }
 
 .btn-mant-productos {

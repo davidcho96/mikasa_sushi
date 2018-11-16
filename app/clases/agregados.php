@@ -272,4 +272,41 @@ class Agregados extends connection{
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
+
+	// *---------------------------------------------------
+
+	public function CargarCartaAgregados(){
+        try{
+            $db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call obtenerDatosCartaAgregados()');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($id, $nombre, $descripcion, $unidades, $precio, $descuento, $estado, $imgUrl, $idEstado);
+            $datos = array();
+			// if($stmt->fetch()>0){
+				// *Los resultados se añaden a un array para ser procesado y mostrados en pantalla
+				while($stmt->fetch()){
+					$datos[]=array(
+                        "IdAgregado"=>$id,
+						"Nombre"=>$nombre,
+						"Descripcion"=>$descripcion,
+						"Unidades"=>$unidades,
+						"Precio"=>$precio,
+						"Descuento"=>$descuento,
+						"Estado"=>$estado,
+						"ImgUrl"=>$imgUrl,
+						"IdEstado"=>$idEstado
+					);
+				}
+
+				// *Transforma el array en string
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+        }catch(Exception $error){
+            echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+        }
+	}
 }

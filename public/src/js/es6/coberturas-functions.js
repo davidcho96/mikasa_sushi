@@ -4,6 +4,7 @@ function cargarMantenedorCoberturas(estado, caracter) {
   // *Los arrays almacenarán los datos de aquellas coberturas que no puedan ser seleccionados por el cliente
   var arrayIndiceNinguno = [];
   var arrayNoEnCarta = [];
+  var arrayProductosPocoStock = [];
   //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
     data: `action=${action}`,
@@ -40,6 +41,11 @@ function cargarMantenedorCoberturas(estado, caracter) {
             // *Si el item tiene como indice el valor 2 este se ingresará en el array indicado
             if (item.IdEstado == 2) {
               arrayNoEnCarta.push(item.Nombre);
+            }
+
+            // *Si el stock es inferior al minimo se ingresará el elemento al id
+            if (item.StockTotal < item.MinimoStock) {
+              arrayProductosPocoStock.push(item.Nombre);
             }
 
             cargaHtml += '<div class="col s12 m6 l4 xl3">';
@@ -89,6 +95,18 @@ function cargarMantenedorCoberturas(estado, caracter) {
             cargaHtml += '</div>';
             cargaHtml += '</div>';
           });
+
+          // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
+          if (arrayProductosPocoStock.length > 0) {
+            var htmlPocoStock = `<div class="mensaje-precaucion-indice" id="mensaje_stock_coberturas"><p><b>Atención!:</b> Existen ${
+              arrayProductosPocoStock.length
+            } coberturas (${arrayProductosPocoStock.join(
+              ', '
+            )}) que poseen poco stock. Recuerda que estos no podrán ser elegidos por el cliente.</p></div>`;
+            $('#mensaje_poco_stock_coberturas').html(htmlPocoStock);
+          } else {
+            $('#mensaje_stock_coberturas').remove();
+          }
 
           // *Si el array contiene elementos se mostrará un mensaje de cuantos y cuales son
           if (arrayIndiceNinguno.length > 0) {
@@ -255,6 +273,15 @@ function actualizarCoberturaM(id) {
         $('#combo_estado_cobertura').val(item.Estado);
         $('#imagen_coberturas_text').val(item.ImgUrl);
         $('#combo_indice_cobertura').val(item.Indice);
+        // *------------------------------
+        $(`label[for='txt_cantidad_stock_cobertura']`).addClass('active');
+        $('#txt_cantidad_stock_cobertura').val(item.Stock);
+        $(`label[for='txt_cantidad_minima_cobertura']`).addClass('active');
+        $('#txt_cantidad_minima_cobertura').val(item.Minima);
+        $(`label[for='txt_cantidad_uso_roll_cobertura']`).addClass('active');
+        $('#txt_cantidad_uso_roll_cobertura').val(item.Uso);
+        $('#combo_unidad_cobertura_stock').val(item.StockUnidad);
+        $('#combo_unidad_cobertura_uso').val(item.UsoUnidad);
       });
     },
     error: function() {
@@ -339,6 +366,34 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
     },
     imagen_coberturas_text: {
       // required: true
+    },
+    txt_cantidad_stock_cobertura: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_stock: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_uso_roll_cobertura: {
+      required: true,
+      min: 0.1,
+      max: 1000,
+      number: true
+    },
+    combo_unidad_medida_uso: {
+      required: true,
+      min: 1,
+      max: 200
+    },
+    txt_cantidad_minima_cobertura: {
+      required: true,
+      min: 0.1,
+      max: 10000,
+      number: true
     }
   },
   messages: {
@@ -370,6 +425,34 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
     },
     imagen_coberturas_text: {
       // required: 'Selecciona una imagen'
+    },
+    txt_cantidad_stock_cobertura: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_stock: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_uso_roll_cobertura: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 1000',
+      number: 'Sólo números permitidos'
+    },
+    combo_unidad_medida_uso: {
+      required: 'Campo requerido *',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    txt_cantidad_minima_cobertura: {
+      required: 'Campo requerido *',
+      min: 'La cantidad mínima es 0.1',
+      max: 'La cantidad mínima es 10000',
+      number: 'Sólo números permitidos'
     }
   },
   invalidHandler: function(form) {
@@ -407,6 +490,14 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
         formData.append('precio', $('#txt_precio_cobertura').val());
         formData.append('estado', $('#combo_estado_cobertura').val());
         formData.append('indice', $('#combo_indice_cobertura').val());
+        formData.append('stock', $('#txt_cantidad_stock_cobertura').val());
+        formData.append(
+          'unidadStock',
+          $('#combo_unidad_cobertura_stock').val()
+        );
+        formData.append('uso', $('#txt_cantidad_uso_roll_cobertura').val());
+        formData.append('unidadUso', $('#combo_unidad_cobertura_uso').val());
+        formData.append('minima', $('#txt_cantidad_minima_cobertura').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará una nueva 'cobertura'
         // *El valor de 'action' y 'dataInfo' se establecerá dependiendo de la acción a realizar (ingresar nuevo ó actualizar)
@@ -435,6 +526,7 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
           }
         }
         //*Se envían datos del form y action, al controlador mediante ajax
+        console.log($('#txt_cantidad_stock_cobertura').val());
         $.ajax({
           data: formData,
           url: '../app/control/despCoberturas.php',
