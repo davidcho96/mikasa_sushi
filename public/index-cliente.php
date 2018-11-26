@@ -138,7 +138,7 @@
             comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();
-            }, 25000);
+            }, 60000);
             $('#modal_add_arma_tu_promo').modal({
                 dismissible: false,
                 onCloseEnd: function() {

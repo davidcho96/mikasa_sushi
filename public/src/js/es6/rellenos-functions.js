@@ -246,7 +246,6 @@ function actualizarRellenoM(id) {
         $(`label[for='txt_cantidad_uso_roll_relleno']`).addClass('active');
         $('#txt_cantidad_uso_roll_relleno').val(item.Uso);
         $('#combo_unidad_relleno_stock').val(item.StockUnidad);
-        $('#combo_unidad_relleno_uso').val(item.UsoUnidad);
       });
     },
     error: function() {
@@ -344,11 +343,6 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
       max: 1000,
       number: true
     },
-    combo_unidad_medida_uso: {
-      required: true,
-      min: 1,
-      max: 200
-    },
     txt_cantidad_minima_relleno: {
       required: true,
       min: 0.1,
@@ -403,11 +397,6 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
       max: 'La cantidad mínima es 1000',
       number: 'Sólo números permitidos'
     },
-    combo_unidad_medida_uso: {
-      required: 'Campo requerido *',
-      min: 'Selecciona una opción válida',
-      max: 'Selecciona una opción válida'
-    },
     txt_cantidad_minima_relleno: {
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 0.1',
@@ -452,7 +441,6 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
         formData.append('stock', $('#txt_cantidad_stock_relleno').val());
         formData.append('unidadStock', $('#combo_unidad_relleno_stock').val());
         formData.append('uso', $('#txt_cantidad_uso_roll_relleno').val());
-        formData.append('unidadUso', $('#combo_unidad_relleno_uso').val());
         formData.append('minima', $('#txt_cantidad_minima_relleno').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'relleno'

@@ -186,11 +186,6 @@ var validarFormActualizarAgregados = $('#form_mantenedor_ingrediente').validate(
         max: 1000,
         number: true
       },
-      combo_unidad_medida_uso: {
-        required: true,
-        min: 1,
-        max: 200
-      },
       txt_cantidad_minima: {
         required: true,
         min: 0.1,
@@ -220,11 +215,6 @@ var validarFormActualizarAgregados = $('#form_mantenedor_ingrediente').validate(
         min: 'La cantidad mínima es 0.1',
         max: 'La cantidad mínima es 1000',
         number: 'Sólo números permitidos'
-      },
-      combo_unidad_medida_uso: {
-        required: 'Campo requerido *',
-        min: 'Selecciona una opción válida',
-        max: 'Selecciona una opción válida'
       },
       txt_cantidad_minima: {
         required: 'Campo requerido *',
@@ -263,10 +253,6 @@ var validarFormActualizarAgregados = $('#form_mantenedor_ingrediente').validate(
             $('#combo_unidad_ingrediente_stock').val()
           );
           formData.append('uso', $('#txt_cantidad_uso_roll').val());
-          formData.append(
-            'unidadUso',
-            $('#combo_unidad_ingrediente_uso').val()
-          );
           formData.append('minima', $('#txt_cantidad_minima').val());
 
           // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
@@ -346,7 +332,6 @@ function actualizarIngrediente(id) {
         $(`label[for='txt_cantidad_uso_roll']`).addClass('active');
         $('#txt_cantidad_uso_roll').val(item.Uso);
         $('#combo_unidad_ingrediente_stock').val(item.StockUnidad);
-        $('#combo_unidad_ingrediente_uso').val(item.UsoUnidad);
       });
     },
     error: function() {

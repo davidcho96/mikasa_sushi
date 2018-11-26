@@ -82,7 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rellenos->setCantidadStock($stock);
             $rellenos->setUnidadStock($_POST['unidadStock']);
             $rellenos->setCantidadUso($uso);
-            $rellenos->setUnidadUso($_POST['unidadUso']);
             $rellenos->setCantidadMinima($minima);
 
             echo $rellenos->actualizarDatos($_SESSION['user'][1]);
@@ -140,7 +139,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rellenos->setCantidadStock($stock);
             $rellenos->setUnidadStock($_POST['unidadStock']);
             $rellenos->setCantidadUso($uso);
-            $rellenos->setUnidadUso($_POST['unidadUso']);
             $rellenos->setCantidadMinima($minima);
 
             echo $rellenos->ingresarRellenos($_SESSION['user'][1]);

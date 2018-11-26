@@ -27,7 +27,7 @@
                         <a href="agregados-mikasa.php" class="black-text bottom-hover-nav">Agregados</a>
                     </li>
                     <li>
-                        <a href="mis-compras.php" class="black-text bottom-hover-nav">Mis Compras</a>
+                        <a href="mis-ordenes.php" class="black-text bottom-hover-nav">Mis Órdenes</a>
                     </li>
                     <li>
                         <a href="#" class="black-text bottom-hover-nav dropdown-trigger" data-target="dropdown1">Cuenta<i class="material-icons right">keyboard_arrow_down</i></a>
@@ -57,10 +57,13 @@
                 <a href="agregados-mikasa.php" class="black-text">Agregados</a>
             </li>
             <li>
-                <a href="mis-compras.php" class="black-text">Mis Compras</a>
+                <a href="mis-ordenes.php" class="black-text">Mis Órdenes</a>
             </li>
             <li>
                 <a href="carro-compras.php" class="black-text">Carrito</a>
+            </li>
+            <li>
+                <a href="#" class="black-text dropdown-trigger" data-target="dropdown1">Cuenta<i class="material-icons right">keyboard_arrow_down</i></a>
             </li>
         </ul>
     </div>

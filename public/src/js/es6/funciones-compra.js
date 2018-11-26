@@ -300,7 +300,6 @@ function ComprobarTipoDePromo(id) {
                     cargaHtml += `<p class="modal-titulo-eleccion-ingredientes">Cobertura ${
                       item.NombreTipoCobertura
                     }</p>`;
-                    console.log(arrayResp);
                     cargaHtml += '<div class="content_coberturas">';
                     $.each(arrayCoberturas, function(i, elem) {
                       cargaHtml += '<div class="radio_coberturas">';

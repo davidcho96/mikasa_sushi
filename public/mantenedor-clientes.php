@@ -158,9 +158,9 @@ require_once "templates/nav-admin.php";
         CargaEstadoCliente();
         CargarTablaClientes();
         setInterval(function(){
-            CargarTablaClientes();
+            // CargarTablaClientes();
             comprobarEstadoSesion();
-        }, 25000);
+        }, 60000);
         $('#modal-actualiza-cliente').modal({
             dismissible: false,
             onCloseEnd: function () {

@@ -24,5 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
             $infoempresa->setDiaFinal($_POST['diaCierre']);
             echo $infoempresa->actualizarDiasActividadEmpresa($_SESSION['user'][1]);
         break;
+        case 'CargarPrecioMaximo':
+            echo $infoempresa->cargarPrecioMaximo();
+        break;
+        case 'ActualizarPrecioMaximoVenta':
+            $infoempresa->setPrecioMaximo($_POST['precioMaximo']);
+            echo $infoempresa->actualizarPrecioMaximoVenta();
+        break;
     }
 }

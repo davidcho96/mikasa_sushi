@@ -81,9 +81,9 @@ $sesionUsuario->validacionSesionAdmin();
         comprobarEstadoSesion();
         setInterval(function(){
             comprobarEstadoSesion();
-            CargarTablaTipoCobertura();
+            // CargarTablaTipoCobertura();
             // cargarCheckboxCoberturas();
-        }, 25000);
+        }, 60000);
         $('#modal_mantenedor_tipo_cobertura').modal({
             dismissible: false,
             onCloseEnd: function() {

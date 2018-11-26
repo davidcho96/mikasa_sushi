@@ -839,7 +839,6 @@ function actualizarCoberturaM(id) {
         $('label[for=\'txt_cantidad_uso_roll_cobertura\']').addClass('active');
         $('#txt_cantidad_uso_roll_cobertura').val(item.Uso);
         $('#combo_unidad_cobertura_stock').val(item.StockUnidad);
-        $('#combo_unidad_cobertura_uso').val(item.UsoUnidad);
       });
     },
     error: function error() {
@@ -938,11 +937,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
       max: 1000,
       number: true
     },
-    combo_unidad_medida_uso: {
-      required: true,
-      min: 1,
-      max: 200
-    },
     txt_cantidad_minima_cobertura: {
       required: true,
       min: 0.1,
@@ -997,11 +991,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
       max: 'La cantidad mínima es 1000',
       number: 'Sólo números permitidos'
     },
-    combo_unidad_medida_uso: {
-      required: 'Campo requerido *',
-      min: 'Selecciona una opción válida',
-      max: 'Selecciona una opción válida'
-    },
     txt_cantidad_minima_cobertura: {
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 0.1',
@@ -1041,7 +1030,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
         formData.append('stock', $('#txt_cantidad_stock_cobertura').val());
         formData.append('unidadStock', $('#combo_unidad_cobertura_stock').val());
         formData.append('uso', $('#txt_cantidad_uso_roll_cobertura').val());
-        formData.append('unidadUso', $('#combo_unidad_cobertura_uso').val());
         formData.append('minima', $('#txt_cantidad_minima_cobertura').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará una nueva 'cobertura'
@@ -1321,6 +1309,497 @@ function CargarTablaInfoContactoIndex() {
     },
     error: function error() {
       alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+function cargarTablaEntregasPendientes() {
+  var action = 'CargarTablaEntregasPendientes';
+  var cargaHtml = '';
+  $.ajax({
+    data: { action: action },
+    type: 'POST',
+    url: '../app/control/despEntregas.php',
+    success: function success(resp) {
+      var arr = JSON.parse(resp);
+      $.each(arr, function (i, item) {
+        cargaHtml += '<tr>';
+        cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+        cargaHtml += '<td data-position="bottom" data-tooltip="I am a tooltip" class="tooltipped">' + item.Cliente + '</td>';
+        cargaHtml += '<td>' + item.Direccion + '</td>';
+        cargaHtml += '<td>' + item.TipoEntrega + '</td>';
+        cargaHtml += '<td>' + item.TipoPago + '</td>';
+        cargaHtml += '<td>' + item.Hora + '</td>';
+        cargaHtml += '<td>' + item.Receptor + '</td>';
+        cargaHtml += '<td>$' + item.Valor + '</td>';
+        cargaHtml += '<td>' + item.EstadoEntrega + '</td>';
+        cargaHtml += '<td><button class="btn green" onclick="cambiarEstadoEntrega(\'' + item.IdEntrega + '\', \'' + item.CodigoVenta + '\')">Estado Entrega</button></td>';
+        cargaHtml += '</tr>';
+      });
+      $('#body_tabla_entregas_pendientes_mikasa').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error al cargar los datos');
+    }
+  });
+}
+
+function corroborarTipoEntregaF(IdEntrega, CodigoVenta) {
+  var action = 'CorroborarTipoEntrega';
+  return $.ajax({
+    data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
+    url: '../app/control/despEntregas.php',
+    type: 'POST',
+    async: false,
+    success: function success(resp) {
+      return resp;
+    },
+    error: function error() {
+      alert('Los sentimos ha ocurrido un error');
+    }
+  });
+}
+
+function cambiarEstadoEntrega(IdEntrega, CodigoVenta) {
+  var action = '';
+  var cargaHtml = '';
+  $('#txt_id_entrega_admin').val(IdEntrega);
+  $('#modal_cambiar_estado_entrega').modal('open');
+  corroborarTipoEntregaF(IdEntrega, CodigoVenta).done(function (data) {
+    var arr = JSON.parse(data);
+    var tipo = arr[0].IdTipoEntrega;
+    var checked = arr[0].IdEstadoEntrega;
+    switch (tipo.toString()) {
+      case '1':
+        action = 'CargarOpcionesEntregaDomicilio';
+        $.ajax({
+          data: {
+            action: action
+          },
+          url: '../app/control/despEntregas.php',
+          type: 'POST',
+          // async: false,
+          success: function success(resp) {
+            var arr = JSON.parse(resp);
+            $.each(arr, function (i, item) {
+              cargaHtml += '<p>';
+              cargaHtml += '<label>';
+              if (item.IdEstadoEntrega == checked) {
+                cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" checked value="' + item.IdEstadoEntrega + '"/>';
+              } else {
+                if (item.IdEstadoEntrega < checked) {
+                  cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" disabled="disabled" value="' + item.IdEstadoEntrega + '"/>';
+                } else {
+                  cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" value="' + item.IdEstadoEntrega + '"/>';
+                }
+              }
+              cargaHtml += '<span>' + item.EstadoEntrega + '</span>';
+              cargaHtml += '</label>';
+              cargaHtml += '</p>';
+            });
+            $('#cargar_opciones_estado_entrega').html(cargaHtml);
+          },
+          error: function error() {
+            alert('Los sentimos ha ocurrido un error');
+          }
+        });
+        $('#cargarOpcionesEstadoEntrega').html(cargaHtml);
+        break;
+      case '2':
+        action = 'CargarOpcionesEntregaLocal';
+        $.ajax({
+          data: {
+            action: action
+          },
+          url: '../app/control/despEntregas.php',
+          type: 'POST',
+          // async: false,
+          success: function success(resp) {
+            var arr = JSON.parse(resp);
+            $.each(arr, function (i, item) {
+              cargaHtml += '<p>';
+              cargaHtml += '<label>';
+              if (item.IdEstadoEntrega == checked) {
+                cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" checked value="' + item.IdEstadoEntrega + '"/>';
+              } else {
+                if (item.IdEstadoEntrega < checked) {
+                  cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" disabled="disabled" value="' + item.IdEstadoEntrega + '"/>';
+                } else {
+                  cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" value="' + item.IdEstadoEntrega + '"/>';
+                }
+              }
+              cargaHtml += '<span>' + item.EstadoEntrega + '</span>';
+              cargaHtml += '</label>';
+              cargaHtml += '</p>';
+            });
+            $('#cargar_opciones_estado_entrega').html(cargaHtml);
+          },
+          error: function error() {
+            alert('Los sentimos ha ocurrido un error');
+          }
+        });
+        break;
+    }
+  });
+}
+
+$('#form_actualizar_estado_entrega_admin_venta').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    radioEstadoEntrega: {
+      required: true
+    }
+  },
+  messages: {
+    radioEstadoEntrega: {
+      required: 'Campo requerido *'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    var action = 'ActualizarEstadoEntregaAdmin';
+    var IdEntrega = $('#txt_id_entrega_admin').val();
+    var IdEstadoEntrega = $('input[name=radioEstadoEntrega]:checked').val();
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        $.ajax({
+          data: {
+            action: action,
+            IdEntrega: IdEntrega,
+            IdEstadoEntrega: IdEstadoEntrega
+          },
+          url: '../app/control/despEntregas.php',
+          type: 'POST',
+          success: function success(resp) {
+            switch (resp) {
+              case '1':
+                swal('Listo', 'La tarea se llevó a cabo', 'success');
+                cargarTablaEntregasPendientes();
+                $('#modal_cambiar_estado_entrega').modal('close');
+                // *La función se ejecutó correctamente
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error.');
+          }
+        });
+      }
+    });
+  }
+});
+
+// *Función para tabla entregas pendientes en repartidor
+function cargarTablaEntregasPendientesRepartidor() {
+  var action = 'CargarTablaEntregasPendientesRepartidor';
+  var cargaHtml = '';
+  $.ajax({
+    data: { action: action },
+    type: 'POST',
+    url: '../app/control/despEntregas.php',
+    success: function success(resp) {
+      var arr = JSON.parse(resp);
+      if (arr.length > 0) {
+        $.each(arr, function (i, item) {
+          cargaHtml += '<tr>';
+          cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+          cargaHtml += '<td>' + item.Cliente + '</td>';
+          cargaHtml += '<td>' + item.Direccion + '</td>';
+          cargaHtml += '<td>' + item.TipoPago + '</td>';
+          cargaHtml += '<td>' + item.Hora + '</td>';
+          cargaHtml += '<td>' + item.Receptor + '</td>';
+          cargaHtml += '<td>$' + item.Valor + '</td>';
+          cargaHtml += '<td>' + item.EstadoEntrega + '</td>';
+          cargaHtml += '<td><button class="btn green" onclick="entregarPedido(\'' + item.IdEntrega + '\', \'' + item.CodigoVenta + '\')">Entregar Pedido</button></td>';
+          cargaHtml += '</tr>';
+        });
+      } else {
+        cargaHtml += '<tr>';
+        cargaHtml += '<td colspan="9">No hay entregas pendientes</td>';
+        cargaHtml += '</tr>';
+      }
+      $('#body_tabla_entregas_pendientes_repartidor_mikasa').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error al cargar los datos');
+    }
+  });
+}
+
+// var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+//   osmAttrib =
+//     '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+//   osm = L.tileLayer(
+//     'https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
+//     {
+//       maxZoom: 16,
+//       attribution:
+//         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+//     }
+//   );
+
+// var map;
+
+function entregarPedido(IdEntrega, CodigoVenta) {
+  var action = 'ObtenerDatosPedidoPendienteRepartidor';
+  var cargaHtml = '';
+  $('#txt_id_entrega_mapa').val(IdEntrega);
+  $('#txt_codigo_venta_mapa').val(CodigoVenta);
+  $('#modal_realizar_entrega_repartidor').modal('open');
+  $.ajax({
+    data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
+    url: '../app/control/despEntregas.php',
+    type: 'POST',
+    success: function success(resp) {
+      var map = L.map('map_repartidor').setView([-37.465, -72.3693], 15).addLayer(osm);
+      var arr = JSON.parse(resp);
+
+      $.each(arr, function (i, item) {
+        var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            osm = L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
+          maxZoom: 16,
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        });
+        // *Carga la ubicación del pedido indicada previamente por el admin
+        L.marker([item.Lat, item.Lng]).addTo(map).bindPopup(item.Direccion);
+        // *Carga la información de la entrega
+        cargaHtml += '<li class="collection-item"><b>Direcci\xF3n: </b>' + item.Direccion + '</li>';
+        cargaHtml += '<li class="collection-item"><b>Receptor: </b>' + item.Receptor + '</li>';
+        cargaHtml += '<li class="collection-item"><b>Hora de entrega: </b>' + item.Hora + '</li>';
+        // *Geolocalización
+        if (navigator.geolocation) {
+          // *El navegador soporta la geolocalización por lo que se marca la ruta
+          navigator.geolocation.getCurrentPosition(function (position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            L.marker([lat, lng]).addTo(map);
+            L.Routing.control({
+              waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+            }).addTo(map);
+          }, function () {
+            handleNoGeolocation(true);
+          });
+        } else {
+          // *El navegador no soporta el uso de geolocalización
+          var lat = '-37.470144';
+          var lng = '-72.353745';
+          L.marker([lat, lng]).addTo(map);
+          L.Routing.control({
+            waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+          }).addTo(map);
+          handleNoGeolocation(false);
+        }
+      });
+      $('#info_entrega_pendiente_repartidor').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error al cargar los datos');
+    }
+  });
+}
+
+// *Función que cambia el estado de la entrega a 'En camino'
+$('#form_realizar_entrega_mantenedor').submit(function (evt) {
+  evt.preventDefault();
+  var action = 'CambiarEstadoEntregaEnCaminoRepartidor';
+  var IdEntrega = $('#txt_id_entrega_mapa').val();
+  var CodigoVenta = $('#txt_codigo_venta_mapa').val();
+  swal({
+    title: '¿Estás seguro?',
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Si',
+    cancelButtonText: 'Cancelar'
+  }).then(function (result) {
+    $.ajax({
+      data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
+      url: '../app/control/despEntregas.php',
+      type: 'POST',
+      success: function success(resp) {
+        switch (resp) {
+          case '1':
+            swal('Listo', 'La tarea se llevó a cabo', 'success');
+            cargarTablaEntregasPendientesRepartidor();
+            cargarTablaMisEntregasPendientesRepartidor();
+            $('#modal_realizar_entrega_repartidor').modal('close');
+            break;
+          case '2':
+            swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+            break;
+        }
+      },
+      error: function error() {
+        alert('Lo sentimos ha ocurrido un error al cargar los datos');
+      }
+    });
+  });
+});
+
+// *Función para tabla entregas pendientes del repartidor logueado
+function cargarTablaMisEntregasPendientesRepartidor() {
+  var action = 'CargarTablaMisEntregasPendientesRepartidor';
+  var cargaHtml = '';
+  $.ajax({
+    data: { action: action },
+    type: 'POST',
+    url: '../app/control/despEntregas.php',
+    success: function success(resp) {
+      var arr = JSON.parse(resp);
+      if (arr.length > 0) {
+        $.each(arr, function (i, item) {
+          cargaHtml += '<tr>';
+          cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+          cargaHtml += '<td>' + item.Cliente + '</td>';
+          cargaHtml += '<td>' + item.Direccion + '</td>';
+          cargaHtml += '<td>' + item.TipoPago + '</td>';
+          cargaHtml += '<td>' + item.Hora + '</td>';
+          cargaHtml += '<td>' + item.Receptor + '</td>';
+          cargaHtml += '<td>$' + item.Valor + '</td>';
+          cargaHtml += '<td>' + item.EstadoEntrega + '</td>';
+          cargaHtml += '<td><button class="btn green btn-floating" onclick="verRecorridoEntregaRepartidor(\'' + item.IdEntrega + '\', \'' + item.CodigoVenta + '\')"><i class="material-icons">not_listed_location</i></button></td>';
+          cargaHtml += '<td><button class="btn blue btn-floating" onclick="terminarEntregaPedido(\'' + item.IdEntrega + '\', \'' + item.CodigoVenta + '\')"><i class="material-icons">done_all</i></button></td>';
+          cargaHtml += '</tr>';
+        });
+      } else {
+        cargaHtml += '<tr>';
+        cargaHtml += '<td colspan="10"></td>';
+        cargaHtml += '</tr>';
+      }
+      $('#body_tabla__mis_entregas_pendientes_repartidor_mikasa').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error al cargar los datos');
+    }
+  });
+}
+
+var routingControl = null;
+var intervaloMapaRecorrido;
+
+function verRecorridoEntregaRepartidor(IdEntrega, CodigoVenta) {
+  var action = 'ObtenerDatosPedidoPendienteRepartidor';
+  var cargaHtml = '';
+  $('#txt_id_entrega_mapa').val(IdEntrega);
+  $('#txt_codigo_venta_mapa').val(CodigoVenta);
+  $('#modal_recorrido_info_entrega_repartidor').modal('open');
+  $.ajax({
+    data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
+    url: '../app/control/despEntregas.php',
+    type: 'POST',
+    success: function success(resp) {
+      map = L.map('map_recorrido_repartidor').setView([-37.465, -72.3693], 15).addLayer(osm);
+      var arr = JSON.parse(resp);
+
+      $.each(arr, function (i, item) {
+        // *Carga la ubicación del pedido indicada previamente por el admin
+        // L.marker([item.Lat, item.Lng])
+        //   .addTo(map)
+        //   .bindPopup(item.Direccion);
+        // *Carga la información de la entrega
+        cargaHtml += '<li class="collection-item"><b>Direcci\xF3n: </b>' + item.Direccion + '</li>';
+        cargaHtml += '<li class="collection-item"><b>Receptor: </b>' + item.Receptor + '</li>';
+        cargaHtml += '<li class="collection-item"><b>Hora de entrega: </b>' + item.Hora + '</li>';
+        // *Geolocalización
+        function success(position) {
+          var lat = position.coords.latitude;
+          var lng = position.coords.longitude;
+          routingControl = L.Routing.control({
+            waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+          }).addTo(map);
+        }
+
+        function error(err) {
+          console.warn('ERROR(' + err.code + '): ' + err.message);
+        }
+
+        intervaloMapaRecorrido = setInterval(function () {
+          navigator.geolocation.getCurrentPosition(success, error);
+          if (typeof routingControl == 'undefined' || routingControl == null) {
+            console.log(routingControl);
+          } else {
+            routingControl.getPlan().setWaypoints([]);
+          }
+        }, 5000);
+        // if (navigator.geolocation) {
+        //   var marker;
+        //   // *El navegador soporta la geolocalización por lo que se marca la ruta
+        //   navigator.geolocation.getCurrentPosition(
+        //     function(position) {
+        //       var lat = position.coords.latitude;
+        //       var lng = position.coords.longitude;
+        //       // *Se recarga el ícono para mostrar la ubicación en tiempo real
+        //       // marker = new L.marker([lat, lng], { draggable: true });
+        //       // marker.addTo(map);
+        //       // L.Routing.control({
+        //       //   waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+        //       // }).addTo(map);
+        //       var routingControl;
+        //       routingControl = L.Routing.control({
+        //         waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+        //       }).addTo(map);
+        //       interval = setInterval(function() {
+        //         // if (typeof marker != 'undefined') {
+        //         // marker = new L.marker([lat, lng], { draggable: true });
+        //         // marker.addTo(map);
+        //         // } else {
+        //         // }
+        //         // marker.setLatLng([lat, lng]);
+        //         // map.getMap().then(function(map) {
+        //         map.removeControl(routingControl);
+        //         // });
+        //         routingControl = L.Routing.control({
+        //           waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+        //         }).addTo(map);
+        //         console.log('ac');
+        //       }, 5000);
+        //     },
+        //     function() {
+        //       handleNoGeolocation(true);
+        //     }
+        //   );
+        // } else {
+        //   // *El navegador no soporta el uso de geolocalización
+        //   var lat = '-37.470144';
+        //   var lng = '-72.353745';
+        //   L.marker([lat, lng]).addTo(map);
+        //   L.Routing.control({
+        //     waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+        //   }).addTo(map);
+        //   handleNoGeolocation(false);
+        // }
+      });
+      $('#info_entrega_recorrido_repartidor').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error al cargar los datos');
     }
   });
 }
@@ -2209,7 +2688,6 @@ function cargarDatosCarritoCompraFinalizarCompra() {
       // *Se parsea la respuesta json obtenida
       // *-----------------------------------------------------------------------
       //*Acción a ejecutar si la respuesta existe
-      console.log(respuesta);
       switch (respuesta) {
         case 'error':
           alert('Lo sentimos ha ocurrido un error');
@@ -2290,7 +2768,7 @@ $('input[name="radio_receptor"]').change(function () {
       messages: {
         required: 'Campo requerido *',
         minlength: 'Mínimo 3 caracteres',
-        maxlength: 'Máximo 3 caracteres',
+        maxlength: 'Máximo 100 caracteres',
         lettersonly: 'Ingresa solo letras'
       }
     });
@@ -2357,14 +2835,12 @@ var formCompra = $('#form_compra_cliente').validate({
   },
   submitHandler: function submitHandler(form) {
     validarFechaCompra($('#txt_hora_entrega').val()).done(function (data) {
-      console.log(data);
-      // if (data == true) {
       switch (data) {
         case 'errorDiaEntrega':
           swal('Error!', 'La compra no puede llevarse a cabo debido a que el local está cerrado.', 'error');
           break;
         case 'errorHoraEntrega':
-          swal('Error!', 'La compra no puede llevarse a cabo debido a que el local está cerrado.', 'error');
+          swal('Error!', 'Selecciona una hora válida.', 'error');
           break;
         case 'puedescomprar':
           swal({
@@ -2408,7 +2884,6 @@ var formCompra = $('#form_compra_cliente').validate({
                 type: 'POST',
                 async: false,
                 success: function success(resp) {
-                  console.log(dataInfo);
                   switch (resp) {
                     case '1':
                       swal('Listo', 'Su solicitud de compra ha sido enviada por favor espere a que esta sea aceptada.', 'success');
@@ -2423,6 +2898,9 @@ var formCompra = $('#form_compra_cliente').validate({
                     case '3':
                       swal('Error!', 'Para generar la compra primero debes haber agregado productos al carro de compras.', 'error');
                       break;
+                    case '4':
+                      swal('Error!', 'Lo sentimos has sobrepasado el precio máximo de compra', 'error');
+                      break;
                   }
                 },
                 error: function error() {
@@ -2433,13 +2911,6 @@ var formCompra = $('#form_compra_cliente').validate({
           });
           break;
       }
-      // } else {
-      //   swal(
-      //     'Error!',
-      //     'La compra no puede llevarse a cabo debido a que el local está cerrado.',
-      //     'error'
-      //   );
-      // }
     });
   }
 });
@@ -2492,6 +2963,363 @@ function validarFechaCompra(hora) {
     }
   });
 }
+
+function CargarTablaVentasPendientes() {
+  var action = 'CargarTablaVentas';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despVenta.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            cargaHtml += '<tr>';
+            cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+            cargaHtml += '<td>' + item.NombreCliente + '</td>';
+            cargaHtml += '<td>' + item.Fecha + '</td>';
+            cargaHtml += '<td>' + item.TipoEntrega + '</td>';
+            cargaHtml += '<td>' + item.TipoPago + '</td>';
+            cargaHtml += '<td>' + item.TipoVenta + '</td>';
+            cargaHtml += '<td>' + item.HoraEntrega + '</td>';
+            cargaHtml += '<td>$' + item.Valor + '</td>';
+            cargaHtml += '<td>' + item.EstadoVenta + '</td>';
+            cargaHtml += "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleVenta(" + item.IdVenta + ")'><i class='material-icons'>more_vert</i></a></td>";
+            cargaHtml += '<td><a class=\'btn-floating btn-medium waves-effect waves-light green\' onclick=\'aceptarVenta("' + item.IdVenta + '", "' + item.CodigoVenta + '")\'><i class=\'material-icons\'>done</i></a></td>';
+            cargaHtml += "<td><a class='btn-floating btn-medium waves-effect waves-light red' onclick='cancelarVenta(" + item.IdVenta + ")'><i class='material-icons'>clear</i></a></td>";
+            cargaHtml += '</tr>';
+          });
+
+          $('#body_tabla_ventas_mikasa').html(cargaHtml);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+$('input[name="radioMotivo"]').change(function () {
+  if ($(this).val() == 4) {
+    $('#input_motivo_cancelacion').removeClass('hide');
+    $('#form_cancelar_venta').validate(); //sets up the validator
+    $('#txt_motivo_cancelación').rules('add', {
+      required: true,
+      minlength: 3,
+      maxlength: 200,
+      messages: {
+        required: 'Campo requerido *',
+        minlength: 'Mínimo 3 caracteres',
+        maxlength: 'Máximo 200 caracteres'
+      }
+    });
+  } else {
+    $(this).rules('remove');
+    $('#input_motivo_cancelacion').addClass('hide');
+  }
+  console.log($(this).val());
+});
+
+function cancelarVenta(id) {
+  $('#modal_mantenedor_cancelar_compra').modal('open');
+  $('#txt_id_venta_cancelar').val(id);
+}
+
+var markerMap = '';
+function aceptarVenta(id, codigoCompra) {
+  var action = 'ValidarTipoEntrega';
+  $.ajax({
+    data: { action: action, idVenta: id },
+    url: '../app/control/despVenta.php',
+    type: 'POST',
+    // async: false,
+    success: function success(resp) {
+      console.log(resp);
+      switch (resp) {
+        // *Si el tipo de entrega es en local no se ingresan latitud ni longitud
+        case 'Local':
+          aceptarVentaPedido(id, resp, codigoCompra);
+          console.log('sacsa');
+          break;
+        case 'Domicilio':
+          $('#modal_mantenedor_aceptar_compra').modal('open');
+          $('#txt_id_compra_mapa').val(id);
+          $('#txt_entrega_compra_mapa').val(resp);
+          $('#txt_codigo_compra_mapa').val(codigoCompra);
+          var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+              osm = L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
+            maxZoom: 16,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          });
+          var map = L.map('map').setView([-37.465, -72.3693], 15).addLayer(osm);
+
+          var marker;
+          map.on('click', function (e) {
+            if (typeof marker === 'undefined') {
+              marker = new L.marker(e.latlng, { draggable: true });
+              marker.addTo(map);
+            } else {
+              marker.setLatLng(e.latlng);
+            }
+            markerMap = marker.getLatLng();
+          });
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
+
+// *Se cierra el modal al presionar el botón cancelar
+$('#cancelar_modal_canc_compra').click(function (evt) {
+  evt.preventDefault();
+  $('#modal_mantenedor_cancelar_compra').modal('close');
+});
+
+// *Función para filtrar los datos en la tabla
+$('#txt_buscar_ventas').on('keyup', function () {
+  var caracterFiltro = $(this).val().toLowerCase();
+  $('#body_tabla_ventas_mikasa tr').filter(function () {
+    $(this).toggle($(this).text().toLowerCase().indexOf(caracterFiltro) > -1);
+  });
+});
+
+function aceptarVentaPedido(id, tipoEntrega, codigoCompra) {
+  var action = 'AceptarVenta';
+  var lat = '';
+  var lng = '';
+  // *Dependiendo del tipo de entrega las coordenadas son ingresadas en formato null
+  if (tipoEntrega == 'Domicilio') {
+    if (markerMap == '' || markerMap == null) {
+      M.toast({
+        html: 'Por favor completa los campos requeridos',
+        displayLength: 3000,
+        classes: 'red'
+      });
+    } else {
+      lat = markerMap.lat;
+      lng = markerMap.lng;
+    }
+  } else {
+    lat = null;
+    lng = null;
+  }
+  $.ajax({
+    data: {
+      action: action,
+      idVenta: id,
+      lng: lng,
+      lat: lat,
+      CodigoVenta: codigoCompra
+    },
+    url: '../app/control/despVenta.php',
+    type: 'POST',
+    success: function success(resp) {
+      console.log(resp);
+      switch (resp) {
+        case '1':
+          swal('Listo', 'La venta ha sido aceptada.', 'success');
+          markerMap = '';
+          $('#modal_mantenedor_aceptar_compra').modal('close');
+          CargarTablaVentasPendientes();
+          break;
+        case '2':
+          swal('Error!', 'La compra no pudo ser aceptada.', 'error');
+          break;
+        case '2':
+          swal('Ha ocurrido un error', 'El correo de notificación no pudo ser enviado', 'error');
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
+
+$('#cancelar_modal_aceptar_compra').on('click', function (evt) {
+  evt.preventDefault();
+  markerMap = '';
+  $('#modal_mantenedor_aceptar_compra').modal('close');
+});
+
+$('#form_aceptar_compra').submit(function (evt) {
+  evt.preventDefault();
+  var id = $('#txt_id_compra_mapa').val();
+  var entrega = $('#txt_entrega_compra_mapa').val();
+  var codigoCompra = $('#txt_codigo_compra_mapa').val();
+  aceptarVentaPedido(id, entrega, codigoCompra);
+});
+
+var formCompra = $('#form_cancelar_venta').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    radio_receptor: {
+      required: true
+    }
+  },
+  messages: {
+    radio_receptor: {
+      required: 'Campo requerido *'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    var action = 'CancelarVenta';
+    var idMotivo = $('input[name=radioMotivo]:checked').val();
+    var motivo = $('#txt_motivo_cancelación').val();
+    var idVenta = $('#txt_id_venta_cancelar').val();
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        $.ajax({
+          data: {
+            action: action,
+            idVenta: idVenta,
+            idMotivo: idMotivo,
+            motivo: motivo
+          },
+          url: '../app/control/despVenta.php',
+          type: 'POST',
+          success: function success(resp) {
+            console.log(resp);
+            switch (resp) {
+              case '1':
+                swal('Listo', 'La venta ha sido cancelada', 'success');
+                CargarTablaVentasPendientes();
+                $('#modal_mantenedor_cancelar_compra').modal('close');
+                // *La función se ejecutó correctamente
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error.');
+          }
+        });
+      }
+    });
+  }
+});
+
+function verDetalleVenta(idVenta) {
+  $('#modal_detalle_venta_pendientes').modal('open');
+  var actionPromoCompra = 'VerDetalleVentaPromoCompra';
+  var cargaHtml = '';
+  $.ajax({
+    data: { action: actionPromoCompra, IdVenta: idVenta },
+    url: '../app/control/despVenta.php',
+    type: 'POST',
+    sync: false,
+    success: function success(resp) {
+      var arr = JSON.parse(resp);
+      console.log(arr);
+      $.each(arr, function (i, item) {
+        var arrayDetalle = JSON.stringify(eval(item.Detalle));
+        var arrayDosDetalle = JSON.parse(arrayDetalle);
+        console.log(arrayDosDetalle);
+        cargaHtml += '<ul class="collection with-header">';
+        cargaHtml += '<li class="collection-header"><p>' + item.NombrePromo + '</p></li>';
+
+        // $.each(arrayDosDetalle, function(indice, elem) {
+        cargaHtml += '<li class="collection-item">' + arrayDosDetalle + '</li>';
+        // });
+        cargaHtml += '</ul>';
+      });
+      $('#cargar_detalle_venta').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+// *Función para cargar la tabla de ventas canceladas
+function cargarTablaVentasCanceladas() {
+  var action = 'CargarTablaVentasCanceladas';
+  var cargaHtml = '';
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despVenta.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      console.log(respuesta);
+      var arr = JSON.parse(respuesta);
+      // *Se parsea la respuesta json obtenida
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            cargaHtml += '<tr>';
+            cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+            cargaHtml += '<td>' + item.NombreCliente + '</td>';
+            cargaHtml += '<td>' + item.Fecha + '</td>';
+            cargaHtml += '<td>' + item.TipoEntrega + '</td>';
+            cargaHtml += '<td>' + item.TipoPago + '</td>';
+            cargaHtml += '<td>$' + item.Valor + '</td>';
+            cargaHtml += '<td>' + item.Motivo + '</td>';
+          });
+
+          $('#body_tabla_ventas_canceladas_mikasa').html(cargaHtml);
+          break;
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+// *Función para filtrar los datos en la tabla
+$('#txt_buscar_ventas_canceladas').on('keyup', function () {
+  var caracterFiltro = $(this).val().toLowerCase();
+  $('#body_tabla_ventas_canceladas_mikasa tr').filter(function () {
+    $(this).toggle($(this).text().toLowerCase().indexOf(caracterFiltro) > -1);
+  });
+});
 
 // *Variables globales utilizadas para la generación de rolls
 var cantidadPiezasArmaTuPromo = 0;
@@ -2767,7 +3595,6 @@ function ComprobarTipoDePromo(id) {
                     var a = JSON.stringify(eval(item.Coberturas));
                     var arrayCoberturas = JSON.parse(a);
                     cargaHtml += '<p class="modal-titulo-eleccion-ingredientes">Cobertura ' + item.NombreTipoCobertura + '</p>';
-                    console.log(arrayResp);
                     cargaHtml += '<div class="content_coberturas">';
                     $.each(arrayCoberturas, function (i, elem) {
                       cargaHtml += '<div class="radio_coberturas">';
@@ -3966,6 +4793,100 @@ $.validator.addMethod('comparar_hora_mayor', function (value, element) {
   return $('#txt_hora_final').val() > $('#txt_hora_inicio').val();
 }, 'La hora de cierre debe ser posterior a la hora de apertura');
 
+function cargarPrecioMaximo() {
+  var action = 'CargarPrecioMaximo';
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despInfoEmpresa.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      if (respuesta == '' || respuesta == null) {
+        $('#txt_precio_maximo').val(0);
+      } else {
+        $('#txt_precio_maximo').val(respuesta);
+      }
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
+
+$('#form_precio_maximo_compra').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    txt_precio_maximo: {
+      required: true,
+      min: 1000,
+      max: 1000000,
+      digits: true
+    }
+  },
+  messages: {
+    txt_precio_maximo: {
+      required: 'Campo requerido *',
+      min: 'Mínimo $1000',
+      max: 'Máximo $1000000',
+      digits: 'Ingresa un número válido (ejemplo: 150000)'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        var action = 'ActualizarPrecioMaximoVenta';
+        var precioMaximo = $('#txt_precio_maximo').val();
+        console.log(precioMaximo);
+        //*Se envían datos del form y action, al controlador mediante ajax
+        $.ajax({
+          data: { action: action, precioMaximo: precioMaximo },
+          url: '../app/control/despInfoEmpresa.php',
+          type: 'POST',
+          success: function success(resp) {
+            console.log(resp);
+            //*Acción a ejecutar si la respuesta existe
+            switch (resp) {
+              case '1':
+                cargarPrecioMaximo();
+                // *La función se ejecutó correctamente
+                swal('Excelente!', 'Los datos han sido actualizados', 'success');
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error');
+          }
+        });
+      }
+    });
+  }
+});
+
 function cargarImagenesIndex() {
   var action = 'CargarImagenesIndex';
   //   var cargaHtml = '';
@@ -4160,11 +5081,6 @@ var validarFormActualizarAgregados = $('#form_mantenedor_ingrediente').validate(
       max: 1000,
       number: true
     },
-    combo_unidad_medida_uso: {
-      required: true,
-      min: 1,
-      max: 200
-    },
     txt_cantidad_minima: {
       required: true,
       min: 0.1,
@@ -4194,11 +5110,6 @@ var validarFormActualizarAgregados = $('#form_mantenedor_ingrediente').validate(
       min: 'La cantidad mínima es 0.1',
       max: 'La cantidad mínima es 1000',
       number: 'Sólo números permitidos'
-    },
-    combo_unidad_medida_uso: {
-      required: 'Campo requerido *',
-      min: 'Selecciona una opción válida',
-      max: 'Selecciona una opción válida'
     },
     txt_cantidad_minima: {
       required: 'Campo requerido *',
@@ -4234,7 +5145,6 @@ var validarFormActualizarAgregados = $('#form_mantenedor_ingrediente').validate(
         formData.append('stock', $('#txt_cantidad_stock').val());
         formData.append('unidadStock', $('#combo_unidad_ingrediente_stock').val());
         formData.append('uso', $('#txt_cantidad_uso_roll').val());
-        formData.append('unidadUso', $('#combo_unidad_ingrediente_uso').val());
         formData.append('minima', $('#txt_cantidad_minima').val());
 
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
@@ -4312,7 +5222,6 @@ function actualizarIngrediente(id) {
         $('label[for=\'txt_cantidad_uso_roll\']').addClass('active');
         $('#txt_cantidad_uso_roll').val(item.Uso);
         $('#combo_unidad_ingrediente_stock').val(item.StockUnidad);
-        $('#combo_unidad_ingrediente_uso').val(item.UsoUnidad);
       });
     },
     error: function error() {
@@ -5992,7 +6901,6 @@ function actualizarRellenoM(id) {
         $('label[for=\'txt_cantidad_uso_roll_relleno\']').addClass('active');
         $('#txt_cantidad_uso_roll_relleno').val(item.Uso);
         $('#combo_unidad_relleno_stock').val(item.StockUnidad);
-        $('#combo_unidad_relleno_uso').val(item.UsoUnidad);
       });
     },
     error: function error() {
@@ -6086,11 +6994,6 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
       max: 1000,
       number: true
     },
-    combo_unidad_medida_uso: {
-      required: true,
-      min: 1,
-      max: 200
-    },
     txt_cantidad_minima_relleno: {
       required: true,
       min: 0.1,
@@ -6145,11 +7048,6 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
       max: 'La cantidad mínima es 1000',
       number: 'Sólo números permitidos'
     },
-    combo_unidad_medida_uso: {
-      required: 'Campo requerido *',
-      min: 'Selecciona una opción válida',
-      max: 'Selecciona una opción válida'
-    },
     txt_cantidad_minima_relleno: {
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 0.1',
@@ -6188,7 +7086,6 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
         formData.append('stock', $('#txt_cantidad_stock_relleno').val());
         formData.append('unidadStock', $('#combo_unidad_relleno_stock').val());
         formData.append('uso', $('#txt_cantidad_uso_roll_relleno').val());
-        formData.append('unidadUso', $('#combo_unidad_relleno_uso').val());
         formData.append('minima', $('#txt_cantidad_minima_relleno').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará un nuevo 'relleno'

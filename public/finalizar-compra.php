@@ -57,6 +57,10 @@
 
    <div class="row content-carro">
         <div class="col l8 m8 s12 carrito-items">
+            <div class="consideraciones-compra col l12 m12 s12" >
+                <p id="info_apertura"></p>
+                <p id="precio_maximo"></p>
+            </div>
             <form action="" id="form_compra_cliente">
             <div class="col l12 m12 s12">
                 <h5>Completa los datos de compra</h5>
@@ -130,7 +134,7 @@
 </div>
 
 <script src="dist/js/script.min.js"></script>
-<!-- <script src="src/js/es6/funciones-compra-venta.js"></script> -->
+<script src="src/js/es6/funciones-compra-venta.js"></script>
 <script>
     $(document).ready(function() {
         cargarDatosCarritoCompraFinalizarCompra();
@@ -138,9 +142,11 @@
         comprobarEstadoSesion();
         cargarComboBoxTipoPago();
         cargarComboBoxTipoEntrega();
+        CargarDatosInfoEmpresaIndex();
+        cargarPrecioMaximoCompra();
         setInterval(function(){
             comprobarEstadoSesion();
-        }, 25000);
+        }, 60000);
 
         $('.dropdown-trigger').dropdown();
         // *Activa tabs

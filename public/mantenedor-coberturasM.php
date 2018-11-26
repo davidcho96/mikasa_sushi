@@ -97,15 +97,9 @@ $sesionUsuario->validacionSesionAdmin();
                         <input id="txt_cantidad_minima_cobertura" name="txt_cantidad_minima_cobertura" type="number">
                         <label for="txt_cantidad_minima_cobertura">Cantidad Mínima</label>
                     </div>
-                    <div class="input-field col l8 m8 s6">
+                    <div class="input-field col l12 m12 s12">
                         <input id="txt_cantidad_uso_roll_cobertura" name="txt_cantidad_uso_roll_cobertura" type="number">
                         <label for="txt_cantidad_uso_roll_cobertura">Cantidad uso en roll</label>
-                    </div>
-                    <div class="input-field col l4 m4 s6">
-                        <label class="active">Medida Uso</label>
-                        <select name="combo_unidad_medida_uso" id="combo_unidad_cobertura_uso" class="browser-default">
-                            
-                        </select>
                     </div>
                     <div class="file-field input-field col l12">
                         <div class="btn black">
@@ -139,9 +133,9 @@ $sesionUsuario->validacionSesionAdmin();
             cargarComboUnidadMedida();
             setInterval(function(){
                 comprobarEstadoSesion();
-                cargarMantenedorCoberturas();
-                cargarTotalIndiceCoberturas();
-            }, 25000);
+                // cargarMantenedorCoberturas();
+                // cargarTotalIndiceCoberturas();
+            }, 60000);
             $('#modal_mantenedor_cobertura').modal({
                 dismissible: false,
                 onCloseEnd: function() {

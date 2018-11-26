@@ -546,3 +546,103 @@ $.validator.addMethod(
   },
   'La hora de cierre debe ser posterior a la hora de apertura'
 );
+
+function cargarPrecioMaximo() {
+  var action = 'CargarPrecioMaximo';
+  $.ajax({
+    data: `action=${action}`,
+    url: '../app/control/despInfoEmpresa.php',
+    type: 'POST',
+    success: function(respuesta) {
+      if (respuesta == '' || respuesta == null) {
+        $('#txt_precio_maximo').val(0);
+      } else {
+        $('#txt_precio_maximo').val(respuesta);
+      }
+    },
+    error: function() {
+      alert('Lo sentimos ha ocurrido un error.');
+    }
+  });
+}
+
+$('#form_precio_maximo_compra').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function(error, element) {
+    $(element)
+      .closest('form')
+      .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
+      .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    txt_precio_maximo: {
+      required: true,
+      min: 1000,
+      max: 1000000,
+      digits: true
+    }
+  },
+  messages: {
+    txt_precio_maximo: {
+      required: 'Campo requerido *',
+      min: 'Mínimo $1000',
+      max: 'Máximo $1000000',
+      digits: 'Ingresa un número válido (ejemplo: 150000)'
+    }
+  },
+  invalidHandler: function(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function(form) {
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if (result.value) {
+        var action = 'ActualizarPrecioMaximoVenta';
+        var precioMaximo = $('#txt_precio_maximo').val();
+        console.log(precioMaximo);
+        //*Se envían datos del form y action, al controlador mediante ajax
+        $.ajax({
+          data: { action: action, precioMaximo: precioMaximo },
+          url: '../app/control/despInfoEmpresa.php',
+          type: 'POST',
+          success: function(resp) {
+            console.log(resp);
+            //*Acción a ejecutar si la respuesta existe
+            switch (resp) {
+              case '1':
+                cargarPrecioMaximo();
+                // *La función se ejecutó correctamente
+                swal(
+                  'Excelente!',
+                  'Los datos han sido actualizados',
+                  'success'
+                );
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+            }
+          },
+          error: function() {
+            alert('Lo sentimos ha ocurrido un error');
+          }
+        });
+      }
+    });
+  }
+});

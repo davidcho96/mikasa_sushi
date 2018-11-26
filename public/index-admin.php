@@ -34,7 +34,7 @@ $sesionUsuario->validacionSesionAdmin();
             comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();
-            },25000);
+            },60000);
         });
     </script>
 </body>

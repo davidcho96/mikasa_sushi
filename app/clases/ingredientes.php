@@ -128,10 +128,10 @@ class Ingredientes extends connection {
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call ingresarIngrediente(?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call ingresarIngrediente(?, ?, ?, ?, ?, ?, @out_value)');
 			// $stmt=$conn->prepare("call ingresarIngrediente('aceite', 52, 1, 25, 1, 10, 'david_mc8@hotmail.com', @out)");
 			//*Se pasan los parámetros
-			$stmt->bind_param('sdidids', $this->getNombre(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getUnidadUso(), $this->getCantidadMinima(), $correo);
+			$stmt->bind_param('sdidds', $this->getNombre(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getCantidadMinima(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta
@@ -160,7 +160,7 @@ class Ingredientes extends connection {
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-			$stmt->bind_result($id, $nombre, $stock, $stockUnidad, $uso, $usoUnidad, $minima);
+			$stmt->bind_result($id, $nombre, $stock, $stockUnidad, $uso, $minima);
 			$datos = array();
 			// if($stmt->fetch()>0){
 				// *Los datos serán añadidos a un array para ser procesados y mostrados en pantalla
@@ -171,7 +171,6 @@ class Ingredientes extends connection {
 						"Stock"=>$stock,
 						"StockUnidad"=>$stockUnidad,
 						"Uso"=>$uso,
-						"UsoUnidad"=>$usoUnidad,
 						"Minima"=>$minima
 					);
 				}
@@ -189,9 +188,9 @@ class Ingredientes extends connection {
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call actualizarDatosIngredientes(?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call actualizarDatosIngredientes(?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('isdidids', $this->getIdIngrediente(), $this->getNombre(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getUnidadUso(), $this->getCantidadMinima(), $correo);
+			$stmt->bind_param('isdidds', $this->getIdIngrediente(), $this->getNombre(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getCantidadMinima(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta

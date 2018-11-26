@@ -3,6 +3,8 @@
 // require '../clases/venta.php';
 
 class Venta extends connection{
+	private $idVenta;
+	private $codigoVenta;
     private $idTipoVenta;
     private $idTipoPago;
     private $idTipoEntrega;
@@ -17,6 +19,23 @@ class Venta extends connection{
     private $idEmpleado;
 	private $detallePromoCompra = [];
 	private $detalleAgregados = [];
+	private $motivoCancelacion;
+
+	public function getIdVenta(){
+		return $this->idVenta;
+	}
+
+	public function setIdVenta($idVenta){
+		$this->idVenta = $idVenta;
+	}
+
+	public function getCodigoVenta(){
+		return $this->codigoVenta;
+	}
+
+	public function setCodigoVenta($codigoVenta){
+		$this->codigoVenta = $codigoVenta;
+	}
 
     public function getIdTipoVenta(){
 		return $this->idTipoVenta;
@@ -128,6 +147,14 @@ class Venta extends connection{
 
 	public function setDetalleAgregados($detalleAgregados){
 		$this->detalleAgregados = $detalleAgregados;
+	}
+
+	public function getMotivoCancelacion(){
+		return $this->motivoCancelacion;
+	}
+
+	public function setMotivoCancelacion($motivoCancelacion){
+		$this->motivoCancelacion = $motivoCancelacion;
 	}
 
 	// *Generará un código random que será utilizado posteriormente para recuperar la contraseña
@@ -249,7 +276,240 @@ class Venta extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-            $stmt=$conn->prepare('call obtenerDatosTablaVentas()');
+            $stmt=$conn->prepare('call obtenerDatosTablaVentasDiaActual()');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($idVenta, $codigoVenta, $nombreCliente, $idCliente, $fechaVenta, $tipoEntrega, $tipoPago, $tipoVenta, $horaEntrega, $valor, $idEstadoVenta, $idEstadoEntrega, $estadoVenta);
+            $datos = array();
+				while($stmt->fetch()){
+					$datos[]=array(
+						"IdVenta"=>$idVenta,
+						"CodigoVenta"=>$codigoVenta,
+						"NombreCliente"=>$nombreCliente,
+						"IdCliente"=>$idCliente,
+						"Fecha"=>$fechaVenta,
+						"TipoEntrega"=>$tipoEntrega,
+						"TipoPago"=>$tipoPago,
+						"TipoVenta"=>$tipoVenta,
+						"HoraEntrega"=>$horaEntrega,
+						"Valor"=>$valor,
+						"IdEstadoVenta"=>$idEstadoVenta,
+						"IdEstadoEntrega"=>$idEstadoEntrega,
+						"EstadoVenta"=>$estadoVenta
+					);
+				}
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function validarTipoEntrega(){
+		try{
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call validarTipoEntrega(?)');
+			$stmt->bind_param('i', $this->getIdVenta());
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($idTipoEntrega);
+            if($stmt->fetch()>0){
+				if($idTipoEntrega == 1){
+					return 'Domicilio';
+				}else{
+					return 'Local';
+				}
+			}
+
+            $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function aceptarVenta(){
+		try{
+			$db = connection::getInstance();
+			$lat = $this->getLat();
+			$lng = $this->getLng();
+			if($lat == ''){
+				$lat = null;
+			}
+			if($lng == ''){
+				$lng = null;
+			}
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call aceptarVenta(?, ?, ?)');
+			$stmt->bind_param('iss', $this->getIdVenta(), $lat, $lng);
+            //* Se ejecuta
+            if($stmt->execute()){
+				return '1';
+			}else {
+				return '2';
+			}
+            //* Resultados obtenidos de la consulta
+
+
+            $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	function cancelarVenta($correo){
+		try{
+			$motivoCancelacion = $this->getMotivoCancelacion();
+			if($motivoCancelacion == ''){
+				$motivoCancelacion = 'No especificado';
+			}
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call cancelarVenta(?, ?, ?)');
+			$stmt->bind_param('iss', $this->getIdVenta(), $motivoCancelacion, $correo);
+            //* Se ejecuta
+            if($stmt->execute()){
+				return '1';
+			}else {
+				return '2';
+			}
+            //* Resultados obtenidos de la consulta
+
+
+            $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function verDetalleVentaPromoCompra(){
+		try{
+			$arrayDetalle = [];
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call obtenerDetalleVentaPromoCompra(?)');
+			$stmt->bind_param('i', $this->getIdVenta());
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($nombre ,$detallePromoCompra);
+            $datosPromoCompra = array();
+				while($stmt->fetch()){
+					$a = $detallePromoCompra;
+					$datosPromoCompra[]=array(
+						"NombrePromo"=>$nombre,
+						"Detalle"=>$a
+					);
+				}
+				array_push($arrayDetalle, $datosPromoCompra);
+				$stmt->close();
+			$stmt2=$conn->prepare('call obtenerDetalleVentaAgregados(?)');
+			$stmt2->bind_param('i', $this->getIdVenta());
+			$stmt2->execute();
+			$stmt2->bind_result($nombreAgregado);
+			$datosAgregados = array();
+				while($stmt2->fetch()){
+					$datosAgregados[]=array(
+						"NombreAgregado"=>$nombreAgregado
+					);
+				}
+				array_push($arrayDetalle, $datosAgregados);
+				$stmt2->close();
+            return json_encode($arrayDetalle, JSON_UNESCAPED_UNICODE);
+                // $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function cargarTablaVentasCanceladas(){
+		try{
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call obtenerDatosTablaVentasCanceladas()');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($idVenta, $codigoVenta, $nombreCliente, $idCliente, $fechaVenta, $tipoEntrega, $tipoPago, $horaEntrega, $valor, $motivoCancelacion, $empleado);
+            $datos = array();
+				while($stmt->fetch()){
+					$datos[]=array(
+						"IdVenta"=>$idVenta,
+						"CodigoVenta"=>$codigoVenta,
+						"NombreCliente"=>$nombreCliente,
+						"IdCliente"=>$idCliente,
+						"Fecha"=>$fechaVenta,
+						"TipoEntrega"=>$tipoEntrega,
+						"TipoPago"=>$tipoPago,
+						"HoraEntrega"=>$horaEntrega,
+						"Valor"=>$valor,
+						"Motivo"=>$motivoCancelacion,
+						"Empleado"=>$empleado
+					);
+				}
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function obtenerCorreoClienteVenta(){
+		try{
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call obtenerCorreoClienteVenta(?, ?)');
+			$stmt->bind_param('is', $this->getIdVenta(), $this->getCodigoVenta());
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($correoCliente);
+            if($stmt->fetch()>0){
+				return $correoCliente;
+			}
+
+            $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function cargarPrecioMaximoCompra(){
+		try{
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call obtenerPrecioMaximoCompra()');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($precioMaximo);
+            if($stmt->fetch()>0){
+				return $precioMaximo;
+			}else{
+				return null;
+			}
+
+            $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function cargarTablaHistorialVentas(){
+		try{
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call obtenerDatosTablaHistorialVentas()');
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta

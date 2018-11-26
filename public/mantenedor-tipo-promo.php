@@ -81,8 +81,8 @@ $sesionUsuario->validacionSesionAdmin();
         comprobarEstadoSesion();
         setInterval(function(){
             comprobarEstadoSesion();
-            CargarTablaTipoPromo();
-        }, 25000);
+            // CargarTablaTipoPromo();
+        }, 60000);
         $('#modal_mantenedor_tipo_promo').modal({
                 dismissible: false,
                 onCloseEnd: function() {

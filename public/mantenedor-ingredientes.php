@@ -83,15 +83,9 @@
                         <input id="txt_cantidad_minima" name="txt_cantidad_minima" type="number">
                         <label for="txt_cantidad_minima">Cantidad Minima</label>
                     </div>
-                    <div class="input-field col l8 m8 s6">
+                    <div class="input-field col l12 m12 s12">
                         <input id="txt_cantidad_uso_roll" name="txt_cantidad_uso_roll" type="number">
                         <label for="txt_cantidad_uso_roll">Cantidad uso en roll</label>
-                    </div>
-                    <div class="input-field col l4 m4 s6">
-                        <label class="active">Medida Uso</label>
-                        <select name="combo_unidad_medida_uso" id="combo_unidad_ingrediente_uso" class="browser-default">
-                            
-                        </select>
                     </div>
                     <div class="center input-field col l12">
                         <input type="submit" class="btn black" id="btn_mantenedor_ingrediente" value="Confirmar">
@@ -113,7 +107,7 @@
             comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();
-            }, 25000);
+            }, 60000);
             $('#modal_mantenedor_ingrediente').modal({
                 dismissible: false,
                 onCloseEnd: function() {

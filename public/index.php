@@ -345,10 +345,10 @@ $sesionUsuario->validarSesion();
         cargarImagenesIndex();
         CargarDatosInfoEmpresaIndex();
         CargarTablaInfoContactoIndex();
-        setInterval(function(){
-            CargarDatosInfoEmpresaIndex();
-            CargarTablaInfoContactoIndex();
-        }, 25000);
+        // setInterval(function(){
+        //     CargarDatosInfoEmpresaIndex();
+        //     CargarTablaInfoContactoIndex();
+        // }, 25000);
     });
 </script>
 

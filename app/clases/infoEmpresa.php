@@ -7,7 +7,8 @@ class InfoEmpresa extends connection{
     private $horaApertura;
     private $horaCierre;
     private $diaInicio;
-    private $diaFinal;
+	private $diaFinal;
+	private $precioMaximo;
 
     public function getIdInfoEmpresa(){
 		return $this->idInfoEmpresa;
@@ -47,7 +48,15 @@ class InfoEmpresa extends connection{
 
 	public function setDiaFinal($diaFinal){
 		$this->diaFinal = $diaFinal;
-    }
+	}
+	
+	public function getPrecioMaximo(){
+		return $this->precioMaximo;
+	}
+
+	public function setPrecioMaximo($precioMaximo){
+		$this->precioMaximo = $precioMaximo;
+	}
     
     public function cargarDatosInfoEmpresa(){
         try{
@@ -120,4 +129,40 @@ class InfoEmpresa extends connection{
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
+
+	public function cargarPrecioMaximo(){
+        try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare('select precioMaximo from precioMaximoCompra LIMIT 1');
+			//*Se pasan los parámetros a la consulta
+			//*Se ejecuta la consulta en BD
+			$stmt->execute();
+			//*Se obtiene el resultado
+			$stmt->bind_result($precioMaximo);
+			if($stmt->fetch() > 0){
+				return $precioMaximo;
+			}
+
+			$stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+	
+	public function actualizarPrecioMaximoVenta(){
+		try{
+			$db = connection::getInstance();
+			$conn = $db->getConnection();
+			$stmt=$conn->prepare('call actualizarPrecioMaximoVenta(?)');
+			$stmt->bind_param('i', $this->getPrecioMaximo());
+			if($stmt->execute()){
+				return 1;
+			}else{
+				return 2;
+			}
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+    }
 }

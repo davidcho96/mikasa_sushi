@@ -109,8 +109,8 @@ $sesionUsuario->validacionSesionAdmin();
             comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();
-                cargarMantenedorAgregados();
-            }, 25000);
+                // cargarMantenedorAgregados();
+            }, 60000);
             $('#modal_mantenedor_agregado').modal({
                 dismissible: false,
                 onCloseEnd: function() {

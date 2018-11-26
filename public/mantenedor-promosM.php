@@ -221,8 +221,8 @@ $sesionUsuario->validacionSesionAdmin();
                 comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();
-                cargarMantenedorPromosCliente();
-            }, 25000);
+                // cargarMantenedorPromosCliente();
+            }, 60000);
             $('#modal_mantenedor_promo_cliente').modal({
                 dismissible: false,
                 onCloseEnd: function() {

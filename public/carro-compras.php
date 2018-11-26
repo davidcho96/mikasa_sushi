@@ -103,7 +103,7 @@ $sesionUsuario->validacionSesionCliente();
             comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();
-            }, 25000);
+            }, 60000);
         });
     </script>
 </body>

@@ -157,9 +157,9 @@ require_once "templates/nav-admin.php";
         CargaEstadoEmpleadoModal();
         comprobarEstadoSesion();
         setInterval(function(){
-            CargarTablaEmpleados();
+            // CargarTablaEmpleados();
             comprobarEstadoSesion();
-        }, 25000);
+        }, 60000);
         $('#modal_actualiza_empleado').modal({
             dismissible: false,
             onCloseEnd: function () {

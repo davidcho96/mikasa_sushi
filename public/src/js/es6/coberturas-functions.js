@@ -281,7 +281,6 @@ function actualizarCoberturaM(id) {
         $(`label[for='txt_cantidad_uso_roll_cobertura']`).addClass('active');
         $('#txt_cantidad_uso_roll_cobertura').val(item.Uso);
         $('#combo_unidad_cobertura_stock').val(item.StockUnidad);
-        $('#combo_unidad_cobertura_uso').val(item.UsoUnidad);
       });
     },
     error: function() {
@@ -384,11 +383,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
       max: 1000,
       number: true
     },
-    combo_unidad_medida_uso: {
-      required: true,
-      min: 1,
-      max: 200
-    },
     txt_cantidad_minima_cobertura: {
       required: true,
       min: 0.1,
@@ -443,11 +437,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
       max: 'La cantidad mínima es 1000',
       number: 'Sólo números permitidos'
     },
-    combo_unidad_medida_uso: {
-      required: 'Campo requerido *',
-      min: 'Selecciona una opción válida',
-      max: 'Selecciona una opción válida'
-    },
     txt_cantidad_minima_cobertura: {
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 0.1',
@@ -496,7 +485,6 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
           $('#combo_unidad_cobertura_stock').val()
         );
         formData.append('uso', $('#txt_cantidad_uso_roll_cobertura').val());
-        formData.append('unidadUso', $('#combo_unidad_cobertura_uso').val());
         formData.append('minima', $('#txt_cantidad_minima_cobertura').val());
         // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
         // *Si no contiene valor se interpreta que se ingresará una nueva 'cobertura'

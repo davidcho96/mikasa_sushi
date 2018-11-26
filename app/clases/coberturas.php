@@ -181,7 +181,7 @@ class Cobertura extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($id, $descripcion, $indice, $precioAdicional, $estado, $nombre, $imgUrl, $stock, $stockUnidad, $uso, $usoUnidad, $minima);
+            $stmt->bind_result($id, $descripcion, $indice, $precioAdicional, $estado, $nombre, $imgUrl, $stock, $stockUnidad, $uso, $minima);
 			$datos = array();
 			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
@@ -196,7 +196,6 @@ class Cobertura extends connection{
 						"Stock"=>$stock,
 						"StockUnidad"=>$stockUnidad,
 						"Uso"=>$uso,
-						"UsoUnidad"=>$usoUnidad,
 						"Minima"=>$minima
 					);
 				}
@@ -213,9 +212,9 @@ class Cobertura extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call actualizarDatosCoberturas(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call actualizarDatosCoberturas(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('issisisdidids', $this->getIdCobertura(), $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getUnidadUso(), $this->getCantidadMinima(), $correo);
+			$stmt->bind_param('issisisdidds', $this->getIdCobertura(), $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(),$this->getCantidadMinima(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta
@@ -237,9 +236,9 @@ class Cobertura extends connection{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call ingresarCoberturas(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
+			$stmt=$conn->prepare('call ingresarCoberturas(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
 			//*Se pasan los parámetros
-			$stmt->bind_param('ssiiisdidids', $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getUnidadUso(), $this->getCantidadMinima(), $correo);
+			$stmt->bind_param('ssiiisdidds', $this->getNombre(), $this->getDescripcion(), $this->getPrecioAdicional(), $this->getIdIndice(), $this->getIdEstado(), $this->getImgUrl(), $this->getCantidadStock(), $this->getUnidadStock(), $this->getCantidadUso(), $this->getCantidadMinima(), $correo);
             //* Se ejecuta
             $stmt->execute();
 			//* Resultados obtenidos de la consulta

@@ -81,7 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $coberturas->setCantidadStock($stock);
             $coberturas->setUnidadStock($_POST['unidadStock']);
             $coberturas->setCantidadUso($uso);
-            $coberturas->setUnidadUso($_POST['unidadUso']);
             $coberturas->setCantidadMinima($minima);
 
             echo $coberturas->actualizarDatos($_SESSION['user'][1]);
@@ -139,7 +138,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $coberturas->setCantidadStock($stock);
             $coberturas->setUnidadStock($_POST['unidadStock']);
             $coberturas->setCantidadUso($uso);
-            $coberturas->setUnidadUso($_POST['unidadUso']);
             $coberturas->setCantidadMinima($minima);
 
             echo $coberturas->ingresarCoberturas($_SESSION['user'][1]);

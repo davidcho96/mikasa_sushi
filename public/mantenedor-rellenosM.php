@@ -96,15 +96,9 @@ $sesionUsuario->validacionSesionAdmin();
                         <input id="txt_cantidad_minima_relleno" name="txt_cantidad_minima_relleno" type="number">
                         <label for="txt_cantidad_minima_relleno">Cantidad Mínima</label>
                     </div>
-                    <div class="input-field col l8 m8 s6">
+                    <div class="input-field col l12 m12 s12">
                         <input id="txt_cantidad_uso_roll_relleno" name="txt_cantidad_uso_roll_relleno" type="number">
                         <label for="txt_cantidad_uso_roll_relleno">Cantidad uso en roll</label>
-                    </div>
-                    <div class="input-field col l4 m4 s6">
-                        <label class="active">Medida Uso</label>
-                        <select name="combo_unidad_medida_uso" id="combo_unidad_relleno_uso" class="browser-default">
-                            
-                        </select>
                     </div>
                     <div class="file-field input-field col l12">
                         <div class="btn black">
@@ -136,9 +130,9 @@ $sesionUsuario->validacionSesionAdmin();
             cargarComboUnidadMedida();
             setInterval(function(){
                 comprobarEstadoSesion();
-                cargarMantenedorRellenos();
-                cargarTotalIndiceRellenos();
-            }, 25000);
+                // cargarMantenedorRellenos();
+                // cargarTotalIndiceRellenos();
+            }, 60000);
             $('#modal_mantenedor_relleno').modal({
                 dismissible: false,
                 onCloseEnd: function() {

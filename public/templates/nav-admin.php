@@ -19,16 +19,51 @@
             </a>
         </li>
         <li>
-            <a href="ventas-mikasa.php">
+            <ul class="collapsible collapsible-accordion">
+                <li>
+                    <a class="collapsible-header">Ventas
+                        <i class="material-icons">attach_money</i>
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                    <div class="collapsible-body">
+                        <ul>
+                            <li>
+                                <a href="ventas-pendientes.php">Ventas pendientes</a>
+                            </li>
+                            <li>
+                                <a href="ventas-canceladas.php">Ventas canceladas</a>
+                            </li>
+                            <li>
+                                <a href="historial-ventas.php">Historial de ventas</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+            <!-- <a href="ventas-mikasa.php">
                 <i class="material-icons">attach_money</i>
                 Ventas
-            </a>
+            </a> -->
         </li>
         <li>
-            <a href="">
-                <i class="material-icons">motorcycle</i>
-                Pedidos
-            </a>
+            <ul class="collapsible collapsible-accordion">
+                <li>
+                    <a class="collapsible-header">Entregas
+                        <i class="material-icons">motorcycle</i>
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                    <div class="collapsible-body">
+                        <ul>
+                            <li>
+                                <a href="entregas-pendientes.php">Entregas pendientes</a>
+                            </li>
+                            <li>
+                                <a href="historial-entregas.php">Historial de ventas</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
         </li>
         <div class="divider"></div>
         <li>

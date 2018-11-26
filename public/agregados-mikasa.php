@@ -36,9 +36,9 @@ $sesionUsuario->validacionSesionCliente();
         $(document).ready(function() {
             cargarAgregadosCarta();
             comprobarEstadoSesion();
-            // setInterval(function(){
-            //     comprobarEstadoSesion();
-            // }, 25000);
+            setInterval(function(){
+                comprobarEstadoSesion();
+            }, 60000);
 
             $('.dropdown-trigger').dropdown();
             // *Activa tabs

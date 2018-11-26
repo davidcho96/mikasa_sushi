@@ -79,8 +79,8 @@ $sesionUsuario->validacionSesionAdmin();
         comprobarEstadoSesion();
         setInterval(function(){
             comprobarEstadoSesion();
-            CargarTablaTipoPago();
-        }, 25000);
+            // CargarTablaTipoPago();
+        }, 60000);
         $('#modal_mantenedor_tipo_pago').modal({
                 dismissible: false,
                 onCloseEnd: function() {

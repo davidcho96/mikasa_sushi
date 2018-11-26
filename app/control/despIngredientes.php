@@ -35,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ingredientes->setCantidadStock($stock);
             $ingredientes->setUnidadStock($_POST['unidadStock']);
             $ingredientes->setCantidadUso($uso);
-            $ingredientes->setUnidadUso($_POST['unidadUso']);
             $ingredientes->setCantidadMinima($minima);
             
             echo $ingredientes->ingresarIngrediente($_SESSION['user'][1]);
@@ -58,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ingredientes->setCantidadStock($stock);
             $ingredientes->setUnidadStock($_POST['unidadStock']);
             $ingredientes->setCantidadUso($uso);
-            $ingredientes->setUnidadUso($_POST['unidadUso']);
             $ingredientes->setCantidadMinima($minima);
             
             echo $ingredientes->actualizarIngrediente($_SESSION['user'][1]);

@@ -26,7 +26,7 @@ $sesionUsuario->validacionSesionAdmin();
 
 </head>
 <body>
-    <?php require 'templates/nav-admin.php' ?>
+<?php require 'templates/nav-admin.php' ?>
     <div class="container">
         <div>
             <h1>Gestión Info Empresa</h1>
@@ -88,8 +88,23 @@ $sesionUsuario->validacionSesionAdmin();
                 </div>
             </div>
         </div>
+        
+        <div class="col l12 m12 s12">
+            <h5>Gestión de precio máximo permitido</h5>
+            <form action="" name="form_precio_maximo_compra" id="form_precio_maximo_compra">
+                <label class="active">Precio Máximo</label>
+                <div class="input-field col l12 m12 12">
+                    <input type="number" name="txt_precio_maximo" id="txt_precio_maximo">
+                </div>
+                <div class="center">
+                    <input type="submit" class="btn black" id="btn_mant_precio_maximo" value="Confirmar">
+                    <button id="reestablecer_precio_maximo" class="btn red">Reestablecer</button>
+                </div>
+            </form>
+        </div>
+
         <div class="title-mantenedor">
-            <h1>Gestión Información de contacto</h1>
+            <h5>Gestión Información de contacto</h5>
             <a class="btn-floating btn-large waves-effect waves-light red modal-trigger" href="#modal_mantenedor_info_contacto"><i class="material-icons">add</i></a>
         </div>
         
@@ -136,28 +151,29 @@ $sesionUsuario->validacionSesionAdmin();
                 </form>
             </div>
         </div>
-    </div class="container">
+    </div>
 
     <script src="dist/js/script.min.js"></script>
-    <script src="src/js/es6/funciones-infoContacto.js"></script>
+    <!-- <script src="src/js/es6/funciones-infoContacto.js"></script> -->
     <script>
     $(document).ready(function(){
+        cargarPrecioMaximo();
         CargarTablaInfoContacto();
         CargarDatosInfoEmpresa();
         comprobarEstadoSesion();
         setInterval(function (){
             comprobarEstadoSesion();
-            CargarTablaInfoContacto();
-        }, 25000);
+            // CargarTablaInfoContacto();
+        }, 60000);
         $('#modal_mantenedor_info_contacto').modal({
-                dismissible: false,
-                onCloseEnd: function() {
-                $('#form_mantenedor_info_contacto')[0].reset();
-                $('#lbl_id_info_contacto').text('');
-                $('#accion_info_contacto').text('Ingresar Información de Contacto');
-                $('#mensaje_precaucion_info_contacto').remove();
-                }
-            });
+            dismissible: false,
+            onCloseEnd: function() {
+            $('#form_mantenedor_info_contacto')[0].reset();
+            $('#lbl_id_info_contacto').text('');
+            $('#accion_info_contacto').text('Ingresar Información de Contacto');
+            $('#mensaje_precaucion_info_contacto').remove();
+            }
+        });
     });
     </script>
 </body>

@@ -27,6 +27,7 @@ function cargarDatosCarrito() {
               item.ImgUrl
             }" alt="" height="85px" width="90px">`;
             cargaHtml += `<p class="collapsible-text">${item.Nombre}</p>`;
+            // cargaHtml += '<i class="material-icons">more_vert</i>';
             cargaHtml += '<div class="collapsible-price">';
             cargaHtml += `<p>Total: </p><p class='green-text'>$${
               item.PrecioTotal
