@@ -83,13 +83,9 @@
         <div class="modal-content">
 
             <h5 class="center" id="accion_promo_compra"></h5>
+            <p class="center" id="cantidad_piezas_promo_compra"></p>
             <form action="" name="form_arma_tu_promo" id="form_arma_tu_promo">
             <input type='hidden' id="lbl_id_promo_compra">
-            <div>
-                <ul id="lista_rolls_compra" class="lista-rolls-compra collection">
-                    <li></li>
-                </ul>
-            </div>
                 <p class="modal-titulo-eleccion-ingredientes">Coberturas (Elige una opción)</p>
                 <div id="carga_chekbox_cobertura">
                 </div>
@@ -103,11 +99,16 @@
                     </select>
                     <a class="btn-small waves-effect waves-light red btn_add_roll_promo" id="btn_add_roll_promo"><i class="material-icons">add</i></a>
                 </div>
-                        
+                <div>
+                    <ul id="lista_rolls_compra" class="lista-rolls-compra collection">
+                        <li></li>
+                    </ul>
+                </div>
                 <div class="center">
                     <input type="submit" class="btn black" value="Confirmar">
                     <button id="cancelar_arma_tu_promo_compra" class="btn red">Cancelar</button>
                 </div>
+                
             </form>
         </div>
     </div>
@@ -116,6 +117,7 @@
         <div class="modal-content">
 
             <h5 class="center" id="accion_promo_compra_chef"></h5>
+            <p class="center" id="cantidad_piezas_promo_compra_chef"></p>
             <form action="" name="form_arma_tu_promo_chef" id="form_arma_tu_promo_chef">
             <input type='hidden' id="lbl_id_promo_compra_chef">
                 
@@ -131,8 +133,9 @@
     </div>
 
     <script src="dist/js/script.min.js"></script>
-    <!-- <script src="src/js/es6/funciones-compra.js"></script> -->
+    <script src="src/js/es6/funciones-compra.js"></script>
     <script>
+        
         $(document).ready(function() {
             cargarPromosCarta();
             comprobarEstadoSesion();

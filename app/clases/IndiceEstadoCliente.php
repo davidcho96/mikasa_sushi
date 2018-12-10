@@ -1,6 +1,10 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require_once '../db_connection/connection.php';
+
 class indiceEstadoCliente extends connection{
     private $idEstado;
     private $estado;
@@ -21,6 +25,7 @@ class indiceEstadoCliente extends connection{
 		$this->estado = $estado;
     }
 
+    // *Se carga el estado de los empleados 
     public function cargaEstadoCliente(){
         try{
             $db = connection::getInstance();

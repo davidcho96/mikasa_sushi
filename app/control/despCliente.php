@@ -53,29 +53,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                             //*El correo ya está registrado
                         break;
                         case '2':
-                        $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
-                        $mail->SMTPAuth = true;                               // Enable SMTP authentication
-                        $mail->Username = 'davidchomc8@gmail.com';                 // SMTP username
-                        $mail->Password = 'clavecorreo';                           // SMTP password
-                        $mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
-                        $mail->Port = 465;                                    // TCP port to connect to
+                        // $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
+                        // $mail->SMTPAuth = true;                               // Enable SMTP authentication
+                        // $mail->Username = 'davidchomc8@gmail.com';                 // SMTP username
+                        // $mail->Password = 'clavecorreo';                           // SMTP password
+                        // $mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
+                        // $mail->Port = 465;                                    // TCP port to connect to
 
-                        $mail->setFrom('davidchomc8@gmail.com', 'Mikasa Sushi');
-                        $mail->addAddress($cliente->getCorreo(), $cliente->getNombre());     
+                        // $mail->setFrom('davidchomc8@gmail.com', 'Mikasa Sushi');
+                        // $mail->addAddress($cliente->getCorreo(), $cliente->getNombre());     
 
-                        $mail->Subject = 'Gracias por unirte a Mikasa';
-                        $mail->Body    = 'Saludos';
+                        // $mail->Subject = 'Gracias por unirte a Mikasa';
+                        // $mail->Body    = 'Saludos';
 
-                        if(!$mail->send()) {
-                            echo 1;
-                        } else {
+                        // if(!$mail->send()) {
+                        //     echo 1;
+                        // } else {
                             //*Registro exitoso
                             $array_session = array('cliente', $cliente->getCorreo());
                             if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
                                 $_SESSION['user'] = $array_session;
+                                echo 2;
                             }
-                            echo 2;
-                        }
+                        //     echo 2;
+                        // }
                         break;
                         
                     }
@@ -161,7 +162,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     switch($cliente->login()){
                         case '1':
                             $array_session = array('cliente', $cliente->getCorreo());
-                            //* Registro exitoso
+                            //* Ingreso exitoso
+                            // *Se inicia la sesión
                             if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
                                 $_SESSION['user'] = $array_session;
                             }
@@ -169,13 +171,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                         break;
                         case '2':
                             echo '2'; 
-                            //* Registro erróneo
+                            //* Contraseña errónea
                         break;
                         case '3':
                             echo '3';
+                            // *El correo ingresado no existe
                         break;
                         case '4':
                             echo '4';
+                            // *El usuario no puede ingresar por error de estado
                         break;
                     }
                 }
@@ -186,6 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     $cliente->setCorreo($correo);
                     echo $cliente->cargarDatosPerfil();
                     }
+                // *Se obtienen los datos del cliente logueado para visualizar sus datos
             break;
 
             // --------------------------------------------------------------------------
@@ -226,6 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                 }
             break;
 
+            // *Se setean los datos del form para validar que la pass sea la registrada en la Base de datos
             case'ConfirmarPassCliente':
             if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL') {
                 if($validate->check(['txt_pass_actual'], $_REQUEST)){

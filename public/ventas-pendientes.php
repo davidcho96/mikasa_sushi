@@ -51,7 +51,7 @@
                         <td>Cliente</td>
                         <td>Fecha/Hora</td>
                         <td>Tipo Entrega</td>
-                        <td>Tipo Pago</td>
+                        <td>Dirección</td>
                         <td>Tipo Venta</td>
                         <td>Hora Entrega</td>
                         <td>Valor</td>
@@ -71,6 +71,7 @@
             <h5 class="center" id="accion_tipo_coberturas">Selecciona el motivo del rechazo de la compra.</h5>
             <form action="" name="form_cancelar_venta" id="form_cancelar_venta">
             <input type="hidden" id="txt_id_venta_cancelar">
+            <input type="hidden" id="txt_codigo_venta_cancelar">
                 <div>
                     <p>
                         <label>
@@ -98,8 +99,8 @@
                     </p>
                 </div>
                 <div class="input-field col l12 m12 s12 hide" id="input_motivo_cancelacion">
-                    <input type="text" id="txt_motivo_cancelación" name="txt_motivo_cancelación">
-                    <label for="txt_motivo_cancelación">Motivo de cancelación</label>
+                    <input type="text" id="txt_motivo_cancelacion" name="txt_motivo_cancelacion">
+                    <label for="txt_motivo_cancelacion">Motivo de cancelación</label>
                 </div>
                 <div class="center">
                     <input type="submit" class="btn black" value="Confirmar">
@@ -142,9 +143,12 @@
     <script>
     $(document).ready(function(){
         CargarTablaVentasPendientes();
+        cargarNotificaciones();
         comprobarEstadoSesion();
         setInterval(function(){
             comprobarEstadoSesion();
+            cargarNotificaciones();
+            CargarTablaVentasPendientes();
             // CargarTablaVentasPendientes();
         }, 60000);
         $('#modal_mantenedor_aceptar_compra').modal({

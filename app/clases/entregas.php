@@ -1,10 +1,13 @@
 <?php
 
+//*BD = Base de datos
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para ser utilizado en javascript
 require '../db_connection/connection.php';
 
 class Entregas extends connection{
     private $idEntrega;
-    private $idCodigoVenta;
+    private $idVenta;
     private $lat;
     private $lng;
     private $direccion;
@@ -14,6 +17,7 @@ class Entregas extends connection{
     private $hora;
 	private $idEmpleado;
 	private $codigoVenta;
+	private $motivoCancelacion;
 
     public function getIdEntrega(){
 		return $this->idEntrega;
@@ -23,12 +27,12 @@ class Entregas extends connection{
 		$this->idEntrega = $idEntrega;
 	}
 
-	public function getIdCodigoVenta(){
-		return $this->idCodigoVenta;
+	public function getIdVenta(){
+		return $this->idVenta;
 	}
 
-	public function setIdCodigoVenta($idCodigoVenta){
-		$this->idCodigoVenta = $idCodigoVenta;
+	public function setIdVenta($idVenta){
+		$this->idVenta = $idVenta;
 	}
 
 	public function getLat(){
@@ -102,6 +106,14 @@ class Entregas extends connection{
 	public function setCodigoVenta($codigoVenta){
 		$this->codigoVenta = $codigoVenta;
 	}
+
+	public function getMotivoCancelacion(){
+		return $this->motivoCancelacion;
+	}
+
+	public function setMotivoCancelacion($motivoCancelacion){
+		$this->motivoCancelacion = $motivoCancelacion;
+	}
     
     public function cargarTablaEntregasPendientes(){
         try{
@@ -141,6 +153,7 @@ class Entregas extends connection{
         }
 	}
 	
+	// *Corroborar que tipo de entrega es la venta, para luego cargar las opciones del estado de envío
 	public function corroborarTipoEntrega(){
 		try{
 			$db = connection::getInstance();
@@ -166,6 +179,7 @@ class Entregas extends connection{
 		}
 	}
 
+	// *Carga las opciones de estado de entrega en el local
 	public function cargarOpcionesEntregaLocal(){
 		try{
 			$db = connection::getInstance();
@@ -175,12 +189,13 @@ class Entregas extends connection{
 			//* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-			$stmt->bind_result($idEstadoEntrega, $estadoEntrega);
+			$stmt->bind_result($idEstadoEntrega, $estadoEntrega, $icono);
 			$datos = array();
 				while($stmt->fetch()){
 					$datos[]=array(
                         "IdEstadoEntrega"=>$idEstadoEntrega,
-                        "EstadoEntrega"=>$estadoEntrega
+						"EstadoEntrega"=>$estadoEntrega,
+						"Icono"=>$icono
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -190,6 +205,7 @@ class Entregas extends connection{
 		}
 	}
 
+	// *Carga las opciones de estado de entrega para los pedidos a domicilio
 	public function cargarOpcionesEntregaDomicilio(){
 		try{
 			$db = connection::getInstance();
@@ -199,12 +215,13 @@ class Entregas extends connection{
 			//* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-			$stmt->bind_result($idEstadoEntrega, $estadoEntrega);
+			$stmt->bind_result($idEstadoEntrega, $estadoEntrega, $icono);
 			$datos = array();
 				while($stmt->fetch()){
 					$datos[]=array(
                         "IdEstadoEntrega"=>$idEstadoEntrega,
-                        "EstadoEntrega"=>$estadoEntrega
+						"EstadoEntrega"=>$estadoEntrega,
+						"Icono"=>$icono
 					);
 				}
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -214,18 +231,22 @@ class Entregas extends connection{
 		}
 	}
 
-	public function actualizarEstadoEntrega(){
+	public function actualizarEstadoEntrega($correo){
 		try{
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call actualizarEstadoEntrega(?, ?)');
-			$stmt->bind_param('ii', $this->getIdEntrega(), $this->getIdEstadoEntrega());
-            //* Se ejecuta
-            if($stmt->execute()){
-				return '1';
+			$stmt=$conn->prepare('call actualizarEstadoEntrega(?, ?, ?, @out)');
+			$stmt->bind_param('iis', $this->getIdEntrega(), $this->getIdEstadoEntrega(), $correo);
+			//* Se ejecuta
+			$stmt->execute();
+			$stmt->bind_result($result);
+            if($stmt->fetch()){
+				return $result;
+				// *Se actualizaron los datos
 			}else {
 				return '2';
+				// *Error en la ejecución
 			}
             //* Resultados obtenidos de la consulta
 
@@ -275,6 +296,7 @@ class Entregas extends connection{
         }
 	}
 
+	// *Se obtienen los datos de la entrega que realiazrá el repartidor
 	public function obtenerDatosPedidoPendienteRepartidor(){
 		try{
 			$db = connection::getInstance();
@@ -317,10 +339,11 @@ class Entregas extends connection{
 			$stmt->bind_result($result);
             if($stmt->fetch() > 0){
 				return $result;
+				//* Resultados obtenidos de la consulta
 			}else {
 				return '2';
+				// *Error de ejecución
 			}
-            //* Resultados obtenidos de la consulta
 
 
             $stmt->free_result();
@@ -380,8 +403,10 @@ class Entregas extends connection{
 			$stmt->bind_result($result);
             if($stmt->fetch() > 0){
 				return $result;
+				// *Devuelve el valor obtenido de la ejecucición del procedimiento
 			}else {
 				return '2';
+				// *Error de ejecución
 			}
             //* Resultados obtenidos de la consulta
 
@@ -459,5 +484,101 @@ class Entregas extends connection{
         }catch(Exception $error){
             echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
         }
+	}
+
+	function cancelarEntrega($correo){
+		try{
+			$motivoCancelacion = $this->getMotivoCancelacion();
+			if($motivoCancelacion == ''){
+				$motivoCancelacion = 'No especificado';
+			}
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call cancelarEntrega(?, ?, ?, @out)');
+			$stmt->bind_param('iss', $this->getIdEntrega(), $motivoCancelacion, $correo);
+			//* Se ejecuta
+			$stmt->execute();
+			$stmt->bind_result($result);
+            if($stmt->fetch() > 0){
+				return $result;
+				// *Se ejecutó la consulta
+			}else {
+				return '3';
+				// *Error en la ejecución
+			}
+            //* Resultados obtenidos de la consulta
+
+
+            $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function cargarTablaEntregasCanceladas(){
+		try{
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call obtenerDatosTablaEntregasCanceladas()');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($idVenta, $codigoVenta, $idEntrega, $direccion, $cliente, $receptor, $fecha, $hora, $empleado, $tipoPago, $tipoEntrega, $motivoCancelacion, $valor);
+            $datos = array();
+				while($stmt->fetch()){
+					$datos[]=array(
+						"IdVenta"=>$idVenta,
+						"CodigoVenta"=>$codigoVenta,
+						"IdEntrega"=>$idEntrega,
+						"Direccion"=>$direccion,
+						"Cliente"=>$cliente,
+						"Receptor"=>$receptor,
+						"Fecha"=>$fecha,
+						"Hora"=>$hora,
+						"Empleado"=>$empleado,
+						"TipoPago"=>$tipoPago,
+						"TipoEntrega"=>$tipoEntrega,
+						"MotivoCancelacion"=>$motivoCancelacion,
+						"Valor"=>$valor
+					);
+				}
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
+	public function cargarTablaEntregasRealizadas(){
+		try{
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt=$conn->prepare('call obtenerDatosTablaEntregasRealizadas()');
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($idVenta, $codigoVenta, $cliente, $receptor, $hora, $empleado, $direccion, $fecha, $valor);
+            $datos = array();
+				while($stmt->fetch()){
+					$datos[]=array(
+						"IdVenta"=>$idVenta,
+						"CodigoVenta"=>$codigoVenta,
+						"Direccion"=>$direccion,
+						"Cliente"=>$cliente,
+						"Receptor"=>$receptor,
+						"Fecha"=>$fecha,
+						"Hora"=>$hora,
+						"Empleado"=>$empleado,
+						"Valor"=>$valor
+					);
+				}
+                return json_encode($datos, JSON_UNESCAPED_UNICODE);
+                $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
 	}
 }

@@ -1,4 +1,6 @@
 <?php
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// * Json encode convierte el array en string
 
 require_once '../db_connection/connection.php';
 
@@ -30,7 +32,8 @@ class DetalleTipoCoberturas extends connection {
 	public function setIdCobertura($idCobertura){
 		$this->idCobertura = $idCobertura;
     }
-    
+	
+	// *Obtiene los datos del tipo cobertura a editar para cargarlos en el modal
     public function cargarDetalleTipoCobertura(){
 		try{
 			$db = connection::getInstance();

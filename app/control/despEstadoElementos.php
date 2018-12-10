@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
     $estado = new EstadoElementos();
     
     switch($_REQUEST['action']){
+        // *Se carga em combobox de estado del producto en el menú visible en la página
         case 'CargarComboEstadoElemento':
             echo $estado->cargarComboEstado();
         break;

@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require_once '../db_connection/connection.php';
 
 class TipoPromo extends connection{
@@ -75,12 +78,14 @@ class TipoPromo extends connection{
 			}
 			else{
 				return 3;
+				// *Error de ejecución
 			}
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
     }
 
+	// *Se obtienen los datos del tipo promo que se quiere actualizar para cargar los datos del form en el modal
     public function ObtenerInformacionTipoPromo(){
 		try{
 			$db = connection::getInstance();
@@ -178,6 +183,7 @@ class TipoPromo extends connection{
 		}
 	}
 
+	// *Se comprueba si el tipo de promo está vinculado a una promo antes de eliminar
 	public function comprobarVinculacionTipoPromo(){
 		try{
 			$db = connection::getInstance();

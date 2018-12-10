@@ -1,5 +1,5 @@
 <ul id="dropdown1" class="dropdown-content">
-        <li><a href="#!" class="black-text"><i class="material-icons left">account_circle</i>David Maldonado</a></li>
+        <li><a href="#!" class="black-text"><i class="material-icons left">account_circle</i><?php echo $_SESSION['user'][1] ?></a></li>
         <li class="divider"></li>
         <li><a href="perfil-cliente.php" class="black-text"><i class="material-icons left">edit</i>Editar Perfil</a></li>
         <li class="divider"></li>
@@ -63,7 +63,10 @@
                 <a href="carro-compras.php" class="black-text">Carrito</a>
             </li>
             <li>
-                <a href="#" class="black-text dropdown-trigger" data-target="dropdown1">Cuenta<i class="material-icons right">keyboard_arrow_down</i></a>
+                <a href="perfil-cliente.php" class="black-text"><i class="material-icons left">edit</i>Editar Perfil</a>
+            </li>
+            <li>
+                <a href="templates/killSession.php" class="black-text"><i class="material-icons">power_settings_new</i>Cerrar sesión</a>
             </li>
         </ul>
     </div>

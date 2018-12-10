@@ -1,5 +1,7 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
 // require '../clases/venta.php';
 
 class Venta extends connection{
@@ -20,6 +22,7 @@ class Venta extends connection{
 	private $detallePromoCompra = [];
 	private $detalleAgregados = [];
 	private $motivoCancelacion;
+	private $comentario;
 
 	public function getIdVenta(){
 		return $this->idVenta;
@@ -157,6 +160,14 @@ class Venta extends connection{
 		$this->motivoCancelacion = $motivoCancelacion;
 	}
 
+	public function getComentario(){
+		return $this->comentario;
+	}
+
+	public function setComentario($comentario){
+		$this->comentario = $comentario;
+	}
+
 	// *Generará un código random que será utilizado posteriormente para recuperar la contraseña
 	private function randomCode(){
 		$caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789'; //* Caracteres posibles
@@ -170,7 +181,21 @@ class Venta extends connection{
 
     public function ingresarVenta($correo){
         try{
-            $errorFor = 0;
+			$errorFor = 0;
+			$comentario = '';
+			$direccion = '';
+			if($this->getComentario() == '' || $this->getComentario() == NULL){
+				$comentario = NULL;
+			}else{
+				$comentario = $this->getComentario();
+			}
+
+			if($this->getDireccion() == '' || $this->getDireccion() == NULL){
+				$direccion = NULL;
+			}else{
+				$direccion = $this->getDireccion();
+			}
+
 			$arrayPromoCompra = $this->getDetallePromoCompra();
 			$arrayAgregados = $this->getDetalleAgregados();
 			$codigoVenta = $this->randomCode();
@@ -178,14 +203,16 @@ class Venta extends connection{
             $conn = $db->getConnection();
             mysqli_autocommit($conn, FALSE);
             //*Se prepara el procedimiento almacenado
-            $stmt = $conn->prepare('CALL ingresarVentaYPedido(?, ?, ?, ?, ?, ?, ?, @out)');
-            $stmt->bind_param("ssiisss", $correo, $codigoVenta, $this->getIdTipoPago(), $this->getIdTipoEntrega(), $this->getDireccion(), $this->getReceptor(), $this->getHora());
+            $stmt = $conn->prepare('CALL ingresarVentaYPedido(?, ?, ?, ?, ?, ?, ?, ?, @out)');
+            $stmt->bind_param("ssiissss", $correo, $codigoVenta, $this->getIdTipoPago(), $this->getIdTipoEntrega(), $direccion, $this->getReceptor(), $this->getHora(), $comentario);
 			$stmt->execute();
 			$stmt->bind_result($result);
 			if($stmt->fetch() > 0){
 				// $stmt->free_result();
 				$stmt->close();
 				if($result == 1){
+					// *Si se ingresa la venta y el pedido se ingresa el detalle de esta
+					// *Se obtiene el array con el detalle de promo compra del carrito se recorre y por cada iteración se ingresa un nuevo dato
 				    foreach ($arrayPromoCompra as $key=>$valor) {
 				        $stmt2 = $conn->prepare('call agregarDetallePromoCompraVenta(?, ?)');
 						$stmt2->bind_param("is", $valor['IdPromoCompra'], $correo);
@@ -196,6 +223,8 @@ class Venta extends connection{
 						}
 				        $stmt2->free_result();
 					}
+					// *Si se ingresa la venta y el pedido se ingresa el detalle de esta
+					// *Se obtiene el array con el detalle de agregados del detalle carrito compra se recorre y por cada iteración se ingresa un nuevo dato
 					foreach ($arrayAgregados as $key=>$value) {
 						$stmt3 = $conn->prepare('call agregarDetalleAgregadoVenta(?, ?)');
 						$stmt3->bind_param('is', $value['IdAgregado'], $correo);
@@ -207,10 +236,12 @@ class Venta extends connection{
 						$stmt3->free_result();
 					}
 					if($errorFor == 1){
+						// *Si todo se ejecuta se elimina el detalle del carrito
 						$stmt4 = $conn->prepare('CALL eliminarDetalleCarrito(?)');
 						$stmt4->bind_param("s", $correo);
 						if($stmt4->execute()){
 							$errorFor = 1;
+							// *Se eliminaron los datos
 						}else{
 							$errorFor = 0;
 						}
@@ -225,10 +256,10 @@ class Venta extends connection{
 
             if($errorFor == 0){
                 $conn->rollback();
-                echo '2';
+                return '2';
             }else{
                 $conn->commit();
-                echo '1';
+                return '1';
             }
 
         }catch(Exception $error){
@@ -239,8 +270,10 @@ class Venta extends connection{
 	public function validarFechaCompra(){
         try{
 			date_default_timezone_set("America/Santiago");
+			// *Se obtiene la hora del país en que se encuentra el servidor
 			$dias = array('Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
 			$diaActual = date('N');
+			// *Se obtiene el número del día de la semana actual
 
 			$horaActual = date('H:i');
 			$db = connection::getInstance();
@@ -250,19 +283,25 @@ class Venta extends connection{
 			//*Se ejecuta la consulta en BD
 			$stmt->execute();
 			//*Se obtiene el resultado
-			$stmt->bind_result($horaApertura, $horaCierre, $diaInicio, $diaFinal);
+			$stmt->bind_result($horaApertura, $horaCierre, $diaInicio, $diaFinal, $estadoDia);
 			if($stmt->fetch() > 0){
 				$convertedHoraCierre = date('H:i', strtotime('-10 minutes',strtotime($horaCierre)));
+				// *Se comprueba que la hora de entrega
 				$convertedHoraActual = date('H:i', strtotime('+20 minutes',strtotime($horaActual)));
 				if($diaActual < $diaInicio || $diaActual > $diaFinal){
 					return 'errorDiaEntrega';
+					// *El dia de la compra no está dentro de los días de actividad de la empresa
 					// return false;
 				}elseif ($this->getHora() >= $convertedHoraCierre || $this->getHora() < $horaApertura || $this->getHora() < $convertedHoraActual) {
 					return 'errorHoraEntrega';
+					// *La hora de entrega no cumple con 'Ser 20 minutos mayor que la hora de apertura'
+					// *La hora de entrega no cumple con 'Ser 10 minutos menor que la hora de cierre'
 					// return false;
 				}else {
 					return 'puedescomprar';
+					// *Se puede ejecutar la compra
 					// return true;
+					// !Validar hora
 				}
 			}
 			$stmt->free_result();
@@ -280,7 +319,7 @@ class Venta extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($idVenta, $codigoVenta, $nombreCliente, $idCliente, $fechaVenta, $tipoEntrega, $tipoPago, $tipoVenta, $horaEntrega, $valor, $idEstadoVenta, $idEstadoEntrega, $estadoVenta);
+            $stmt->bind_result($idVenta, $codigoVenta, $nombreCliente, $idCliente, $fechaVenta, $tipoEntrega, $direccion, $tipoVenta, $horaEntrega, $valor, $idEstadoVenta, $idEstadoEntrega, $estadoVenta);
             $datos = array();
 				while($stmt->fetch()){
 					$datos[]=array(
@@ -290,7 +329,7 @@ class Venta extends connection{
 						"IdCliente"=>$idCliente,
 						"Fecha"=>$fechaVenta,
 						"TipoEntrega"=>$tipoEntrega,
-						"TipoPago"=>$tipoPago,
+						"Direccion"=>$direccion,
 						"TipoVenta"=>$tipoVenta,
 						"HoraEntrega"=>$horaEntrega,
 						"Valor"=>$valor,
@@ -306,6 +345,7 @@ class Venta extends connection{
 		}
 	}
 
+	// *Comprueba el tipo de entrega para luego abrir el modal que define si se debe seleccionar una ubicación en el mapa
 	public function validarTipoEntrega(){
 		try{
 			$db = connection::getInstance();
@@ -331,6 +371,30 @@ class Venta extends connection{
 		}
 	}
 
+	public function consultarFactibilidadCompra($correo){
+		try{
+			$db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+			$stmt=$conn->prepare('call consultarFactibilidadCompra(?, @out)');
+			$stmt->bind_param('s', $correo);
+            //* Se ejecuta
+            $stmt->execute();
+            //* Resultados obtenidos de la consulta
+            $stmt->bind_result($result);
+            if($stmt->fetch()>0){
+				return $result;
+			}else{
+				return '2';
+				// *Error en la ejecución
+			}
+
+            $stmt->free_result();
+		}catch(Exception $error){
+			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+		}
+	}
+
 	public function aceptarVenta(){
 		try{
 			$db = connection::getInstance();
@@ -344,13 +408,17 @@ class Venta extends connection{
 			}
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
-			$stmt=$conn->prepare('call aceptarVenta(?, ?, ?)');
+			$stmt=$conn->prepare('call aceptarVenta(?, ?, ?, @out)');
 			$stmt->bind_param('iss', $this->getIdVenta(), $lat, $lng);
             //* Se ejecuta
-            if($stmt->execute()){
-				return '1';
-			}else {
+			$stmt->execute();
+			$stmt->bind_result($result);
+			if($stmt->fetch()>0){
+				return $result;
+				// *La venta ha sido aceptada
+			}else{
 				return '2';
+				// *La venta no pudo ser aceptada
 			}
             //* Resultados obtenidos de la consulta
 
@@ -361,7 +429,7 @@ class Venta extends connection{
 		}
 	}
 
-	function cancelarVenta($correo){
+	public function cancelarVenta($correo){
 		try{
 			$motivoCancelacion = $this->getMotivoCancelacion();
 			if($motivoCancelacion == ''){
@@ -375,12 +443,11 @@ class Venta extends connection{
             //* Se ejecuta
             if($stmt->execute()){
 				return '1';
+				// *La consulta se ejecutó correctamente
 			}else {
 				return '2';
+				// *Error en la ejecución
 			}
-            //* Resultados obtenidos de la consulta
-
-
             $stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
@@ -390,6 +457,7 @@ class Venta extends connection{
 	public function verDetalleVentaPromoCompra(){
 		try{
 			$arrayDetalle = [];
+			// *Este array contendrá todos los items de la venta
 			$db = connection::getInstance();
             $conn = $db->getConnection();
             //*Se prepara el procedimiento almacenado
@@ -407,6 +475,7 @@ class Venta extends connection{
 						"Detalle"=>$a
 					);
 				}
+				// *Se obtiene las promo compra vinculadas a la venta y se añaden al arrayDetalle
 				array_push($arrayDetalle, $datosPromoCompra);
 				$stmt->close();
 			$stmt2=$conn->prepare('call obtenerDetalleVentaAgregados(?)');
@@ -419,8 +488,18 @@ class Venta extends connection{
 						"NombreAgregado"=>$nombreAgregado
 					);
 				}
+				// *Se obtienen los agregados vinculados a la venta y se añaden al arrayDetalle
 				array_push($arrayDetalle, $datosAgregados);
 				$stmt2->close();
+			$stmt3=$conn->prepare('call obtenerComentarioVenta(?)');
+			$stmt3->bind_param('i', $this->getIdVenta());
+			$stmt3->execute();
+			$stmt3->bind_result($comentario);
+			if($stmt3->fetch() > 0){
+				array_push($arrayDetalle, $comentario);
+				// *Si existe un comentario se añade al arrayDetalle
+			}
+				$stmt3->close();
             return json_encode($arrayDetalle, JSON_UNESCAPED_UNICODE);
                 // $stmt->free_result();
 		}catch(Exception $error){
@@ -461,6 +540,7 @@ class Venta extends connection{
 		}
 	}
 
+	// *Se obtiene el correo del cliente que solicitó la venta para notificarle via email la decisión sobre su compra
 	public function obtenerCorreoClienteVenta(){
 		try{
 			$db = connection::getInstance();
@@ -474,6 +554,7 @@ class Venta extends connection{
             $stmt->bind_result($correoCliente);
             if($stmt->fetch()>0){
 				return $correoCliente;
+				// *Se retorna el correo del cliente
 			}
 
             $stmt->free_result();
@@ -482,6 +563,7 @@ class Venta extends connection{
 		}
 	}
 
+	// *Se obtiene el precio máximo por compra permitido para mostrarlo en pantalla
 	public function cargarPrecioMaximoCompra(){
 		try{
 			$db = connection::getInstance();

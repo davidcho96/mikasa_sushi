@@ -114,6 +114,7 @@ jQuery.validator.addMethod(
   'Ingresa solo letras por favor'
 );
 
+// *Se añadió el método para validar que el formato del correo posea .com
 jQuery.validator.addMethod(
   'emailCom',
   function(value, element) {

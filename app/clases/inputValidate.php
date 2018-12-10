@@ -25,8 +25,9 @@ class  Input {
 		$val = filter_var($val, FILTER_VALIDATE_INT);
 		if ($val === false || $val > $max || $val < $min) {
 			self::throwError('Invalid Integer', 901);
+		}else{
+			return $val;
 		}
-		return $val;
 	}
 
 	//*Valida que el dato obtenido sea de tipo string y cantidad de parámetros

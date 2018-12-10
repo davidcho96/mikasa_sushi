@@ -19,7 +19,7 @@ $sesionUsuario->validacionSesionAdmin();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Información de contacto</title>
+    <title>Información de empresa</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="screen" href="dist/css/style.min.css">
     <link rel="shortcut icon" type="image/png" href="dist/img/m-logo.ico" />
@@ -114,17 +114,19 @@ $sesionUsuario->validacionSesionAdmin();
                     <label for="txt_buscar_info_contacto">Buscar Información de Contacto</label>
                     <input type="text" id="txt_buscar_info_contacto">
                 </div>
-                <table id="tabla_info_contacto">
-                <thead>
-                    <h5>Información de Contacto</h5>
-                    <tr>
-                        <td>Medio de Contacto</td>
-                        <td>Información de Contacto</td>
-                        <td colspan='2'>Acciones</td>
-                    </tr>
-                </thead>
-                    <tbody id="body_tabla_info_contacto"></tbody>
-                </table>
+                <div style="overflow-x:auto;">
+                    <table id="tabla_info_contacto">
+                    <thead>
+                        <h5>Información de Contacto</h5>
+                        <tr>
+                            <td>Medio de Contacto</td>
+                            <td>Información de Contacto</td>
+                            <td colspan='2'>Acciones</td>
+                        </tr>
+                    </thead>
+                        <tbody id="body_tabla_info_contacto"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
         
@@ -135,7 +137,7 @@ $sesionUsuario->validacionSesionAdmin();
         
                 <h5 class="center" id="accion_info_contacto">Ingresar Información de Contacto</h5>
                 <form action="" name="form_mantenedor_info_contacto" id="form_mantenedor_info_contacto">
-                <label id="lbl_id_info_contacto" class="lblid"></label>
+                <label id="lbl_id_info_contacto" class="lbl-id"></label>
                     <div class="input-field">
                         <input id="txt_medio_info_contacto" name="txt_medio_info_contacto" type="text">
                         <label for="txt_medio_info_contacto">Medio Contacto (ej: Facebook, Teléfono)</label>
@@ -157,12 +159,14 @@ $sesionUsuario->validacionSesionAdmin();
     <!-- <script src="src/js/es6/funciones-infoContacto.js"></script> -->
     <script>
     $(document).ready(function(){
+        cargarNotificaciones();
         cargarPrecioMaximo();
         CargarTablaInfoContacto();
         CargarDatosInfoEmpresa();
         comprobarEstadoSesion();
         setInterval(function (){
             comprobarEstadoSesion();
+            cargarNotificaciones();
             // CargarTablaInfoContacto();
         }, 60000);
         $('#modal_mantenedor_info_contacto').modal({

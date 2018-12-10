@@ -62,7 +62,8 @@ function CargarDatosInfoEmpresaIndex() {
               item.horaActual >= item.horaApertura &&
               item.horaActual <= item.horaCierre &&
               item.diaSemana >= item.diaInicio &&
-              item.diaSemana <= item.diaFinal
+              item.diaSemana <= item.diaFinal &&
+              item.estadoFeriado == 2
             ) {
               mensajeEstadoAperturaLocal =
                 '<div class="light-green-text">Ahora abierto</div>';
@@ -82,6 +83,7 @@ function CargarDatosInfoEmpresaIndex() {
                 arraySemanas[item.diaFinal - 1]
               } ${item.horaApertura} - ${item.horaCierre}`
             );
+            $('#estado_apertura').html(mensajeEstadoAperturaLocal);
           });
           break;
       }
@@ -126,3 +128,49 @@ function CargarTablaInfoContactoIndex() {
     }
   });
 }
+
+function cargarNotificaciones() {
+  var action = 'CargarNotificaciones';
+  var cargaHtml = '';
+  var linkRedireccion = '';
+  $.ajax({
+    data: { action: action },
+    url: '../app/control/despNotificaciones.php',
+    type: 'POST',
+    success: function(resp) {
+      console.log(resp);
+
+      var arr = JSON.parse(resp);
+      if (arr.length == 0) {
+        cargaHtml +=
+          '<a href="#!" class="collection-item">No hay notificaciones</a>';
+      }
+      $.each(arr, function(i, item) {
+        switch (item.IdActividad) {
+          case '1':
+            linkRedireccion = 'ventas-pendientes.php';
+            break;
+          case '2':
+            linkRedireccion = 'entregas-canceladas.php';
+            break;
+          case '3':
+            linkRedireccion = 'entregas-realizadas.php';
+            break;
+        }
+        cargaHtml += `<a href="${linkRedireccion}" class="collection-item">${
+          item.Notificacion
+        }: ${item.CodigoVenta}</a>`;
+      });
+      $('#carga_notificaciones').html(cargaHtml);
+    },
+    error: function() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+$('#notificaciones_admin').click(function(evt) {
+  evt.preventDefault();
+  // alert('Funciona');
+  $('#notificaciones_content').toggleClass('mostrar-notificaciones');
+});

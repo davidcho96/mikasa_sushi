@@ -1,5 +1,7 @@
 'use strict';
 
+// *Se requiere gulo y las sub-librerias
+
 const gulp = require('gulp'),
   // postcss = require('gulp-postcss-uncss'),
   cleancss = require('gulp-clean-css'),
@@ -81,7 +83,7 @@ gulp.task('es6', () => {
 });
 
 gulp.task('img', () => {
-  //* Comprime imágenes estátocas
+  //* Comprime imágenes estáticas
   gulp
     .src(`${directorio.public}/src/img/**/*.+(png|jpeg|jpg|gif)`)
     .pipe(imagemin(opts.imagemin))

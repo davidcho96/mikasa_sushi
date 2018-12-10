@@ -78,9 +78,11 @@
     <script>
     $(document).ready(function(){
         cargarTablaHistorialVentas();
+        cargarNotificaciones();
         comprobarEstadoSesion();
         setInterval(function(){
             comprobarEstadoSesion();
+            cargarNotificaciones();
             // cargarTablaHistorialVentas();
         }, 60000);
     });

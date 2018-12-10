@@ -1,6 +1,8 @@
 <?php
 
 //*BD = Base de datos
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para ser utilizado en javascript
 
 
 require_once '../db_connection/connection.php'; //*Clase conexión BD
@@ -103,6 +105,8 @@ class Empleado extends connection{
 						echo 'errorEstado';
 						break;
 					default:
+					// *Se verifica si la contraseña encriptada almacenada coincide con la ingresada
+					
 					$passHash = $result;
 					if(password_verify($this->getPassword(), $passHash)){
 						return $tipoUser; //*Registro exitoso
@@ -264,12 +268,15 @@ class Empleado extends connection{
 				echo $result;
 			}else{
 				echo 3;
+				// *Error en la ejecución
 			}
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
 	}
 
+	// *Comprueba si el correo existe en los registros de la base de datos
+	// *Función utilizada para recuperar la pass
 	public function consultarExistenciaEmpleado(){
 		try{
 			$db = connection::getInstance();
@@ -302,6 +309,7 @@ class Empleado extends connection{
 		}
 	}
 
+	// *Cambia la pass del usuario
 	public function recuperarPass($token){
 		try{
 			// *Se encripta la pass para ser ingresada en la BD

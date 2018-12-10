@@ -1,7 +1,8 @@
 <?php
 
 //*Bd = Base de datos
-
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string
 
 require_once "../db_connection/connection.php"; //*Se requiere a la clase conexión
 
@@ -190,7 +191,6 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 			//*Se obtiene el resultado
 			$stmt->bind_result($name, $apellidos, $correo, $telefono);
 			$datos = array();
-			// if($stmt->fetch()>0){
 				while($stmt->fetch()){
 					$datos[]=array(
 						"Nombre"=>$name,
@@ -200,9 +200,6 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 					);
 				}
 				return json_encode($datos);
-			// }else{
-				// return 'error';
-			// }
 			$stmt->free_result();
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
@@ -263,6 +260,7 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 				}
 			}else{
 				echo '2';
+				// *Error en la ejecución
 			}
 			$stmt->free_result();
 		}catch(Exception $error){
@@ -413,13 +411,13 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 			?,
 			@out_value)");//*Representa el valor output
 			
-		//*Se pasan los parámetros a la consulta
-		$stmt->bind_param('i', $id);
-		//*Se ejecuta la consulta en BD
-		$stmt->execute();
-		//*Se obtiene el resultado
-		$stmt->bind_result($result);
-		//*Se comprueba la respuesta
+			//*Se pasan los parámetros a la consulta
+			$stmt->bind_param('i', $id);
+			//*Se ejecuta la consulta en BD
+			$stmt->execute();
+			//*Se obtiene el resultado
+			$stmt->bind_result($result);
+			//*Se comprueba la respuesta
 			if($stmt->fetch()>0){
 				return $result;
 			}else{
@@ -467,11 +465,14 @@ class Cliente extends connection{ //*Se hereda la clase de conexión
 				switch($result){
 					case 'errorExistencia':
 						return 2;
+						// *El cliente si existe
 					break;
 					case 'errorEstado':
 						return 3;
+						// *El cliente no tiene permisos de acceso
 					break;
 					default:
+						// *El cliente no existe
 						return 1;
 					break;
 				}

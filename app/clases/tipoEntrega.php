@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require '../db_connection/connection.php';
 
 class TipoEntrega extends connection{

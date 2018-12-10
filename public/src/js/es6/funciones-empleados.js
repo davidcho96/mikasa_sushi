@@ -481,6 +481,7 @@ function limpiarFormulario() {
   document.getElementById('form_registro_empleado').reset();
 }
 
+// *Busca los empleados cuyos datos coincidan con los ingresados en el campo de textp
 $('#txt_filtro_empleados').on('keyup', function() {
   var filtroEmpleado = $(this)
     .val()

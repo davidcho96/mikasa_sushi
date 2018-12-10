@@ -40,7 +40,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             switch($venta->aceptarVenta()){
                 case '1':
                     $codigocompra = $venta->getCodigoVenta();
-                    $enlace = $_SERVER["SERVER_NAME"].'/ver-estado-mi-compra.php?codigocompra='.$codigocompra;
+                    // *Se envía un correo al cliente indicando que se aceptó la venta
+                    $enlace = $_SERVER["SERVER_NAME"].'/mis-ordenes.php';
+                    // $enlaceTemporal = $_SERVER["SERVER_NAME"].':8080/Mikasa-web-project/public/mis-ordenes.php';
                     $mail->Host = 'smtp.gmail.com';
                     $mail->SMTPAuth = true;
                     $mail->Username = 'davidchomc8@gmail.com';
@@ -52,23 +54,35 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                     $mail->addAddress($venta->obtenerCorreoClienteVenta());
                     
                 
-                    $mail->Subject = 'Gracias por unirte a Mikasa';
+                    $mail->Subject = 'Información de su orden';
                     $mail->CharSet = 'UTF-8';
                     $mail->IsHTML(true);
-                    $mail->Body    = '<html><a href="'.$enlace.'">Ver estado de compra</a></html>';
+                    $mail->Body    = '<html><p Su venta ha sido aceptada</p><a href="'.$enlace.'">Estado de entrega.</a></html>';
 
                     if(!$mail->send()) {
-                        echo 3;
+                        echo '3';
                     } else {
-                        echo 1;
+                        echo '1';
                     }
                 break;
                 case '2':
-                    echo 2;
+                    echo '2';
                 break;
+                case '3':
+                    echo '3';
+                    // *No hay 
+                    break;
+                case '4':
+                    echo '4';
+                    // *No hay ingredientes
+                    break;
+                case '5':
+                    echo '5';
+                    break;
             }
         break;
         case 'CancelarVenta':
+        // *Se setea el motivo de la cancelación en base a la selección del checkbox
             switch($_POST['idMotivo']){
                 case '1':
                     $venta->setMotivoCancelacion('Dirección no específica.');
@@ -80,15 +94,50 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                     $venta->setMotivoCancelacion('El local está cerrado.');
                     break;
                 case '4':
+                // * Si el motivo es otro se setea lo ingresado en el campo 'motivo'
                     $venta->setMotivoCancelacion($_POST['motivo']);
                     break;
             }
             $venta->setIdVenta($_POST['idVenta']);
-            echo $venta->cancelarVenta($_SESSION['user'][1]);
+            $venta->setCodigoVenta($_POST['codigoVenta']);
+            switch($venta->cancelarVenta($_SESSION['user'][1])){
+                case '1':
+                    $codigocompra = $venta->getCodigoVenta();
+                    $enlace = $_SERVER["SERVER_NAME"].'/mis-ordenes.php';
+                    // $enlaceTemporal = $_SERVER["SERVER_NAME"].':8080/Mikasa-web-project/public/mis-ordenes.php';
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->SMTPAuth = true;
+                    $mail->Username = 'davidchomc8@gmail.com';
+                    $mail->Password = 'dmc28ra09';
+                    $mail->SMTPSecure = 'ssl';
+                    $mail->Port = 465;
+                
+                    $mail->setFrom('davidchomc8@gmail.com', 'Mikasa Sushi');
+                    $mail->addAddress($venta->obtenerCorreoClienteVenta());
+                    
+                
+                    $mail->Subject = 'Información de su orden';
+                    $mail->CharSet = 'UTF-8';
+                    $mail->IsHTML(true);
+                    $mail->Body    = '<html><p Su venta no ha sido aceptada. Motivo: "'.$venta->getMotivoCancelacion().'"</p><br><a href="'.$enlace.'">Estado de entrega.</a></html>';
+
+                    if(!$mail->send()) {
+                        echo '3';
+                    } else {
+                        echo '1';
+                    }
+                    
+                    break;
+                case '2':
+                    echo '2';
+                    break;
+                
+            }
         break;
         case 'VerDetalleVentaPromoCompra':
             $venta->setIdVenta($_POST['IdVenta']);
             echo $venta->verDetalleVentaPromoCompra();
+            // *Se obtiene el detalle de la venta
             break;
         case 'CargarPrecioMaximoCompra':
             echo $venta->cargarPrecioMaximoCompra();

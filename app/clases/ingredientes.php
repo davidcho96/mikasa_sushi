@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require '../db_connection/connection.php';
 
 class Ingredientes extends connection {
@@ -67,7 +70,7 @@ class Ingredientes extends connection {
 		$this->cantidadMinima = $cantidadMinima;
     }
 	
-	function CargarMantenedorIngredientes(){
+	public function CargarMantenedorIngredientes(){
 		try{
             $db = connection::getInstance();
             $conn = $db->getConnection();
@@ -111,9 +114,11 @@ class Ingredientes extends connection {
 			$stmt->bind_result($result);
 			if($stmt->fetch()>0){
 				return $result;
+				// *Devuelve el resultado obtenido del procedimiento
 			}
 			else{
 				return 3;
+				// *Error en la ejecución
 			}
 
 			//*Se libera la respuesta en BD
@@ -149,6 +154,7 @@ class Ingredientes extends connection {
 		}
 	}
 
+	// *Obtiene los datos del ingrediente a actualizar para cargarlos en el form del modal
 	public function ObtenerInformacionIngrediente(){
 		try{
 			$db = connection::getInstance();

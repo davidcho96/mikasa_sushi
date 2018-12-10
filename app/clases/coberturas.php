@@ -1,4 +1,6 @@
 <?php
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para ser utilizado en javascript
 
 require_once '../db_connection/connection.php';
 
@@ -112,6 +114,7 @@ class Cobertura extends connection{
 		$this->cantidadMinima = $cantidadMinima;
 	}
 
+	// *Se cargan las coberturas en el mantenedor
     public function cargarCoberturas(){
         try{
             $db = connection::getInstance();
@@ -146,6 +149,7 @@ class Cobertura extends connection{
         }
     }
 
+	// *Se elimina la cobertura que posea ese id
     public function EliminarCobertura($correo){
         try{
 			$db = connection::getInstance();
@@ -170,6 +174,8 @@ class Cobertura extends connection{
 		}
     }
 
+	// *Obtiene los datos de la cobertura seleccionada para editar
+	// *Para cargar los datos
     public function ObtenerInformacionCobertura(){
 		try{
 			$db = connection::getInstance();
@@ -255,6 +261,7 @@ class Cobertura extends connection{
 		}
 	}
 
+	// *Se comprueba si la cobertura a eliminar está vinculada a un tipo de cobertura
 	public function comprobarVinculacionCoberturas(){
 		try{
 			$db = connection::getInstance();
@@ -277,6 +284,7 @@ class Cobertura extends connection{
 		}
 	}
 
+	// *Obtiene los datos de la cobertura para cargar los checkbox de selección en la promo 'Arma tu promo'
 	public function cargarCoberturasCarta(){
         try{
             $db = connection::getInstance();

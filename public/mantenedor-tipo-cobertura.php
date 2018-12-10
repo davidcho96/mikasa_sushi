@@ -36,17 +36,19 @@ $sesionUsuario->validacionSesionAdmin();
                 <label for="txt_buscar_tipo_cobertura">Buscar Tipo Coberturas</label>
                 <input type="text" id="txt_buscar_tipo_cobertura">
             </div>
-            <table id="tabla_tipo_cobertura">
-            <thead>
-                <h5>Tipo Cobertura</h5>
-                <tr>
-                    <td>Tipo de cobertura</td>
-                    <td>Coberturas</td>
-                    <td colspan='2'>Acciones</td>
-                </tr>
-            </thead>
-            <tbody id="body_tabla_tipo_cobertura"></tbody>
-            </table>
+            <div style="overflow-x:auto;">
+                <table id="tabla_tipo_cobertura">
+                <thead>
+                    <h5>Tipo Cobertura</h5>
+                    <tr>
+                        <td>Tipo de cobertura</td>
+                        <td>Coberturas</td>
+                        <td colspan='2'>Acciones</td>
+                    </tr>
+                </thead>
+                <tbody id="body_tabla_tipo_cobertura"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -76,11 +78,13 @@ $sesionUsuario->validacionSesionAdmin();
     <script src="src/js/es6/tipo-coberturas-functions.js"></script>
     <script>
     $(document).ready(function(){
+        cargarNotificaciones();
         CargarTablaTipoCobertura();
         cargarCheckboxCoberturas();
         comprobarEstadoSesion();
         setInterval(function(){
             comprobarEstadoSesion();
+            cargarNotificaciones();
             // CargarTablaTipoCobertura();
             // cargarCheckboxCoberturas();
         }, 60000);

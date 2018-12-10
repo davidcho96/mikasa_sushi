@@ -1,4 +1,5 @@
 <?php
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
 
 // include '../db_connection/connection.php';
 
@@ -21,7 +22,9 @@ class Carrito extends connection{
 	public function setIdCliente($idCliente){
 		$this->idCliente = $idCliente;
     }
-    
+
+
+    // *Si el cliente no posee un carrito se generar uno en base de datos
     public function generarCarritoCliente($correo){
         try{
             $db = connection::getInstance();
@@ -41,6 +44,7 @@ class Carrito extends connection{
         }
     }
     
+    // *Obtiene los datos de las promo commpra ingresadas en el carrito
     public function obtenerDatosCarrito($correo){
         try{
             $db = connection::getInstance();
@@ -74,6 +78,7 @@ class Carrito extends connection{
         }
     }
 
+    // *Obtiene los datos de los agregados asociados al carrito
     public function obtenerDatosAgregadosCarrito($correo){
         try{
             $db = connection::getInstance();
@@ -106,6 +111,7 @@ class Carrito extends connection{
         }
     }
 
+    // *Se obtiene el precio total de los productos almacenados en el carrito
     public function obtenerPrecioTotalCarrito($correo){
         try{
             $db = connection::getInstance();
@@ -119,12 +125,15 @@ class Carrito extends connection{
                 return $result;
             }else {
                 return 'error';
+                // *Error de ejecución
             }
         }catch(Exception $error){
             echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
         }
     }
 
+    // *Obtiene las promo compra asociadas al carrito para luego insertarlas en la tabla de detalle venta
+    // *Si esta se concreta
     public function obtenerDetallePromoCompraCarrito($correo){
         try{
             $db = connection::getInstance();
@@ -147,6 +156,7 @@ class Carrito extends connection{
         }
     }
 
+    // *Se obtienen los agregados del detalle del carrito para luego ingresarlas al detalle de la venta cuando se concrete
     public function obtenerDetalleAgregadosCarrito($correo){
         try{
             $db = connection::getInstance();
@@ -164,6 +174,25 @@ class Carrito extends connection{
 				}
                 return $datos;
                 $stmt->free_result();
+        }catch(Exception $error){
+            echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
+        }
+    }
+
+    // *Se obtiene el total del dinero de la tabla de simulación para llevar a cabo una compra en webpay
+    public function obtenerDineroCartera(){
+        try{
+            $db = connection::getInstance();
+            $conn = $db->getConnection();
+            //*Se prepara el procedimiento almacenado
+            $stmt = $conn->prepare('CALL obtenerMontoCartera()');
+            $stmt->execute();
+            $stmt->bind_result($result);
+            if($stmt->fetch()>0){
+                return $result;
+            }else {
+                return 'error';
+            }
         }catch(Exception $error){
             echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
         }

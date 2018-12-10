@@ -104,7 +104,7 @@ $sesionUsuario->validacionSesionAdmin();
                     <div class="file-field input-field col l12">
                         <div class="btn black">
                             <span>Imagen</span>
-                            <input type="file" name="imagen_coberturas" id="imagen_coberturas" accept="image/x-png,image/jpg,image/jpeg">
+                            <input type="file" name="imagen_coberturas" id="imagen_coberturas" accept="image/jpeg, image/png">
                         </div>
                             <div class="file-path-wrapper">
                                 <input class="file-path" type="text" id="imagen_coberturas_text" name="imagen_coberturas_text">
@@ -125,6 +125,7 @@ $sesionUsuario->validacionSesionAdmin();
     <!-- <script src="src/js/es6/coberturas-functions.js"></script> -->
     <script>
         $(document).ready(function(){
+            cargarNotificaciones();
             cargarComboEstadoElemento();
             cargarMantenedorCoberturas();
             cargarIndiceCobertura();
@@ -133,6 +134,7 @@ $sesionUsuario->validacionSesionAdmin();
             cargarComboUnidadMedida();
             setInterval(function(){
                 comprobarEstadoSesion();
+                cargarNotificaciones();
                 // cargarMantenedorCoberturas();
                 // cargarTotalIndiceCoberturas();
             }, 60000);

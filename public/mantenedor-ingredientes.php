@@ -40,19 +40,21 @@
                 <input type="text" id="txt_buscar_ingrediente">
             </div>
             <div class="col l12 s12 m12">
-                <table id="tabla_ingredientes">
-                <thead>
-                    <h5>Ingredientes</h5>
-                    <tr>
-                        <td>Ingrediente</td>
-                        <td>Stock Disponible</td>
-                        <td>Cantidad por roll</td>
-                        <td>Cantidad Minima</td>
-                        <td colspan='2'>Acciones</td>
-                    </tr>
-                </thead>
-                <tbody id="body_tabla_ingredientes"></tbody>
-                </table>
+                <div style="overflow-x:auto;">
+                    <table id="tabla_ingredientes">
+                    <thead>
+                        <h5>Ingredientes</h5>
+                        <tr>
+                            <td>Ingrediente</td>
+                            <td>Stock Disponible</td>
+                            <td>Cantidad por roll</td>
+                            <td>Cantidad Minima</td>
+                            <td colspan='2'>Acciones</td>
+                        </tr>
+                    </thead>
+                    <tbody id="body_tabla_ingredientes"></tbody>
+                    </table>
+                </div>
             </div>
             </div>
         </div>
@@ -102,11 +104,13 @@
 
     <script>
         $(document).ready(function(){
+            cargarNotificaciones();
             cargarComboUnidadMedida();
             CargarTablaIngredientes();
             comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();
+                cargarNotificaciones();
             }, 60000);
             $('#modal_mantenedor_ingrediente').modal({
                 dismissible: false,

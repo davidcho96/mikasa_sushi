@@ -12,9 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $promos = new Promos();
 
     switch($_REQUEST['action']){
+        // *Carga las promos en el mantenedor
         case 'CargarMantenedorPromosCliente';
             echo $promos->CargarMantenedorPromosCliente();
         break;
+        // *Carga las promos para la visualización en carta
         case 'CargarPromosCarta';
             echo $promos->CargarPromosCarta();
         break;

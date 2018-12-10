@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require_once '../db_connection/connection.php';
 
 class TipoCoberturas extends connection {
@@ -69,6 +72,7 @@ class TipoCoberturas extends connection {
             // ------------------------------------------------------------------------
             if($stmt->execute()){
                 $array = $this->getCoberturas();
+                // *Se recorre el array de coberturas seleccionadas y se ingresan en el detalle de coberturas
                 foreach ($array as $key=>$valor) {
                     $stmt2 = $conn->prepare("CALL agregarDetalleTipoCobertura(?, ?, @out_value)");
                     $stmt2->bind_param("is", $valor, $correo);
@@ -112,7 +116,8 @@ class TipoCoberturas extends connection {
 				return $result;
 			}
 			else{
-				return 2;
+                return 2;
+                // *Error de ejecución
             }
             
             $stmt->free_result();
@@ -142,6 +147,7 @@ class TipoCoberturas extends connection {
             if($stmt->execute()){
                 $array = $this->getCoberturas();
                 foreach ($array as $key=>$valor) {
+                    // *Se obtiene el array de coberturas seleccionadas y se actualizan una por una en la BD
                     $stmt2 = $conn->prepare("CALL actualizarDetalleTipoCobertura(?, ?, ?, @out_value)");
                     $stmt2->bind_param("iis", $valor, $this->getIdTipoCobertura(), $correo);
                     if($stmt2->execute()){
@@ -191,6 +197,7 @@ class TipoCoberturas extends connection {
 		}
     }
     
+    // *Comprueba si el tipo cobertura está asociado a una promo antes de eliminar
     public function comprobarVinculacionTipoCobertura(){
 		try{
 			$db = connection::getInstance();

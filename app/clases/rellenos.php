@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require_once '../db_connection/connection.php';
 
 class Relleno extends connection{
@@ -163,6 +166,7 @@ class Relleno extends connection{
 			}
 			else{
 				return 3;
+				// *Error en la ejecución
 			}
 			$stmt->free_result();
 		}catch(Exception $error){

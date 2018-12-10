@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require_once '../db_connection/connection.php';
 
 class TipoPago extends connection{
@@ -30,7 +33,8 @@ class TipoPago extends connection{
 	public function setIdEstadoMantenedor($idEstadoMantenedor){
 		$this->idEstadoMantenedor = $idEstadoMantenedor;
     }
-    
+	
+	//* Se carga la tabla tipo de pago
     public function CargarMantenedorTipoPago(){
         try{
             $db = connection::getInstance();
@@ -79,7 +83,9 @@ class TipoPago extends connection{
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
-    }
+	}
+	
+	// *Obtiene los datos del tipo de pago a actualizar para cargarlos en el form y el modal
     public function ObtenerInformacionTipoPago(){
 		try{
 			$db = connection::getInstance();

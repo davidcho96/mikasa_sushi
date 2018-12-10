@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         }
         case 'CargarModalIngrediente':
+            // *Función para realizar la solicitud a la clase de los datos del modal
             $ingredientes->setIdIngrediente($_POST['id']);
             echo $ingredientes->ObtenerInformacionIngrediente();
             break;

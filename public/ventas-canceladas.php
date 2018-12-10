@@ -75,10 +75,12 @@
     <script src="src/js/es6/funciones-compra-venta.js"></script>
     <script>
     $(document).ready(function(){
+        cargarNotificaciones();
         cargarTablaVentasCanceladas();
         comprobarEstadoSesion();
         setInterval(function(){
             comprobarEstadoSesion();
+            cargarNotificaciones();
             // cargarTablaVentasCanceladas();
         }, 60000);
         // $('#modal_mantenedor_aceptar_compra').modal({

@@ -337,7 +337,8 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
     txt_unidades: {
       required: true,
       min: 1,
-      max: 200
+      max: 200,
+      digits: true
     },
     txt_precio_agregado: {
       required: true,
@@ -353,14 +354,14 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
     },
     combo_estado_elemento: {
       required: true
-    },
-    imagen_agregados: {
-      // required: true,
-      extension: 'jpeg|jpg|png'
-    },
-    imagen_agregados_text: {
-      // required: true
     }
+    // imagen_agregados: {
+    //   // required: true,
+    //   extension: 'jpeg|jpg|png'
+    // },
+    // imagen_agregados_text: {
+    //   // required: true
+    // }
   },
   messages: {
     txt_nombre: {
@@ -392,14 +393,14 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
     },
     combo_estado_elemento: {
       required: 'Selecciona una opción'
-    },
-    imagen_agregados: {
-      // required: '',
-      extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
-    },
-    imagen_agregados_text: {
-      // required: 'Selecciona una imagen'
     }
+    // imagen_agregados: {
+    //   // required: '',
+    //   extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
+    // },
+    // imagen_agregados_text: {
+    //   // required: 'Selecciona una imagen'
+    // }
   },
   invalidHandler: function(form) {
     //*Acción a ejecutar al no completar todos los campos requeridos

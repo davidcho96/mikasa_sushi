@@ -1,3 +1,4 @@
+// *Cargar combobox de tipo de pago
 function cargarComboBoxTipoPago() {
   var action = 'CargarComboBoxTipoPago';
   var cargaHtml = '';
@@ -14,6 +15,7 @@ function cargarComboBoxTipoPago() {
         }</option>`;
       });
       $('select[name="combo_tipo_pago"]').html(cargaHtml);
+      // *Se inserta en código html en el elemento seleccionado
     },
     error: function() {
       alert('Lo sentimos ha ocurrido un error.');
@@ -21,6 +23,7 @@ function cargarComboBoxTipoPago() {
   });
 }
 
+// *Cargar Combobox tipo entrega
 function cargarComboBoxTipoEntrega() {
   var action = 'CargarComboBoxTipoEntrega';
   var cargaHtml = '';
@@ -31,12 +34,14 @@ function cargarComboBoxTipoEntrega() {
     type: 'POST',
     success: function(respuesta) {
       var arr = JSON.parse(respuesta);
+      cargaHtml += '<option>Tipo de entrega</option>';
       $.each(arr, function(indice, item) {
         cargaHtml += `<option value="${item.IdTipoEntrega}">${
           item.Descripcion
         }</option>`;
       });
       $('select[name="combo_tipo_entrega"]').html(cargaHtml);
+      // *Se inserta en código html en el elemento seleccionado
     },
     error: function() {
       alert('Lo sentimos ha ocurrido un error.');
@@ -84,7 +89,7 @@ function cargarDatosCarritoCompraFinalizarCompra() {
     }
   });
 
-  //   *Se cargan los datos de los ingredientes en el carrito
+  //   *Se cargan los datos de los agregados en el carrito
   $.ajax({
     data: `action=${actionAgregados}`,
     url: '../app/control/despPromoCompra.php',
@@ -130,9 +135,12 @@ function verificarListaCarrito() {
     cargaHtmlEmpty += `<span>No hay productos en el carrito de compras</span>`;
     cargaHtmlEmpty += '</li>';
     $('#lista_productos_carrito').append(cargaHtmlEmpty);
+    // *Verifica la cantidad de items en la lista del carrito
   }
 }
 
+// *Si el radio de selección del receptor contiene el texto otro(valor 2)
+// *Se muestra en pantalla el campo de texto de especificación
 $('input[name="radio_receptor"]').change(function() {
   if ($(this).val() == 2) {
     $('#input_receptor_pedido').removeClass('hide');
@@ -155,6 +163,7 @@ $('input[name="radio_receptor"]').change(function() {
   }
 });
 
+// *Se valida el formulario para dar por finalizada la compra
 var formCompra = $('#form_compra_cliente').validate({
   errorClass: 'invalid red-text',
   validClass: 'valid',
@@ -165,43 +174,63 @@ var formCompra = $('#form_compra_cliente').validate({
       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
       .attr('data-error', error.text()); //*Se obtiene el texto de erro
     error.insertAfter(element); //*Se inserta el error después del elemento
+    if (element.is(':checkbox')) {
+      error.appendTo(element.parents('.check_terminos'));
+    }
+    if (element.is(':radio')) {
+      error.appendTo(element.parents('.radio_pago'));
+    }
   },
   rules: {
     txt_hora_entrega: {
       required: true
     },
-    txt_direccion_entrega: {
-      required: true,
-      minlength: 3,
-      maxlength: 100
-    },
     radio_receptor: {
       required: true
     },
-    combo_tipo_pago: {
+    // combo_tipo_pago: {
+    //   required: true
+    // },
+    check_metodo_pago: {
       required: true
     },
     combo_tipo_entrega: {
+      required: true,
+      min: 0,
+      max: 2
+    },
+    check_terminos_condiciones: {
       required: true
+    },
+    txt_comentario_compra: {
+      minlength: 0,
+      maxlength: 200
     }
   },
   messages: {
     txt_hora_entrega: {
       required: 'Campo requerido *'
     },
-    txt_direccion_entrega: {
-      required: 'Campo requerido *',
-      minlength: 'Mínimo 3 caracteres',
-      maxlength: 'Máximo 100 caracteres'
-    },
     radio_receptor: {
       required: 'Campo requerido *'
     },
-    combo_tipo_pago: {
-      required: 'Selecciona una opción'
-    },
+    // combo_tipo_pago: {
+    //   required: 'Selecciona una opción'
+    // },
     combo_tipo_entrega: {
-      required: 'Selecciona una opción'
+      required: 'Selecciona una opción',
+      min: 'Selecciona una opción válida',
+      max: 'Selecciona una opción válida'
+    },
+    check_terminos_condiciones: {
+      required: 'Debes aceptar los términos y condiciones de servicio'
+    },
+    check_metodo_pago: {
+      required: 'Selecciona el medio de pago'
+    },
+    txt_comentario_compra: {
+      minlength: 0,
+      maxlength: 'Máximo 200 caracteres'
     }
   },
   invalidHandler: function(form) {
@@ -213,6 +242,7 @@ var formCompra = $('#form_compra_cliente').validate({
     });
   },
   submitHandler: function(form) {
+    // *Se valida la fecha de la compra y el horario de la entrega
     validarFechaCompra($('#txt_hora_entrega').val()).done(function(data) {
       switch (data) {
         case 'errorDiaEntrega':
@@ -226,93 +256,176 @@ var formCompra = $('#form_compra_cliente').validate({
           swal('Error!', 'Selecciona una hora válida.', 'error');
           break;
         case 'puedescomprar':
-          swal({
-            title: '¿Estás seguro?',
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Si',
-            cancelButtonText: 'Cancelar'
-          }).then(result => {
-            if (result.value) {
-              swal({
-                title: 'Espera',
-                html: 'Estamos procesando tu compra.',
-                timer: 1800,
-                onOpen: () => {
-                  swal.showLoading();
-                }
-              });
-              var action = 'GenerarVenta';
-              var dataInfo = '';
-              var receptor = '';
-              if ($('input[name=radio_receptor]:checked').val() == 2) {
-                receptor = $('#txt_nombre_receptor').val();
-              } else {
-                receptor = '1';
+          var action = 'ConsultarFactibilidadCompra';
+          $.ajax({
+            data: { action: action },
+            url: '../app/control/despPromoCompra.php',
+            type: 'POST',
+            async: false,
+            success: function(resp) {
+              switch (resp) {
+                case '1':
+                  $('#modal_pago_webpay').modal('open');
+                  // swal(
+                  //   'Listo',
+                  //   'Su solicitud de compra ha sido enviada por favor espere a que esta sea aceptada.',
+                  //   'success'
+                  // );
+                  // setTimeout(function() {
+                  //   location.href = 'index-cliente.php';
+                  // }, 1500);
+                  // *La función se ejecutó correctamente
+                  break;
+                case '2':
+                  swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                  break;
+                case '3':
+                  swal(
+                    'Error!',
+                    'Para generar la compra primero debes haber agregado productos al carro de compras.',
+                    'error'
+                  );
+                  break;
+                case '4':
+                  swal(
+                    'Error!',
+                    'Lo sentimos has sobrepasado el precio máximo de compra, si necesitas realizar una compra especial contacte con nosotros.',
+                    'error'
+                  );
+                  break;
+                case '5':
+                  swal('Error!', 'En el día de hoy no atendemos.', 'error');
+                  break;
               }
-
-              dataInfo = {
-                action: action,
-                tipo_pago: $('#combo_tipo_pago_form_cliente').val(),
-                tipo_entrega: $('#combo_tipo_entrega_form').val(),
-                hora_entrega: $('#txt_hora_entrega').val(),
-                direccion_entrega: $('#txt_direccion_entrega').val(),
-                receptor: receptor
-              };
-              $.ajax({
-                data: dataInfo,
-                url: '../app/control/despPromoCompra.php',
-                type: 'POST',
-                async: false,
-                success: function(resp) {
-                  switch (resp) {
-                    case '1':
-                      swal(
-                        'Listo',
-                        'Su solicitud de compra ha sido enviada por favor espere a que esta sea aceptada.',
-                        'success'
-                      );
-                      setTimeout(function() {
-                        location.href = 'index-cliente.php';
-                      }, 1500);
-                      // *La función se ejecutó correctamente
-                      break;
-                    case '2':
-                      swal(
-                        'Error!',
-                        'La tarea no pudo llevarse a cabo',
-                        'error'
-                      );
-                      break;
-                    case '3':
-                      swal(
-                        'Error!',
-                        'Para generar la compra primero debes haber agregado productos al carro de compras.',
-                        'error'
-                      );
-                      break;
-                    case '4':
-                      swal(
-                        'Error!',
-                        'Lo sentimos has sobrepasado el precio máximo de compra, si necesitas realizar una compra especial contacte con nosotros.',
-                        'error'
-                      );
-                      break;
-                  }
-                },
-                error: function() {
-                  alert('Lo sentimos ha ocurrido un error.');
-                }
-              });
+            },
+            error: function() {
+              alert('Lo sentimos ha ocurrido un error.');
             }
           });
+
           break;
       }
     });
   }
 });
+
+$('#btn_pagar_webpay').click(function(evt) {
+  evt.preventDefault();
+  finalizarCompraCliente();
+});
+
+function finalizarCompraCliente() {
+  validarFechaCompra($('#txt_hora_entrega').val()).done(function(data) {
+    switch (data) {
+      case 'errorDiaEntrega':
+        swal(
+          'Error!',
+          'La compra no puede llevarse a cabo debido a que el local está cerrado.',
+          'error'
+        );
+        break;
+      case 'errorHoraEntrega':
+        swal('Error!', 'Selecciona una hora válida.', 'error');
+        break;
+      case 'puedescomprar':
+        var pagoWebpay = '3';
+        swal({
+          title: '¿Estás seguro?',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Si',
+          cancelButtonText: 'Cancelar'
+        }).then(result => {
+          if (result.value) {
+            swal({
+              title: 'Espera',
+              html: 'Estamos procesando tu compra.',
+              timer: 1800,
+              onOpen: () => {
+                swal.showLoading();
+              }
+            });
+            var action = 'GenerarVenta';
+            var dataInfo = '';
+            var receptor = '';
+            // *Si el receptor asignado es otro se ingresa el texto ingresado en el texto
+            if ($('input[name=radio_receptor]:checked').val() == 2) {
+              receptor = $('#txt_nombre_receptor').val();
+            } else {
+              receptor = '1';
+              // *Si el mismo cliente recibirá el pedido se ingresa el valor 1 que en el procedimiento
+              // *Guarda el nombre del cliente como receptor
+            }
+            var direccion = '';
+            if ($('#combo_tipo_entrega_form').val() == 1) {
+              direccion = `${$('#txt_direccion_entrega').val()} ${$(
+                '#txt_direccion_numero'
+              ).val()}`;
+            } else {
+              direccion = '';
+            }
+
+            dataInfo = {
+              action: action,
+              tipo_pago: pagoWebpay,
+              tipo_entrega: $('#combo_tipo_entrega_form').val(),
+              hora_entrega: $('#txt_hora_entrega').val(),
+              direccion_entrega: direccion,
+              comentario: $('#txt_comentario_compra').val(),
+              receptor: receptor
+            };
+
+            $.ajax({
+              data: dataInfo,
+              url: '../app/control/despPromoCompra.php',
+              type: 'POST',
+              success: function(resp) {
+                console.log(resp);
+
+                switch (resp) {
+                  case '1':
+                    $('#modal_pago_webpay').modal('close');
+                    swal(
+                      'Listo',
+                      'Su solicitud de compra ha sido enviada por favor espere a que esta sea aceptada.',
+                      'success'
+                    );
+                    setTimeout(function() {
+                      location.href = 'index-cliente.php';
+                    }, 1500);
+                    // *La función se ejecutó correctamente
+                    break;
+                  case '2':
+                    swal(
+                      'Error!',
+                      'Ha ocurrido un error al realizar la venta prueba de nuevo más tarde',
+                      'error'
+                    );
+                    setTimeout(function() {
+                      location.href = 'index-cliente.php';
+                    }, 1500);
+                    break;
+                  case '3':
+                    swal(
+                      'Error!',
+                      'No cuentas con saldo suficiente para realizar la compra',
+                      'error'
+                    );
+                    break;
+                }
+              },
+              error: function() {
+                alert('Lo sentimos ha ocurrido un error.');
+              }
+            });
+          }
+        });
+        break;
+    }
+  });
+}
 
 function ObtenerPrecioTotalCarrito() {
   var action = 'ObtenerPrecioTotalCarrito';
@@ -334,10 +447,11 @@ function ObtenerPrecioTotalCarrito() {
           break;
         default:
           //* Por defecto los datos serán cargados en pantalla
-          cargaHtml += respuesta;
+          cargaHtml += `$${respuesta}`;
           //   *--------------------------------------------------
           $('#total_compra').append(cargaHtml);
           $('#total_compra_carro').html(cargaHtml);
+          $('#precio_total_carrito_webpay').html(cargaHtml);
           break;
       }
     },
@@ -388,7 +502,11 @@ function CargarTablaVentasPendientes() {
             cargaHtml += '<td>' + item.NombreCliente + '</td>';
             cargaHtml += '<td>' + item.Fecha + '</td>';
             cargaHtml += '<td>' + item.TipoEntrega + '</td>';
-            cargaHtml += '<td>' + item.TipoPago + '</td>';
+            if (item.Direccion == null) {
+              cargaHtml += '<td>En local</td>';
+            } else {
+              cargaHtml += '<td>' + item.Direccion + '</td>';
+            }
             cargaHtml += '<td>' + item.TipoVenta + '</td>';
             cargaHtml += '<td>' + item.HoraEntrega + '</td>';
             cargaHtml += '<td>$' + item.Valor + '</td>';
@@ -402,10 +520,11 @@ function CargarTablaVentasPendientes() {
             }", "${
               item.CodigoVenta
             }")'><i class='material-icons'>done</i></a></td>`;
-            cargaHtml +=
-              "<td><a class='btn-floating btn-medium waves-effect waves-light red' onclick='cancelarVenta(" +
-              item.IdVenta +
-              ")'><i class='material-icons'>clear</i></a></td>";
+            cargaHtml += `<td><a class='btn-floating btn-medium waves-effect waves-light red' onclick='cancelarVenta("${
+              item.IdVenta
+            }", "${
+              item.CodigoVenta
+            }")'><i class='material-icons'>clear</i></a></td>`;
             cargaHtml += '</tr>';
           });
 
@@ -419,11 +538,12 @@ function CargarTablaVentasPendientes() {
   });
 }
 
+// *Si el motivo de cancelación es otro se muestra el campo de texto de especificación de motivo
 $('input[name="radioMotivo"]').change(function() {
   if ($(this).val() == 4) {
     $('#input_motivo_cancelacion').removeClass('hide');
     $('#form_cancelar_venta').validate(); //sets up the validator
-    $('#txt_motivo_cancelación').rules('add', {
+    $('#txt_motivo_cancelacion').rules('add', {
       required: true,
       minlength: 3,
       maxlength: 200,
@@ -439,13 +559,17 @@ $('input[name="radioMotivo"]').change(function() {
   }
 });
 
-function cancelarVenta(id) {
+// *Al presionar cancelar venta se abre el modal para la selección del motivo
+function cancelarVenta(id, codigoVenta) {
   $('#modal_mantenedor_cancelar_compra').modal('open');
   $('#txt_id_venta_cancelar').val(id);
+  $('#txt_codigo_venta_cancelar').val(codigoVenta);
 }
 
 var markerMap = '';
+// *Variable global que recibe las coordenadas seleccionadas en el mapa
 var mapVenta;
+// *Variable global que garantiza que solo se selecciona una ubicación
 function aceptarVenta(id, codigoCompra) {
   var action = 'ValidarTipoEntrega';
   $.ajax({
@@ -464,6 +588,7 @@ function aceptarVenta(id, codigoCompra) {
           $('#txt_id_compra_mapa').val(id);
           $('#txt_entrega_compra_mapa').val(resp);
           $('#txt_codigo_compra_mapa').val(codigoCompra);
+          // *Se inicializa el mapa en leaflet utilizando la API de openstreetmap
           var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             osmAttrib =
               '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -478,9 +603,12 @@ function aceptarVenta(id, codigoCompra) {
           mapVenta = L.map('map')
             .setView([-37.465, -72.3693], 15)
             .addLayer(osm);
+          // *Centra el mapa para mejor visualización
 
           var marker;
           mapVenta.on('click', function(e) {
+            // *Al hacer click en el mapa se añade un solo marcador
+            // *Si hay otro este se elimina
             if (typeof marker === 'undefined') {
               marker = new L.marker(e.latlng, { draggable: true });
               marker.addTo(mapVenta);
@@ -524,6 +652,8 @@ function aceptarVentaPedido(id, tipoEntrega, codigoCompra) {
   var lat = '';
   var lng = '';
   // *Dependiendo del tipo de entrega las coordenadas son ingresadas en formato null
+
+  // *Se valida que se haya seleccionado una ubicación en el mapa
   if (tipoEntrega == 'Domicilio') {
     if (markerMap == '' || markerMap == null) {
       M.toast({
@@ -531,6 +661,7 @@ function aceptarVentaPedido(id, tipoEntrega, codigoCompra) {
         displayLength: 3000,
         classes: 'red'
       });
+      // *Valida que se haya seleccionado una ubicación
     } else {
       lat = markerMap.lat;
       lng = markerMap.lng;
@@ -552,7 +683,7 @@ function aceptarVentaPedido(id, tipoEntrega, codigoCompra) {
       swal({
         title: 'Espera',
         html: 'Estamos procesando la solicitud.',
-        timer: 5000,
+        timer: 9000,
         onOpen: () => {
           swal.showLoading();
         }
@@ -568,6 +699,8 @@ function aceptarVentaPedido(id, tipoEntrega, codigoCompra) {
         url: '../app/control/despVenta.php',
         type: 'POST',
         success: function(resp) {
+          console.log(resp);
+
           switch (resp) {
             case '1':
               swal('Listo', 'La venta ha sido aceptada.', 'success');
@@ -578,10 +711,24 @@ function aceptarVentaPedido(id, tipoEntrega, codigoCompra) {
             case '2':
               swal('Error!', 'La compra no pudo ser aceptada.', 'error');
               break;
-            case '2':
+            case '3':
               swal(
                 'Ha ocurrido un error',
                 'El correo de notificación no pudo ser enviado',
+                'error'
+              );
+              break;
+            case '4':
+              swal(
+                'Ha ocurrido un error',
+                'Hay uno o más <a href="mantenedor-ingredientes.php">ingredientes</a> que no tienen stock',
+                'error'
+              );
+              break;
+            case '5':
+              swal(
+                'Ha ocurrido un error',
+                'No hay suficiente stock de coberturas',
                 'error'
               );
               break;
@@ -595,6 +742,7 @@ function aceptarVentaPedido(id, tipoEntrega, codigoCompra) {
   });
 }
 
+// *Se cierra el modal de aceptar venta y se limpia la variable global de ubicación en el mapa seleccionada
 $('#cancelar_modal_aceptar_compra').on('click', function(evt) {
   evt.preventDefault();
   markerMap = '';
@@ -609,6 +757,7 @@ $('#form_aceptar_compra').submit(function(evt) {
   aceptarVentaPedido(id, entrega, codigoCompra);
 });
 
+// *Se valida el formulario de cancelar compra
 var formCompra = $('#form_cancelar_venta').validate({
   errorClass: 'invalid red-text',
   validClass: 'valid',
@@ -621,12 +770,12 @@ var formCompra = $('#form_cancelar_venta').validate({
     error.insertAfter(element); //*Se inserta el error después del elemento
   },
   rules: {
-    radio_receptor: {
+    radioMotivo: {
       required: true
     }
   },
   messages: {
-    radio_receptor: {
+    radioMotivo: {
       required: 'Campo requerido *'
     }
   },
@@ -641,8 +790,9 @@ var formCompra = $('#form_cancelar_venta').validate({
   submitHandler: function(form) {
     var action = 'CancelarVenta';
     var idMotivo = $('input[name=radioMotivo]:checked').val();
-    var motivo = $('#txt_motivo_cancelación').val();
+    var motivo = $('#txt_motivo_cancelacion').val();
     var idVenta = $('#txt_id_venta_cancelar').val();
+    var codigoVenta = $('#txt_codigo_venta_cancelar').val();
     swal({
       title: '¿Estás seguro?',
       type: 'warning',
@@ -653,16 +803,26 @@ var formCompra = $('#form_cancelar_venta').validate({
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.value) {
+        swal({
+          title: 'Espera',
+          html: 'Se está procesando la solicitud.',
+          timer: 9000,
+          onOpen: () => {
+            swal.showLoading();
+          }
+        });
         $.ajax({
           data: {
             action: action,
             idVenta: idVenta,
             idMotivo: idMotivo,
+            codigoVenta: codigoVenta,
             motivo: motivo
           },
           url: '../app/control/despVenta.php',
           type: 'POST',
           success: function(resp) {
+            console.log(resp);
             switch (resp) {
               case '1':
                 swal('Listo', 'La venta ha sido cancelada', 'success');
@@ -684,8 +844,10 @@ var formCompra = $('#form_cancelar_venta').validate({
   }
 });
 
+// *Función para ver el detalle de al venta
 function verDetalleVenta(idVenta) {
   $('#modal_detalle_venta_pendientes').modal('open');
+  // *Se abre el modal
   var actionPromoCompra = 'VerDetalleVentaPromoCompra';
   var cargaHtml = '';
   $.ajax({
@@ -695,13 +857,26 @@ function verDetalleVenta(idVenta) {
     sync: false,
     success: function(resp) {
       var arrayDetalleVenta = JSON.parse(resp);
+      // *El json se convierte a array
       var arrAgregados = arrayDetalleVenta[1];
+      // *Array de agregados vinculado a la venta
       var arr = arrayDetalleVenta[0];
+      // *Se obtiene el comnetario vinculado a la venta
+      if (arrayDetalleVenta[2] != null) {
+        cargaHtml += '<ul class="collection">';
+        cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+        cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+        cargaHtml += '</ul>';
+      }
+      // *Si no existe un comentario no e muestra en pantalla
       $.each(arr, function(i, item) {
         if (item.NombrePromo != null) {
           var arrayDetalle = JSON.stringify(eval(arr[i]));
+          // *Se convierte a astring parte del array e formato JSON
           var arrayDosDetalle = JSON.parse(arrayDetalle);
+          // *Se convierte nuevamente a array
           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+          // *Se parsea el json con el detalle de piezas de la promo creada
           var arrayTresParse = JSON.parse(arrayTres);
 
           cargaHtml += '<ul class="collection">';
@@ -712,6 +887,7 @@ function verDetalleVenta(idVenta) {
             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
               elem.Detalle
             }</li>`;
+            // *Se crea una estructura html que cargue los datos de la venta
           });
           cargaHtml += '</ul>';
         }
@@ -723,6 +899,7 @@ function verDetalleVenta(idVenta) {
           cargaHtml += `<li class="collection-item">${
             agregado.NombreAgregado
           }</li>`;
+          // *Esta estructura html carga los datos de los agregados vinculados a la venta
         });
         cargaHtml += '</ul>';
       }
@@ -792,13 +969,26 @@ function verDetalleVentaCancelada(idVenta) {
     sync: false,
     success: function(resp) {
       var arrayDetalleVenta = JSON.parse(resp);
+      // *El json se convierte a array
       var arrAgregados = arrayDetalleVenta[1];
+      // *Array de agregados vinculado a la venta
       var arr = arrayDetalleVenta[0];
+      // *Se obtiene el comnetario vinculado a la venta
+      if (arrayDetalleVenta[2] != null) {
+        cargaHtml += '<ul class="collection">';
+        cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+        cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+        cargaHtml += '</ul>';
+      }
+      // *Si no existe un comentario no e muestra en pantalla
       $.each(arr, function(i, item) {
         if (item.NombrePromo != null) {
           var arrayDetalle = JSON.stringify(eval(arr[i]));
+          // *Se convierte a astring parte del array e formato JSON
           var arrayDosDetalle = JSON.parse(arrayDetalle);
+          // *Se convierte nuevamente a array
           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+          // *Se parsea el json con el detalle de piezas de la promo creada
           var arrayTresParse = JSON.parse(arrayTres);
 
           cargaHtml += '<ul class="collection">';
@@ -809,6 +999,7 @@ function verDetalleVentaCancelada(idVenta) {
             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
               elem.Detalle
             }</li>`;
+            // *Se crea una estructura html que cargue los datos de la venta
           });
           cargaHtml += '</ul>';
         }
@@ -820,6 +1011,7 @@ function verDetalleVentaCancelada(idVenta) {
           cargaHtml += `<li class="collection-item">${
             agregado.NombreAgregado
           }</li>`;
+          // *Esta estructura html carga los datos de los agregados vinculados a la venta
         });
         cargaHtml += '</ul>';
       }
@@ -846,6 +1038,7 @@ $('#txt_buscar_ventas_canceladas').on('keyup', function() {
   });
 });
 
+// *Se carga el precio máximo permitido por compra para mostrarlo en pantalla
 function cargarPrecioMaximoCompra() {
   var action = 'CargarPrecioMaximoCompra';
   var cargaHtml = '';
@@ -894,6 +1087,7 @@ function cargarTablaHistorialVentas() {
     type: 'POST',
     success: function(respuesta) {
       var arr = JSON.parse(respuesta);
+
       // *Se parsea la respuesta json obtenida
       // *-----------------------------------------------------------------------
       //*Acción a ejecutar si la respuesta existe
@@ -941,14 +1135,29 @@ function verDetalleVentaHistorial(idVenta) {
     type: 'POST',
     sync: false,
     success: function(resp) {
+      console.log(resp);
+
       var arrayDetalleVenta = JSON.parse(resp);
+      // *El json se convierte a array
       var arrAgregados = arrayDetalleVenta[1];
+      // *Array de agregados vinculado a la venta
       var arr = arrayDetalleVenta[0];
+      // *Se obtiene el comnetario vinculado a la venta
+      if (arrayDetalleVenta[2] != null) {
+        cargaHtml += '<ul class="collection">';
+        cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+        cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+        cargaHtml += '</ul>';
+      }
+      // *Si no existe un comentario no e muestra en pantalla
       $.each(arr, function(i, item) {
         if (item.NombrePromo != null) {
           var arrayDetalle = JSON.stringify(eval(arr[i]));
+          // *Se convierte a astring parte del array e formato JSON
           var arrayDosDetalle = JSON.parse(arrayDetalle);
+          // *Se convierte nuevamente a array
           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+          // *Se parsea el json con el detalle de piezas de la promo creada
           var arrayTresParse = JSON.parse(arrayTres);
 
           cargaHtml += '<ul class="collection">';
@@ -959,6 +1168,7 @@ function verDetalleVentaHistorial(idVenta) {
             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
               elem.Detalle
             }</li>`;
+            // *Se crea una estructura html que cargue los datos de la venta
           });
           cargaHtml += '</ul>';
         }
@@ -970,6 +1180,7 @@ function verDetalleVentaHistorial(idVenta) {
           cargaHtml += `<li class="collection-item">${
             agregado.NombreAgregado
           }</li>`;
+          // *Esta estructura html carga los datos de los agregados vinculados a la venta
         });
         cargaHtml += '</ul>';
       }
@@ -996,6 +1207,7 @@ $('#txt_buscar_ventas_canceladas').on('keyup', function() {
   });
 });
 
+// *Se cargan las ordenes pendientes de entrega para que sean visualizadas por el cliente
 function cargarTrackingMisOrdenes() {
   var action = 'CargarTrackingMisOrdenes';
   var cargaHtml = '';
@@ -1051,13 +1263,26 @@ function verDetalleTrackingMiEntrega(idVenta) {
     sync: false,
     success: function(resp) {
       var arrayDetalleVenta = JSON.parse(resp);
+      // *El json se convierte a array
       var arrAgregados = arrayDetalleVenta[1];
+      // *Array de agregados vinculado a la venta
       var arr = arrayDetalleVenta[0];
+      // *Se obtiene el comnetario vinculado a la venta
+      if (arrayDetalleVenta[2] != null) {
+        cargaHtml += '<ul class="collection">';
+        cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+        cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+        cargaHtml += '</ul>';
+      }
+      // *Si no existe un comentario no e muestra en pantalla
       $.each(arr, function(i, item) {
         if (item.NombrePromo != null) {
           var arrayDetalle = JSON.stringify(eval(arr[i]));
+          // *Se convierte a astring parte del array e formato JSON
           var arrayDosDetalle = JSON.parse(arrayDetalle);
+          // *Se convierte nuevamente a array
           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+          // *Se parsea el json con el detalle de piezas de la promo creada
           var arrayTresParse = JSON.parse(arrayTres);
 
           cargaHtml += '<ul class="collection">';
@@ -1068,6 +1293,7 @@ function verDetalleTrackingMiEntrega(idVenta) {
             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
               elem.Detalle
             }</li>`;
+            // *Se crea una estructura html que cargue los datos de la venta
           });
           cargaHtml += '</ul>';
         }
@@ -1079,6 +1305,7 @@ function verDetalleTrackingMiEntrega(idVenta) {
           cargaHtml += `<li class="collection-item">${
             agregado.NombreAgregado
           }</li>`;
+          // *Esta estructura html carga los datos de los agregados vinculados a la venta
         });
         cargaHtml += '</ul>';
       }
@@ -1089,3 +1316,66 @@ function verDetalleTrackingMiEntrega(idVenta) {
     }
   });
 }
+
+function ObtenerDineroCartera() {
+  var action = 'ObtenerDineroCartera';
+  var cargaHtml = '';
+  //   *Se cargan los datos de los ingredientes en el carrito
+  $.ajax({
+    data: `action=${action}`,
+    url: '../app/control/despPromoCompra.php',
+    type: 'POST',
+    success: function(respuesta) {
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          //* Por defecto los datos serán cargados en pantalla
+          cargaHtml += `$${respuesta}`;
+          //   *--------------------------------------------------
+          $('#total_cartera_webpay').html(cargaHtml);
+          break;
+      }
+    },
+    error: function() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+$('#combo_tipo_entrega_form').change(function(e) {
+  if ($(this).val() == 1) {
+    $('#direccion_content').removeClass('hide');
+    $('#form_compra_cliente').validate(); //sets up the validator
+    $('#txt_direccion_entrega').rules('add', {
+      required: true,
+      minlength: 3,
+      maxlength: 100,
+      lettersonly: true,
+      messages: {
+        required: 'Campo requerido *',
+        minlength: 'Mínimo 3 caracteres',
+        maxlength: 'Máximo 100 caracteres',
+        lettersonly: 'Ingresa solo letras'
+      }
+    });
+    $('#txt_direccion_numero').rules('add', {
+      required: true,
+      min: 100,
+      max: 99999,
+      digits: true,
+      messages: {
+        required: 'Campo requerido *',
+        min: 'Ingresa un número válido',
+        max: 'Ingresa un número válido',
+        digits: 'Ingresa solo números'
+      }
+    });
+  } else {
+    $(this).rules('remove');
+    $('#direccion_content').addClass('hide');
+  }
+});

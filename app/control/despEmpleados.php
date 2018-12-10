@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                         case '1':
                             echo '1'; 
                             $array_session = array('Administrador', $empleado->getCorreo());
-                            //* Registro exitoso
+                            //* Registro exitoso se inicia sesión como administrador
                             if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
                                 $_SESSION['user'] = $array_session;
                             }
@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                         case '2':
                             echo '2'; 
                             $array_session = array('Repartidor', $empleado->getCorreo());
+                            //* Registro exitoso se inicia sesión como administrador
                             if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
                                 $_SESSION['user'] = $array_session;
                             }
@@ -50,15 +51,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                         case '3':
                             echo '2'; 
                             $array_session = array('Vendedor', $empleado->getCorreo());
+                            //* Registro exitoso se inicia sesión como administrador
                             if(!isset($_SESSION['user']) || $_SESSION['user'] == ''){
                                 $_SESSION['user'] = $array_session;
                             }
                         break;
                         case 'error':
                             echo 'error';
+                            // *Un error impidió que el usuario accediera al sistema
                         break;
                         case 'errorEstado':
                             echo 'errorEstado';
+                            // *El usuario no tiene permisos para ingresar al sistema
                         break;
                     }
                 }
@@ -80,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     // $combo_TipoEmpleado = $validate->int($_POST['combo_TipoEmpleado']);
                     //*Recibe la acción a ejecutar
 
-                    //*Setea parámetros en la clase Cliente
+                    //*Setea parámetros en la clase empleado
                     $empleado->setIdTipoEmpleado($_POST['combo_TipoEmpleado']);
                     $empleado->setPassword($password);
                     $empleado->setCorreo($correo);
@@ -90,8 +94,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                     switch($empleado->IngresaEmpleado()){
                         case '1':
                             echo 1;
+                            // *El correo que se ingresó ya existe en los registros almacenados
                         break;
                         case '2':
+                            // *El registro se realizó correctamente
                             echo 2;                        // $mail->IsSMTP();                                      // Set mailer to use SMTP
                         // $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
                         // $mail->SMTPAuth = true;                               // Enable SMTP authentication
@@ -119,21 +125,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //*Se valida que el método de soli
                 }
             break;
             // ----------------------------------------------------------------
-            // Funcion para cargar las tablas con los datos de los empleados
+            //* Funcion para cargar las tablas con los datos de los empleados
             case 'CargarTablaEmpleados':
                     echo $empleado->cargarTablaEmpleados($_SESSION['user'][1]);
                 break;
-            // la funcion nos permite eliminar un registro de la tabla
+            //* la funcion nos permite eliminar un registro de la tabla
             case 'EliminarEmpleado':
                     $empleado->setIdEmpleado($_POST['id']);
                     echo $empleado->eliminaEmpleado($_SESSION['user'][1]);
                 break;
-            // Carga los datos del empleado al modal, para luego actualizar
+            //* Carga los datos del empleado al modal, para luego actualizar
             case 'cargaModalEmpleado':
                     $empleado->setIdEmpleado($_POST['id']);
                     echo $empleado->cargaCliente($_REQUEST['id']);
             break;
-            // funcion para actualizar los empleado a través del modal
+            //* funcion para actualizar los empleado a través del modal
             case 'ActualizaEmpleados':
                 $id = $_POST['id'];
                 $empleado->setIdEmpleado($id);

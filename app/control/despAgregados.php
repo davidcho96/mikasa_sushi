@@ -1,10 +1,14 @@
 <?php 
 session_start();
 
+// *Se requiere la sesión en el caso de utilizar el dato almanecenado del usuario activo
+// *Se requiere la clase para acceder a los métodos (funciones)
+// *Se requiere la clase inputValidar para acceder a los método de validación de campos del lado del servidor
 require_once "../clases/agregados.php"; //*Clase agregados
 require_once "../clases/inputValidate.php"; //*Clase input para validación de campos
 
 
+// *Se valida que la solicitud sea del tipo POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $validate = new Input();
     //*Se instancia la clase para la validación de campos
@@ -12,24 +16,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $agregados = new Agregados();
 
     switch($_REQUEST['action']){
+        // *Se carga la tabla de agregados
         case 'CargarMantenedorAgregados':
                 echo $agregados->CargarMantenedorAgregados();
         break;
+        // *Se carga la tabla de agregados en el menú disponible para el cliente
         case 'CargarCartaAgregados':
                 echo $agregados->CargarCartaAgregados();
         break;
+        // *Se obtienen los datos del agregado seleccionado en la tabla
         case 'EliminarAgregado':
             if(isset($_SESSION['user'][1]) && $_SESSION['user'][1] != 'NULL'){
                 $agregados->setIdAgregados($_POST['id']);
                 echo $agregados->EliminarAgregado($_SESSION['user'][1]);
             }
         break;
+        // *Se obtienen los datos del agregado seleccionado para la actualización
         case 'CargarModalAgregado':
             $agregados->setIdAgregados($_POST['id']);
             echo $agregados->ObtenerInformacionAgregado();
             break;
             
             case 'ActualizarDatosAgregados':
+            // *Se validan los datos ingresados en form
             if($validate->check(['nombre', 'descripcion', 'precio', 'descuento', 'estado'], $_REQUEST)){
                 $id = $_POST['id'];
                 $nombre = $validate->str($_POST['nombre'], '100', '3');
@@ -39,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $descuento = $validate->int($_POST['descuento'], 100, 0);
                 $idEstado = $_POST['estado'];
 
-                // *Si la imagen no existe se añade una por defecto 
+                // *Si la imagen no existe se ingresa misma por lo que en bd no se cambia la url de imagen 
                 if(empty($_FILES["imagenUrl"]["name"])){
                     $fileText = 'Misma';
                 }else{
@@ -67,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
+            // *Se setean los datos en la clase agregados
             $agregados->setIdAgregados($id);
             $agregados->setNombre($nombre);
             $agregados->setDescripcion($descripcion);
@@ -81,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         break;
 
         case 'IngresarAgregados':
+        // *Se validan los datos ingresados en form
         if($validate->check(['nombre', 'descripcion', 'precio', 'descuento', 'estado'], $_REQUEST)){
             $nombre = $validate->str($_POST['nombre'], '100', '3');
             $descripcion = $validate->str($_POST['descripcion'], '1000', '3');
@@ -133,6 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'CargarComboAgregados':
             echo $agregados->CargarComboAgregados();
         break;
+        // *Se comprueba si el agregado está vinculado a una promo para verificar si puede ser eliminada
         case 'ComprobarVinculacionAgregados':
             $agregados->setIdAgregados($_POST['id']);
             echo $agregados->comprobarVinculacionAgregados();

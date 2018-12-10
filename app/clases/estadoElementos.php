@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+//* Json encode convierte el array en string para ser utilizado en javascript 
+
 require_once '../db_connection/connection.php';
 
 class EstadoElementos extends connection{
@@ -21,9 +24,11 @@ class EstadoElementos extends connection{
 	public function setDescripcion($descripcion){
 		$this->descripcion = $descripcion;
     }
-    
+	
+	// *Carga en combobox de estado elementos de la carta
     public function cargarComboEstado(){
         try{
+			// *Se carga en combo del estado de los productos en el menú (carta)
             $db = connection::getInstance();
 			$conn = $db->getConnection();
 			$stmt=$conn->prepare('call cargarComboEstadoElementos()');

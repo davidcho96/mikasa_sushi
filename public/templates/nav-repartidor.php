@@ -44,8 +44,15 @@
             <li>
                 <a href="mis-entregas-realizadas.php" class="black-text">Mis Entregas</a>
             </li>
-            <li>
+            <!-- <li>
                 <a href="#" class="black-text dropdown-trigger" data-target="dropdown1">Cuenta<i class="material-icons right">keyboard_arrow_down</i></a>
+            </li> -->
+            <li>
+                <a href="perfil-cliente.php" class="black-text">Editar Perfil</a>
+            </li>
+
+            <li>
+                <a href="templates/killSession.php" class="black-text">Cerrar sesión</a>
             </li>
         </ul>
     </div>

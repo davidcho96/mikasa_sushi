@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     switch($_REQUEST['action']){
         case 'CargarMantenedorTipoPromo':
+        // *Obtiene los datos para cargar la tabla tipo promo
             echo $tipopromo->CargarMantenedorTipoPromo();
         break;
         case 'EliminarTipoPromo':
@@ -22,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         break;
         case 'CargarModalTipoPromo':
+        // *Se obtienen los datos del tipo de promo seleccionado para cargarlos en el modal
             $tipopromo->setIdTipoPromo($_POST['id']);
             echo $tipopromo->ObtenerInformacionTipoPromo();
         break;

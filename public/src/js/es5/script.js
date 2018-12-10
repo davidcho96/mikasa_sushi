@@ -288,7 +288,8 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
     txt_unidades: {
       required: true,
       min: 1,
-      max: 200
+      max: 200,
+      digits: true
     },
     txt_precio_agregado: {
       required: true,
@@ -304,15 +305,14 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
     },
     combo_estado_elemento: {
       required: true
-    },
-    imagen_agregados: {
-      // required: true,
-      extension: 'jpeg|jpg|png'
-    },
-    imagen_agregados_text: {
-      // required: true
-    }
-  },
+      // imagen_agregados: {
+      //   // required: true,
+      //   extension: 'jpeg|jpg|png'
+      // },
+      // imagen_agregados_text: {
+      //   // required: true
+      // }
+    } },
   messages: {
     txt_nombre: {
       required: 'Campo requerido *',
@@ -343,15 +343,14 @@ var validarFormActualizarAgregados = $('#form_mantenedor_agregado').validate({
     },
     combo_estado_elemento: {
       required: 'Selecciona una opción'
-    },
-    imagen_agregados: {
-      // required: '',
-      extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
-    },
-    imagen_agregados_text: {
-      // required: 'Selecciona una imagen'
-    }
-  },
+      // imagen_agregados: {
+      //   // required: '',
+      //   extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
+      // },
+      // imagen_agregados_text: {
+      //   // required: 'Selecciona una imagen'
+      // }
+    } },
   invalidHandler: function invalidHandler(form) {
     //*Acción a ejecutar al no completar todos los campos requeridos
     M.toast({
@@ -487,6 +486,7 @@ function cargarDatosCarrito() {
             cargaHtml += '<div class="collapsible-header">';
             cargaHtml += '<img src="uploads/' + item.ImgUrl + '" alt="" height="85px" width="90px">';
             cargaHtml += '<p class="collapsible-text">' + item.Nombre + '</p>';
+            // cargaHtml += '<i class="material-icons">more_vert</i>';
             cargaHtml += '<div class="collapsible-price">';
             cargaHtml += '<p>Total: </p><p class=\'green-text\'>$' + item.PrecioTotal + '</p>';
             cargaHtml += '<a class="eliminar-carro" onclick="eliminarPromoCarro(' + item.IdDetalle + ')"><i class="material-icons red-text">close</i></a>';
@@ -913,13 +913,13 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
     combo_indice_cobertura: {
       required: true
     },
-    imagen_coberturas: {
-      // required: true,
-      extension: 'jpeg|jpg|png'
-    },
-    imagen_coberturas_text: {
-      // required: true
-    },
+    // imagen_coberturas: {
+    //   // required: true,
+    //   extension: 'jpeg|jpg|png'
+    // },
+    // imagen_coberturas_text: {
+    //   // required: true
+    // },
     txt_cantidad_stock_cobertura: {
       required: true,
       min: 0.1,
@@ -967,13 +967,13 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
     combo_indice_cobertura: {
       required: 'Selecciona una opción'
     },
-    imagen_coberturas: {
-      // required: '',
-      extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
-    },
-    imagen_coberturas_text: {
-      // required: 'Selecciona una imagen'
-    },
+    // imagen_coberturas: {
+    //   // required: '',
+    //   extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
+    // },
+    // imagen_coberturas_text: {
+    //   // required: 'Selecciona una imagen'
+    // },
     txt_cantidad_stock_cobertura: {
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 0.1',
@@ -1261,7 +1261,7 @@ function CargarDatosInfoEmpresaIndex() {
         default:
           var infoContacto = '';
           $.each(arr, function (indice, item) {
-            if (item.horaActual >= item.horaApertura && item.horaActual <= item.horaCierre && item.diaSemana >= item.diaInicio && item.diaSemana <= item.diaFinal) {
+            if (item.horaActual >= item.horaApertura && item.horaActual <= item.horaCierre && item.diaSemana >= item.diaInicio && item.diaSemana <= item.diaFinal && item.estadoFeriado == 2) {
               mensajeEstadoAperturaLocal = '<div class="light-green-text">Ahora abierto</div>';
               $('#content_estado_apertura_local_index').html(mensajeEstadoAperturaLocal);
             } else {
@@ -1270,6 +1270,7 @@ function CargarDatosInfoEmpresaIndex() {
             }
 
             $('#info_apertura').html('Horario de atenci\xF3n: ' + arraySemanas[item.diaInicio - 1] + ' a ' + arraySemanas[item.diaFinal - 1] + ' ' + item.horaApertura + ' - ' + item.horaCierre);
+            $('#estado_apertura').html(mensajeEstadoAperturaLocal);
           });
           break;
       }
@@ -1313,244 +1314,484 @@ function CargarTablaInfoContactoIndex() {
   });
 }
 
-function cargarTablaEntregasPendientes() {
-  var action = 'CargarTablaEntregasPendientes';
+function cargarNotificaciones() {
+  var action = 'CargarNotificaciones';
   var cargaHtml = '';
+  var linkRedireccion = '';
   $.ajax({
     data: { action: action },
+    url: '../app/control/despNotificaciones.php',
     type: 'POST',
-    url: '../app/control/despEntregas.php',
     success: function success(resp) {
+      console.log(resp);
+
       var arr = JSON.parse(resp);
-      $.each(arr, function (i, item) {
-        cargaHtml += '<tr>';
-        cargaHtml += '<td>' + item.CodigoVenta + '</td>';
-        cargaHtml += '<td data-position="bottom" data-tooltip="I am a tooltip" class="tooltipped">' + item.Cliente + '</td>';
-        cargaHtml += '<td>' + item.Direccion + '</td>';
-        cargaHtml += '<td>' + item.TipoEntrega + '</td>';
-        cargaHtml += '<td>' + item.TipoPago + '</td>';
-        cargaHtml += '<td>' + item.Hora + '</td>';
-        cargaHtml += '<td>' + item.Receptor + '</td>';
-        cargaHtml += '<td>$' + item.Valor + '</td>';
-        cargaHtml += '<td>' + item.EstadoEntrega + '</td>';
-        cargaHtml += '<td><button class="btn green" onclick="cambiarEstadoEntrega(\'' + item.IdEntrega + '\', \'' + item.CodigoVenta + '\')">Estado Entrega</button></td>';
-        cargaHtml += '</tr>';
-      });
-      $('#body_tabla_entregas_pendientes_mikasa').html(cargaHtml);
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error al cargar los datos');
-    }
-  });
-}
-
-function corroborarTipoEntregaF(IdEntrega, CodigoVenta) {
-  var action = 'CorroborarTipoEntrega';
-  return $.ajax({
-    data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
-    url: '../app/control/despEntregas.php',
-    type: 'POST',
-    async: false,
-    success: function success(resp) {
-      return resp;
-    },
-    error: function error() {
-      alert('Los sentimos ha ocurrido un error');
-    }
-  });
-}
-
-function cambiarEstadoEntrega(IdEntrega, CodigoVenta) {
-  var action = '';
-  var cargaHtml = '';
-  $('#txt_id_entrega_admin').val(IdEntrega);
-  $('#modal_cambiar_estado_entrega').modal('open');
-  corroborarTipoEntregaF(IdEntrega, CodigoVenta).done(function (data) {
-    var arr = JSON.parse(data);
-    var tipo = arr[0].IdTipoEntrega;
-    var checked = arr[0].IdEstadoEntrega;
-    switch (tipo.toString()) {
-      case '1':
-        action = 'CargarOpcionesEntregaDomicilio';
-        $.ajax({
-          data: {
-            action: action
-          },
-          url: '../app/control/despEntregas.php',
-          type: 'POST',
-          // async: false,
-          success: function success(resp) {
-            var arr = JSON.parse(resp);
-            $.each(arr, function (i, item) {
-              cargaHtml += '<p>';
-              cargaHtml += '<label>';
-              if (item.IdEstadoEntrega == checked) {
-                cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" checked value="' + item.IdEstadoEntrega + '"/>';
-              } else {
-                if (item.IdEstadoEntrega < checked) {
-                  cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" disabled="disabled" value="' + item.IdEstadoEntrega + '"/>';
-                } else {
-                  cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" value="' + item.IdEstadoEntrega + '"/>';
-                }
-              }
-              cargaHtml += '<span>' + item.EstadoEntrega + '</span>';
-              cargaHtml += '</label>';
-              cargaHtml += '</p>';
-            });
-            $('#cargar_opciones_estado_entrega').html(cargaHtml);
-          },
-          error: function error() {
-            alert('Los sentimos ha ocurrido un error');
-          }
-        });
-        $('#cargarOpcionesEstadoEntrega').html(cargaHtml);
-        break;
-      case '2':
-        action = 'CargarOpcionesEntregaLocal';
-        $.ajax({
-          data: {
-            action: action
-          },
-          url: '../app/control/despEntregas.php',
-          type: 'POST',
-          // async: false,
-          success: function success(resp) {
-            var arr = JSON.parse(resp);
-            $.each(arr, function (i, item) {
-              cargaHtml += '<p>';
-              cargaHtml += '<label>';
-              if (item.IdEstadoEntrega == checked) {
-                cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" checked value="' + item.IdEstadoEntrega + '"/>';
-              } else {
-                if (item.IdEstadoEntrega < checked) {
-                  cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" disabled="disabled" value="' + item.IdEstadoEntrega + '"/>';
-                } else {
-                  cargaHtml += '<input class="with-gap" name="radioEstadoEntrega" type="radio" value="' + item.IdEstadoEntrega + '"/>';
-                }
-              }
-              cargaHtml += '<span>' + item.EstadoEntrega + '</span>';
-              cargaHtml += '</label>';
-              cargaHtml += '</p>';
-            });
-            $('#cargar_opciones_estado_entrega').html(cargaHtml);
-          },
-          error: function error() {
-            alert('Los sentimos ha ocurrido un error');
-          }
-        });
-        break;
-    }
-  });
-}
-
-$('#form_actualizar_estado_entrega_admin_venta').validate({
-  errorClass: 'invalid red-text',
-  validClass: 'valid',
-  errorElement: 'div',
-  errorPlacement: function errorPlacement(error, element) {
-    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
-    .attr('data-error', error.text()); //*Se obtiene el texto de erro
-    error.insertAfter(element); //*Se inserta el error después del elemento
-  },
-  rules: {
-    radioEstadoEntrega: {
-      required: true
-    }
-  },
-  messages: {
-    radioEstadoEntrega: {
-      required: 'Campo requerido *'
-    }
-  },
-  invalidHandler: function invalidHandler(form) {
-    //*Acción a ejecutar al no completar todos los campos requeridos
-    M.toast({
-      html: 'Por favor completa los campos requeridos',
-      displayLength: 3000,
-      classes: 'red'
-    });
-  },
-  submitHandler: function submitHandler(form) {
-    var action = 'ActualizarEstadoEntregaAdmin';
-    var IdEntrega = $('#txt_id_entrega_admin').val();
-    var IdEstadoEntrega = $('input[name=radioEstadoEntrega]:checked').val();
-    swal({
-      title: '¿Estás seguro?',
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Si',
-      cancelButtonText: 'Cancelar'
-    }).then(function (result) {
-      if (result.value) {
-        $.ajax({
-          data: {
-            action: action,
-            IdEntrega: IdEntrega,
-            IdEstadoEntrega: IdEstadoEntrega
-          },
-          url: '../app/control/despEntregas.php',
-          type: 'POST',
-          success: function success(resp) {
-            switch (resp) {
-              case '1':
-                swal('Listo', 'La tarea se llevó a cabo', 'success');
-                cargarTablaEntregasPendientes();
-                $('#modal_cambiar_estado_entrega').modal('close');
-                // *La función se ejecutó correctamente
-                break;
-              case '2':
-                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-                break;
-            }
-          },
-          error: function error() {
-            alert('Lo sentimos ha ocurrido un error.');
-          }
-        });
+      if (arr.length == 0) {
+        cargaHtml += '<a href="#!" class="collection-item">No hay notificaciones</a>';
       }
-    });
-  }
+      $.each(arr, function (i, item) {
+        switch (item.IdActividad) {
+          case '1':
+            linkRedireccion = 'ventas-pendientes.php';
+            break;
+          case '2':
+            linkRedireccion = 'entregas-canceladas.php';
+            break;
+          case '3':
+            linkRedireccion = 'entregas-realizadas.php';
+            break;
+        }
+        cargaHtml += '<a href="' + linkRedireccion + '" class="collection-item">' + item.Notificacion + ': ' + item.CodigoVenta + '</a>';
+      });
+      $('#carga_notificaciones').html(cargaHtml);
+    },
+    error: function error() {
+      alert('Lo sentimos ha ocurrido un error');
+    }
+  });
+}
+
+$('#notificaciones_admin').click(function (evt) {
+  evt.preventDefault();
+  // alert('Funciona');
+  $('#notificaciones_content').toggleClass('mostrar-notificaciones');
 });
 
-// *Función para tabla entregas pendientes en repartidor
-function cargarTablaEntregasPendientesRepartidor() {
-  var action = 'CargarTablaEntregasPendientesRepartidor';
-  var cargaHtml = '';
-  $.ajax({
-    data: { action: action },
-    type: 'POST',
-    url: '../app/control/despEntregas.php',
-    success: function success(resp) {
-      var arr = JSON.parse(resp);
-      if (arr.length > 0) {
-        $.each(arr, function (i, item) {
-          cargaHtml += '<tr>';
-          cargaHtml += '<td>' + item.CodigoVenta + '</td>';
-          cargaHtml += '<td>' + item.Cliente + '</td>';
-          cargaHtml += '<td>' + item.Direccion + '</td>';
-          cargaHtml += '<td>' + item.TipoPago + '</td>';
-          cargaHtml += '<td>' + item.Hora + '</td>';
-          cargaHtml += '<td>' + item.Receptor + '</td>';
-          cargaHtml += '<td>$' + item.Valor + '</td>';
-          cargaHtml += '<td>' + item.EstadoEntrega + '</td>';
-          cargaHtml += '<td><button class="btn green" onclick="entregarPedido(\'' + item.IdEntrega + '\', \'' + item.CodigoVenta + '\')">Entregar Pedido</button></td>';
-          cargaHtml += '</tr>';
-        });
-      } else {
-        cargaHtml += '<tr>';
-        cargaHtml += '<td colspan="9">No hay entregas pendientes</td>';
-        cargaHtml += '</tr>';
-      }
-      $('#body_tabla_entregas_pendientes_repartidor_mikasa').html(cargaHtml);
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error al cargar los datos');
-    }
-  });
-}
+// function cargarTablaEntregasPendientes() {
+//   var action = 'CargarTablaEntregasPendientes';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: action },
+//     type: 'POST',
+//     url: '../app/control/despEntregas.php',
+//     success: function(resp) {
+//       var arr = JSON.parse(resp);
+//       $.each(arr, function(i, item) {
+//         cargaHtml += '<tr>';
+//         cargaHtml += `<td>${item.CodigoVenta}</td>`;
+//         cargaHtml += `<td data-position="bottom" data-tooltip="I am a tooltip" class="tooltipped">${
+//           item.Cliente
+//         }</td>`;
+//         cargaHtml += `<td>${item.Direccion}</td>`;
+//         cargaHtml += `<td>${item.TipoEntrega}</td>`;
+//         cargaHtml += `<td>${item.TipoPago}</td>`;
+//         cargaHtml += `<td>${item.Hora}</td>`;
+//         cargaHtml += `<td>${item.Receptor}</td>`;
+//         cargaHtml += `<td>$${item.Valor}</td>`;
+//         cargaHtml += `<td>${item.EstadoEntrega}</td>`;
+//         cargaHtml += `<td><button class="btn green" onclick="cambiarEstadoEntrega('${
+//           item.IdEntrega
+//         }', '${item.CodigoVenta}')">Estado Entrega</button></td>`;
+//         cargaHtml += `<td><button class="btn red" onclick="cancelarEntrega('${
+//           item.IdEntrega
+//         }', '${
+//           item.CodigoVenta
+//         }')"><i class="material-icons">close</i></button></td>`;
+//         cargaHtml +=
+//           "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleVentaEntregasAdmin(" +
+//           item.IdVenta +
+//           ")'><i class='material-icons'>more_vert</i></a></td>";
+//         cargaHtml += '</tr>';
+//       });
+//       $('#body_tabla_entregas_pendientes_mikasa').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error al cargar los datos');
+//     }
+//   });
+// }
 
+// // *Función para ver detalle de la venta
+// function verDetalleVentaEntregasAdmin(idVenta) {
+//   $('#modal_ver_detalle_venta_entrega_pendiente_admin').modal('open');
+//   var actionPromoCompra = 'VerDetalleVentaPromoCompra';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: actionPromoCompra, IdVenta: idVenta },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     sync: false,
+//     success: function(resp) {
+//       var arrayDetalleVenta = JSON.parse(resp);
+//       // *El json se convierte a array
+//       var arrAgregados = arrayDetalleVenta[1];
+//       // *Array de agregados vinculado a la venta
+//       var arr = arrayDetalleVenta[0];
+//       // *Se obtiene el comnetario vinculado a la venta
+//       if (arrayDetalleVenta[2] != null) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+//         cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+//         cargaHtml += '</ul>';
+//       }
+//       // *Si no existe un comentario no e muestra en pantalla
+//       $.each(arr, function(i, item) {
+//         if (item.NombrePromo != null) {
+//           var arrayDetalle = JSON.stringify(eval(arr[i]));
+//           // *Se convierte a astring parte del array e formato JSON
+//           var arrayDosDetalle = JSON.parse(arrayDetalle);
+//           // *Se convierte nuevamente a array
+//           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+//           // *Se parsea el json con el detalle de piezas de la promo creada
+//           var arrayTresParse = JSON.parse(arrayTres);
+
+//           cargaHtml += '<ul class="collection">';
+//           cargaHtml += `<li class="collection-item"><b>${
+//             item.NombrePromo
+//           }</b></li>`;
+//           $.each(arrayTresParse, function(e, elem) {
+//             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
+//               elem.Detalle
+//             }</li>`;
+//             // *Se crea una estructura html que cargue los datos de la venta
+//           });
+//           cargaHtml += '</ul>';
+//         }
+//       });
+//       if (arrAgregados.length > 0) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += '<li class="collection-item"><b>Agregados Mikasa</b></li>';
+//         $.each(arrAgregados, function(a, agregado) {
+//           cargaHtml += `<li class="collection-item">${
+//             agregado.NombreAgregado
+//           }</li>`;
+//           // *Esta estructura html carga los datos de los agregados vinculados a la venta
+//         });
+//         cargaHtml += '</ul>';
+//       }
+//       $('#cargar_detalle_venta_entrega_pendiente_admin').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para ver detalle de la venta
+// function verDetalleVentaEntregasRepartidor(idVenta) {
+//   $('#modal_ver_detalle_venta_entrega_repartidor').modal('open');
+//   var actionPromoCompra = 'VerDetalleVentaPromoCompra';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: actionPromoCompra, IdVenta: idVenta },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     sync: false,
+//     success: function(resp) {
+//       var arrayDetalleVenta = JSON.parse(resp);
+//       // *El json se convierte a array
+//       var arrAgregados = arrayDetalleVenta[1];
+//       // *Array de agregados vinculado a la venta
+//       var arr = arrayDetalleVenta[0];
+//       // *Se obtiene el comnetario vinculado a la venta
+//       if (arrayDetalleVenta[2] != null) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+//         cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+//         cargaHtml += '</ul>';
+//       }
+//       // *Si no existe un comentario no e muestra en pantalla
+//       $.each(arr, function(i, item) {
+//         if (item.NombrePromo != null) {
+//           var arrayDetalle = JSON.stringify(eval(arr[i]));
+//           // *Se convierte a astring parte del array e formato JSON
+//           var arrayDosDetalle = JSON.parse(arrayDetalle);
+//           // *Se convierte nuevamente a array
+//           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+//           // *Se parsea el json con el detalle de piezas de la promo creada
+//           var arrayTresParse = JSON.parse(arrayTres);
+
+//           cargaHtml += '<ul class="collection">';
+//           cargaHtml += `<li class="collection-item"><b>${
+//             item.NombrePromo
+//           }</b></li>`;
+//           $.each(arrayTresParse, function(e, elem) {
+//             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
+//               elem.Detalle
+//             }</li>`;
+//             // *Se crea una estructura html que cargue los datos de la venta
+//           });
+//           cargaHtml += '</ul>';
+//         }
+//       });
+//       if (arrAgregados.length > 0) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += '<li class="collection-item"><b>Agregados Mikasa</b></li>';
+//         $.each(arrAgregados, function(a, agregado) {
+//           cargaHtml += `<li class="collection-item">${
+//             agregado.NombreAgregado
+//           }</li>`;
+//           // *Esta estructura html carga los datos de los agregados vinculados a la venta
+//         });
+//         cargaHtml += '</ul>';
+//       }
+//       $('#cargar_detalle_venta_entrega_repartidor').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// function corroborarTipoEntregaF(IdEntrega, CodigoVenta) {
+//   var action = 'CorroborarTipoEntrega';
+//   return $.ajax({
+//     data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
+//     url: '../app/control/despEntregas.php',
+//     type: 'POST',
+//     async: false,
+//     success: function(resp) {
+//       return resp;
+//     },
+//     error: function() {
+//       alert('Los sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// function cambiarEstadoEntrega(IdEntrega, CodigoVenta) {
+//   var action = '';
+//   var cargaHtml = '';
+//   $('#txt_id_entrega_admin').val(IdEntrega);
+//   // *Las opciones de estado entrega se cargan en base al tipo de entrega
+//   corroborarTipoEntregaF(IdEntrega, CodigoVenta).done(function(data) {
+//     var arr = JSON.parse(data);
+//     if (arr[0].IdEstadoEntrega == 1) {
+//       swal('Error!', 'Esta pedido ya fue cancelada', 'error');
+//       cargarTablaEntregasPendientes();
+//     } else {
+//       $('#modal_cambiar_estado_entrega').modal('open');
+//       var tipo = arr[0].IdTipoEntrega;
+//       // *Se obtiene el estado de entrega del pedido seleccionado
+//       var checked = arr[0].IdEstadoEntrega;
+//       switch (tipo.toString()) {
+//         case '1':
+//           action = 'CargarOpcionesEntregaDomicilio';
+//           $.ajax({
+//             data: {
+//               action: action
+//             },
+//             url: '../app/control/despEntregas.php',
+//             type: 'POST',
+//             // async: false,
+//             success: function(resp) {
+//               console.log(resp);
+
+//               var arr = JSON.parse(resp);
+//               // *Se bloquean las opciones de selección de estado si su id es menor al que tiene la entrega
+//               // *Se marca como seleccionado el estado que coincide con el de la entrega
+//               $.each(arr, function(i, item) {
+//                 cargaHtml += '<p>';
+//                 cargaHtml += '<label>';
+//                 if (item.IdEstadoEntrega == checked) {
+//                   cargaHtml += `<input class="with-gap" name="radioEstadoEntrega" type="radio" checked value="${
+//                     item.IdEstadoEntrega
+//                   }"/>`;
+//                 } else {
+//                   if (item.IdEstadoEntrega < checked) {
+//                     cargaHtml += `<input class="with-gap" name="radioEstadoEntrega" type="radio" disabled="disabled" value="${
+//                       item.IdEstadoEntrega
+//                     }"/>`;
+//                   } else {
+//                     cargaHtml += `<input class="with-gap" name="radioEstadoEntrega" type="radio" value="${
+//                       item.IdEstadoEntrega
+//                     }"/>`;
+//                   }
+//                 }
+//                 cargaHtml += `<span><i class="material-icons">${
+//                   item.Icono
+//                 }</i>   ${item.EstadoEntrega}</span>`;
+//                 cargaHtml += '</label>';
+//                 cargaHtml += '</p>';
+//               });
+//               $('#cargar_opciones_estado_entrega').html(cargaHtml);
+//             },
+//             error: function() {
+//               alert('Los sentimos ha ocurrido un error');
+//             }
+//           });
+//           $('#cargarOpcionesEstadoEntrega').html(cargaHtml);
+//           break;
+//         case '2':
+//           action = 'CargarOpcionesEntregaLocal';
+//           $.ajax({
+//             data: {
+//               action: action
+//             },
+//             url: '../app/control/despEntregas.php',
+//             type: 'POST',
+//             // async: false,
+//             success: function(resp) {
+//               console.log(resp);
+
+//               var arr = JSON.parse(resp);
+//               $.each(arr, function(i, item) {
+//                 cargaHtml += '<p>';
+//                 cargaHtml += '<label>';
+//                 if (item.IdEstadoEntrega == checked) {
+//                   cargaHtml += `<input class="with-gap" name="radioEstadoEntrega" type="radio" checked value="${
+//                     item.IdEstadoEntrega
+//                   }"/>`;
+//                 } else {
+//                   if (item.IdEstadoEntrega < checked) {
+//                     cargaHtml += `<input class="with-gap" name="radioEstadoEntrega" type="radio" disabled="disabled" value="${
+//                       item.IdEstadoEntrega
+//                     }"/>`;
+//                   } else {
+//                     cargaHtml += `<input class="with-gap" name="radioEstadoEntrega" type="radio" value="${
+//                       item.IdEstadoEntrega
+//                     }"/>`;
+//                   }
+//                 }
+//                 cargaHtml += `<span><i class="material-icons">${
+//                   item.Icono
+//                 }</i>   ${item.EstadoEntrega}</span>`;
+//                 cargaHtml += '</label>';
+//                 cargaHtml += '</p>';
+//               });
+//               $('#cargar_opciones_estado_entrega').html(cargaHtml);
+//             },
+//             error: function() {
+//               alert('Los sentimos ha ocurrido un error');
+//             }
+//           });
+//           break;
+//       }
+//     }
+//   });
+// }
+
+// // *Se cambia el estado de la entrega según lo seleccionado por el admin o vendedor0.
+
+// $('#form_actualizar_estado_entrega_admin_venta').validate({
+//   errorClass: 'invalid red-text',
+//   validClass: 'valid',
+//   errorElement: 'div',
+//   errorPlacement: function(error, element) {
+//     $(element)
+//       .closest('form')
+//       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
+//       .attr('data-error', error.text()); //*Se obtiene el texto de erro
+//     error.insertAfter(element); //*Se inserta el error después del elemento
+//   },
+//   rules: {
+//     radioEstadoEntrega: {
+//       required: true
+//     }
+//   },
+//   messages: {
+//     radioEstadoEntrega: {
+//       required: 'Campo requerido *'
+//     }
+//   },
+//   invalidHandler: function(form) {
+//     //*Acción a ejecutar al no completar todos los campos requeridos
+//     M.toast({
+//       html: 'Por favor completa los campos requeridos',
+//       displayLength: 3000,
+//       classes: 'red'
+//     });
+//   },
+//   submitHandler: function(form) {
+//     var action = 'ActualizarEstadoEntregaAdmin';
+//     var IdEntrega = $('#txt_id_entrega_admin').val();
+//     var IdEstadoEntrega = $('input[name=radioEstadoEntrega]:checked').val();
+//     swal({
+//       title: '¿Estás seguro?',
+//       type: 'warning',
+//       showCancelButton: true,
+//       confirmButtonColor: '#3085d6',
+//       cancelButtonColor: '#d33',
+//       confirmButtonText: 'Si',
+//       cancelButtonText: 'Cancelar'
+//     }).then(result => {
+//       if (result.value) {
+//         $.ajax({
+//           data: {
+//             action: action,
+//             IdEntrega: IdEntrega,
+//             IdEstadoEntrega: IdEstadoEntrega
+//           },
+//           url: '../app/control/despEntregas.php',
+//           type: 'POST',
+//           success: function(resp) {
+//             switch (resp) {
+//               case '1':
+//                 swal('Listo', 'La tarea se llevó a cabo', 'success');
+//                 cargarTablaEntregasPendientes();
+//                 $('#modal_cambiar_estado_entrega').modal('close');
+//                 // *La función se ejecutó correctamente
+//                 break;
+//               case '2':
+//                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+//                 break;
+//               case '3':
+//                 swal('Error!', 'Este pedido ya fue entregado', 'error');
+//                 break;
+//             }
+//           },
+//           error: function() {
+//             alert('Lo sentimos ha ocurrido un error.');
+//           }
+//         });
+//       }
+//     });
+//   }
+// });
+
+// // *Función para tabla entregas pendientes en repartidor
+// function cargarTablaEntregasPendientesRepartidor() {
+//   var action = 'CargarTablaEntregasPendientesRepartidor';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: action },
+//     type: 'POST',
+//     url: '../app/control/despEntregas.php',
+//     success: function(resp) {
+//       var arr = JSON.parse(resp);
+//       if (arr.length > 0) {
+//         $.each(arr, function(i, item) {
+//           cargaHtml += '<tr>';
+//           cargaHtml += `<td>${item.CodigoVenta}</td>`;
+//           cargaHtml += `<td>${item.Cliente}</td>`;
+//           cargaHtml += `<td>${item.Direccion}</td>`;
+//           cargaHtml += `<td>${item.TipoPago}</td>`;
+//           cargaHtml += `<td>${item.Hora}</td>`;
+//           cargaHtml += `<td>${item.Receptor}</td>`;
+//           cargaHtml += `<td>$${item.Valor}</td>`;
+//           cargaHtml += `<td>${item.EstadoEntrega}</td>`;
+//           if (item.HorasDiferencia < '00:00') {
+//             cargaHtml += `<td class="green-text">Faltan: ${
+//               item.HorasDiferencia
+//             }</td>`;
+//           } else {
+//             cargaHtml += `<td class="red-text">Retraso de: ${
+//               item.HorasDiferencia
+//             }</td>`;
+//           }
+//           cargaHtml += `<td><button class="btn green" onclick="entregarPedido('${
+//             item.IdEntrega
+//           }', '${item.CodigoVenta}')">Entregar Pedido</button></td>`;
+//           cargaHtml +=
+//             "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleVentaEntregasRepartidor(" +
+//             item.IdVenta +
+//             ")'><i class='material-icons'>more_vert</i></a></td>";
+//           cargaHtml += '</tr>';
+//         });
+//       } else {
+//         cargaHtml += '<tr>';
+//         cargaHtml += '<td colspan="10">No hay entregas pendientes</td>';
+//         cargaHtml += '</tr>';
+//       }
+//       $('#body_tabla_entregas_pendientes_repartidor_mikasa').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error al cargar los datos');
+//     }
+//   });
+// }
+
+// // *Inicializa el mapa de la librería leaflet con la API de openstreetMap
 // var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 //   osmAttrib =
 //     '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -1563,73 +1804,1013 @@ function cargarTablaEntregasPendientesRepartidor() {
 //     }
 //   );
 
-// var map;
+// // *Mapa para visualizar la entrega en la tabla generar
+// var mapInfoEntrega;
+// // *Mapa para visualizar entrega en la tabla mis entregas pendientes
+// var mapLlevarEntrega;
 
-function entregarPedido(IdEntrega, CodigoVenta) {
-  var action = 'ObtenerDatosPedidoPendienteRepartidor';
-  var cargaHtml = '';
-  $('#txt_id_entrega_mapa').val(IdEntrega);
-  $('#txt_codigo_venta_mapa').val(CodigoVenta);
-  $('#modal_realizar_entrega_repartidor').modal('open');
-  $.ajax({
-    data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
-    url: '../app/control/despEntregas.php',
-    type: 'POST',
-    success: function success(resp) {
-      var map = L.map('map_repartidor').setView([-37.465, -72.3693], 15).addLayer(osm);
-      var arr = JSON.parse(resp);
+// // *Muestra los datos del pedido para que el repartidor determine si adjudicarse la entrega
+// function entregarPedido(IdEntrega, CodigoVenta) {
+//   var action = 'ObtenerDatosPedidoPendienteRepartidor';
+//   var cargaHtml = '';
+//   $('#txt_id_entrega_mapa').val(IdEntrega);
+//   $('#txt_codigo_venta_mapa').val(CodigoVenta);
+//   $('#modal_realizar_entrega_repartidor').modal('open');
+//   $.ajax({
+//     data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
+//     url: '../app/control/despEntregas.php',
+//     type: 'POST',
+//     success: function(resp) {
+//       mapInfoEntrega = L.map('map_repartidor')
+//         .setView([-37.465, -72.3693], 15)
+//         .addLayer(osm);
+//       var arr = JSON.parse(resp);
 
-      $.each(arr, function (i, item) {
-        var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            osm = L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
-          maxZoom: 16,
-          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        });
-        // *Carga la ubicación del pedido indicada previamente por el admin
-        L.marker([item.Lat, item.Lng]).addTo(map).bindPopup(item.Direccion);
-        // *Carga la información de la entrega
-        cargaHtml += '<li class="collection-item"><b>Direcci\xF3n: </b>' + item.Direccion + '</li>';
-        cargaHtml += '<li class="collection-item"><b>Receptor: </b>' + item.Receptor + '</li>';
-        cargaHtml += '<li class="collection-item"><b>Hora de entrega: </b>' + item.Hora + '</li>';
-        // *Geolocalización
-        if (navigator.geolocation) {
-          // *El navegador soporta la geolocalización por lo que se marca la ruta
-          navigator.geolocation.getCurrentPosition(function (position) {
-            var lat = position.coords.latitude;
-            var lng = position.coords.longitude;
-            L.marker([lat, lng]).addTo(map);
-            L.Routing.control({
-              waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
-            }).addTo(map);
-          }, function () {
-            handleNoGeolocation(true);
-          });
+//       $.each(arr, function(i, item) {
+//         // *Carga la ubicación del pedido indicada previamente por el admin
+//         L.marker([item.Lat, item.Lng])
+//           .addTo(mapInfoEntrega)
+//           .bindPopup(item.Direccion);
+//         // *Carga la información de la entrega
+//         cargaHtml += `<li class="collection-item"><b>Dirección: </b>${
+//           item.Direccion
+//         }</li>`;
+//         cargaHtml += `<li class="collection-item"><b>Receptor: </b>${
+//           item.Receptor
+//         }</li>`;
+//         cargaHtml += `<li class="collection-item"><b>Hora de entrega: </b>${
+//           item.Hora
+//         }</li>`;
+//         // *Geolocalización
+//         if (navigator.geolocation) {
+//           // *El navegador soporta la geolocalización por lo que se marca la ruta
+//           navigator.geolocation.getCurrentPosition(
+//             function(position) {
+//               var lat = position.coords.latitude;
+//               var lng = position.coords.longitude;
+//               L.Routing.control({
+//                 waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+//               }).addTo(mapInfoEntrega);
+//             },
+//             function() {
+//               handleNoGeolocation(true);
+//               routingControl = L.Routing.control({
+//                 waypoints: [
+//                   L.latLng(item.Lat, item.Lng),
+//                   L.latLng(-37.470133, -72.353628)
+//                 ]
+//               }).addTo(mapInfoEntrega);
+//             }
+//           );
+//         } else {
+//           // *El navegador no soporta el uso de geolocalización
+//           var lat = '-37.470144';
+//           var lng = '-72.353745';
+//           L.Routing.control({
+//             waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+//           }).addTo(mapInfoEntrega);
+//           handleNoGeolocation(false);
+//         }
+//       });
+//       $('#info_entrega_pendiente_repartidor').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error al cargar los datos');
+//     }
+//   });
+// }
+
+// // *Función que cambia el estado de la entrega a 'En camino'
+// $('#form_realizar_entrega_mantenedor').submit(function(evt) {
+//   evt.preventDefault();
+//   var action = 'CambiarEstadoEntregaEnCaminoRepartidor';
+//   var IdEntrega = $('#txt_id_entrega_mapa').val();
+//   var CodigoVenta = $('#txt_codigo_venta_mapa').val();
+//   swal({
+//     title: '¿Estás seguro?',
+//     type: 'warning',
+//     showCancelButton: true,
+//     confirmButtonColor: '#3085d6',
+//     cancelButtonColor: '#d33',
+//     confirmButtonText: 'Si',
+//     cancelButtonText: 'Cancelar'
+//   }).then(result => {
+//     if (result.value) {
+//       $.ajax({
+//         data: {
+//           action: action,
+//           IdEntrega: IdEntrega,
+//           CodigoVenta: CodigoVenta
+//         },
+//         url: '../app/control/despEntregas.php',
+//         type: 'POST',
+//         success: function(resp) {
+//           switch (resp) {
+//             case '1':
+//               swal('Listo', 'La tarea se llevó a cabo', 'success');
+//               cargarTablaEntregasPendientesRepartidor();
+//               cargarTablaMisEntregasPendientesRepartidor();
+//               $('#modal_realizar_entrega_repartidor').modal('close');
+//               break;
+//             case '2':
+//               swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+//               break;
+//             case '3':
+//               swal(
+//                 'Error!',
+//                 'La entrega ya fue adjudicada por otro vendedor',
+//                 'error'
+//               );
+//               cargarTablaEntregasPendientesRepartidor();
+//               cargarTablaMisEntregasPendientesRepartidor();
+//               $('#modal_realizar_entrega_repartidor').modal('close');
+//               break;
+//             case '4':
+//               swal('Error!', 'La entrega fue cancelada', 'error');
+//               cargarTablaEntregasPendientesRepartidor();
+//               cargarTablaMisEntregasPendientesRepartidor();
+//               $('#modal_realizar_entrega_repartidor').modal('close');
+//               break;
+//           }
+//         },
+//         error: function() {
+//           alert('Lo sentimos ha ocurrido un error al cargar los datos');
+//         }
+//       });
+//     }
+//   });
+// });
+
+// // *Función para tabla entregas pendientes del repartidor logueado
+// function cargarTablaMisEntregasPendientesRepartidor() {
+//   var action = 'CargarTablaMisEntregasPendientesRepartidor';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: action },
+//     type: 'POST',
+//     url: '../app/control/despEntregas.php',
+//     success: function(resp) {
+//       var arr = JSON.parse(resp);
+//       if (arr.length > 0) {
+//         $.each(arr, function(i, item) {
+//           cargaHtml += '<tr>';
+//           cargaHtml += `<td>${item.CodigoVenta}</td>`;
+//           cargaHtml += `<td>${item.Cliente}</td>`;
+//           cargaHtml += `<td>${item.Direccion}</td>`;
+//           cargaHtml += `<td>${item.TipoPago}</td>`;
+//           cargaHtml += `<td>${item.Hora}</td>`;
+//           cargaHtml += `<td>${item.Receptor}</td>`;
+//           cargaHtml += `<td>$${item.Valor}</td>`;
+//           cargaHtml += `<td>${item.EstadoEntrega}</td>`;
+//           cargaHtml += `<td><button class="btn green btn-floating" onclick="verRecorridoEntregaRepartidor('${
+//             item.IdEntrega
+//           }', '${
+//             item.CodigoVenta
+//           }')"><i class="material-icons">not_listed_location</i></button></td>`;
+//           cargaHtml += `<td><button class="btn blue btn-floating" onclick="terminarEntregaPedido('${
+//             item.IdEntrega
+//           }', '${
+//             item.CodigoVenta
+//           }')"><i class="material-icons">done_all</i></button></td>`;
+//           cargaHtml += `<td><button class="btn-floating btn red" onclick="cancelarEntregaRepartidor('${
+//             item.IdEntrega
+//           }', '${
+//             item.CodigoVenta
+//           }')"><i class="material-icons">close</i></button></td>`;
+//           cargaHtml +=
+//             "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleVentaEntregasRepartidor(" +
+//             item.IdVenta +
+//             ")'><i class='material-icons'>more_vert</i></a></td>";
+//           cargaHtml += '</tr>';
+//         });
+//       } else {
+//         cargaHtml += '<tr>';
+//         cargaHtml +=
+//           '<td colspan="11">No tienes entregas pendientes por realizar.</td>';
+//         cargaHtml += '</tr>';
+//       }
+//       $('#body_tabla__mis_entregas_pendientes_repartidor_mikasa').html(
+//         cargaHtml
+//       );
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error al cargar los datos');
+//     }
+//   });
+// }
+
+// var routingControl = null;
+// var intervaloMapaRecorrido;
+
+// function verRecorridoEntregaRepartidor(IdEntrega, CodigoVenta) {
+//   var action = 'ObtenerDatosPedidoPendienteRepartidor';
+//   var cargaHtml = '';
+//   $('#txt_id_entrega_mapa').val(IdEntrega);
+//   $('#txt_codigo_venta_mapa').val(CodigoVenta);
+//   $('#modal_recorrido_info_entrega_repartidor').modal('open');
+//   $.ajax({
+//     data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
+//     url: '../app/control/despEntregas.php',
+//     type: 'POST',
+//     success: function(resp) {
+//       mapLlevarEntrega = L.map('map_recorrido_repartidor')
+//         .setView([-37.465, -72.3693], 15)
+//         .addLayer(osm);
+//       var arr = JSON.parse(resp);
+
+//       $.each(arr, function(i, item) {
+//         // *Carga la ubicación del pedido indicada previamente por el admin
+
+//         // *Carga la información de la entrega
+//         cargaHtml += `<li class="collection-item"><b>Dirección: </b>${
+//           item.Direccion
+//         }</li>`;
+//         cargaHtml += `<li class="collection-item"><b>Receptor: </b>${
+//           item.Receptor
+//         }</li>`;
+//         cargaHtml += `<li class="collection-item"><b>Hora de entrega: </b>${
+//           item.Hora
+//         }</li>`;
+//         // *Geolocalización
+//         // *Si el navegador soporta al geolocalización
+//         function success(position) {
+//           var lat = position.coords.latitude;
+//           var lng = position.coords.longitude;
+//           routingControl = L.Routing.control({
+//             waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
+//           }).addTo(mapLlevarEntrega);
+//         }
+
+//         function error(err) {
+//           routingControl = L.Routing.control({
+//             waypoints: [
+//               L.latLng(item.Lat, item.Lng),
+//               L.latLng(-37.470133, -72.353628)
+//             ]
+//           }).addTo(mapLlevarEntrega);
+//           console.warn('ERROR(' + err.code + '): ' + err.message);
+//         }
+//         // intervaloMapaRecorrido =
+//         intervaloMapaRecorrido = setInterval(function() {
+//           // *Comprueba que el mapa tenga focus para actualizar cada 5 segundos la ruta
+//           if (document.hasFocus()) {
+//             navigator.geolocation.getCurrentPosition(success, error);
+//             if (
+//               typeof routingControl == 'undefined' ||
+//               routingControl == null
+//             ) {
+//             } else {
+//               routingControl.getPlan().setWaypoints([]);
+//             }
+//           } else {
+//             console.log('No focus');
+//           }
+//           // routingControl.getPlan().setWaypoints([]);
+//         }, 5000);
+//       });
+//       $('#info_entrega_recorrido_repartidor').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error al cargar los datos');
+//     }
+//   });
+// }
+
+// // *Envía los datos para cambiar el estado del pedido seleccionado
+// function terminarEntregaPedido(IdEntrega, CodigoVenta) {
+//   swal({
+//     title: '¿Estás seguro de dar por finalizada esta entrega?',
+//     type: 'warning',
+//     showCancelButton: true,
+//     confirmButtonColor: '#3085d6',
+//     cancelButtonColor: '#d33',
+//     confirmButtonText: 'Si',
+//     cancelButtonText: 'Cancelar'
+//   }).then(result => {
+//     if (result.value) {
+//       var action = 'FinalizarEntregaPedido';
+//       $.ajax({
+//         data: {
+//           action: action,
+//           IdEntrega: IdEntrega,
+//           CodigoVenta: CodigoVenta
+//         },
+//         url: '../app/control/despEntregas.php',
+//         type: 'POST',
+//         success: function(resp) {
+//           switch (resp) {
+//             // *Entrega realizada
+//             case '1':
+//               swal('Listo', 'La tarea se llevó a cabo', 'success');
+//               cargarTablaEntregasPendientesRepartidor();
+//               cargarTablaMisEntregasPendientesRepartidor();
+//               $('#modal_recorrido_info_entrega_repartidor').modal('close');
+//               break;
+//             // *Error al ejecutar la acción
+//             case '2':
+//               swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+//               break;
+//             // *El pedido ya fue registrado como entrega
+//             case '3':
+//               swal(
+//                 'Error!',
+//                 'La entrega ya fue adjudicada por otro vendedor',
+//                 'error'
+//               );
+//               cargarTablaEntregasPendientesRepartidor();
+//               cargarTablaMisEntregasPendientesRepartidor();
+//               break;
+//           }
+//         },
+//         error: function() {
+//           alert('Lo sentimos ha ocurrido un error al cargar los datos');
+//         }
+//       });
+//     }
+//   });
+// }
+
+// // *Si se presiona el botón entregar pedido en el modal la función terminar entrega se ejecuta
+// $('#form_finalizar_entrega_repartidor').submit(function(evt) {
+//   evt.preventDefault();
+//   var IdEntrega = $('#txt_id_entrega_mapa').val();
+//   var CodigoVenta = $('#txt_codigo_venta_mapa').val();
+//   terminarEntregaPedido(IdEntrega, CodigoVenta);
+// });
+
+// function cargarTablaMisEntregasRealizadas() {
+//   var action = 'CargarTablaMisEntregasRealizadas';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: action },
+//     type: 'POST',
+//     url: '../app/control/despEntregas.php',
+//     success: function(resp) {
+//       var arr = JSON.parse(resp);
+//       $.each(arr, function(i, item) {
+//         cargaHtml += '<tr>';
+//         cargaHtml += `<td>${item.CodigoVenta}</td>`;
+//         cargaHtml += `<td data-position="bottom" data-tooltip="I am a tooltip" class="tooltipped">${
+//           item.Cliente
+//         }</td>`;
+//         cargaHtml += `<td>${item.Direccion}</td>`;
+//         cargaHtml += `<td>${item.Fecha}</td>`;
+//         cargaHtml += `<td>${item.Hora}</td>`;
+//         cargaHtml += `<td>${item.Receptor}</td>`;
+//         cargaHtml += `<td>${item.Cliente}</td>`;
+//         cargaHtml += `<td>${item.TipoPago}</td>`;
+//         cargaHtml += `<td>$${item.Valor}</td>`;
+//         cargaHtml += `<td>${item.HoraEntrega}</td>`;
+//         cargaHtml += '</tr>';
+//       });
+//       $('#body_tabla_mis_entregas_realizadas').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error al cargar los datos');
+//     }
+//   });
+// }
+
+// function cancelarEntrega(IdEntrega, CodigoVenta) {
+//   $('#txt_id_entrega_cancelar_admin').val(IdEntrega);
+//   $('#modal_cancelar_entrega_compra').modal('open');
+// }
+
+// $('input[name="radioMotivoCancelacionEntrega"]').change(function() {
+//   if ($(this).val() == 4) {
+//     $('#input_motivo_cancelacion_entrega_admin').removeClass('hide');
+//     $('#form_cancelar__entrega_admin').validate(); //sets up the validator
+//     $('#txt_motivo_cancelacion_entrega').rules('add', {
+//       required: true,
+//       minlength: 3,
+//       maxlength: 200,
+//       messages: {
+//         required: 'Campo requerido *',
+//         minlength: 'Mínimo 3 caracteres',
+//         maxlength: 'Máximo 200 caracteres'
+//       }
+//     });
+//   } else {
+//     $(this).rules('remove');
+//     $('#input_motivo_cancelacion_entrega_admin').addClass('hide');
+//   }
+// });
+
+// // *Se cierra el modal al presionar el botón cancelar
+// $('#cancelar_modal_cancelar_entrega_admin').click(function(evt) {
+//   evt.preventDefault();
+//   $('#modal_cancelar_entrega_compra').modal('close');
+// });
+
+// $('#cancelar_modal_realizar_entrega').click(function(evt) {
+//   evt.preventDefault();
+//   $('#modal_realizar_entrega_repartidor').modal('close');
+// });
+
+// // *Se cierra el modal al presionar el botón cancelar
+// $('#cancelar_modal_cambiar_estado_entrega').click(function(evt) {
+//   evt.preventDefault();
+//   $('#modal_cambiar_estado_entrega').modal('close');
+// });
+
+// $('#form_cancelar_entrega_admin').validate({
+//   errorClass: 'invalid red-text',
+//   validClass: 'valid',
+//   errorElement: 'div',
+//   errorPlacement: function(error, element) {
+//     $(element)
+//       .closest('form')
+//       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
+//       .attr('data-error', error.text()); //*Se obtiene el texto de erro
+//     error.insertAfter(element); //*Se inserta el error después del elemento
+//   },
+//   rules: {
+//     radioMotivoCancelacionEntrega: {
+//       required: true
+//     }
+//   },
+//   messages: {
+//     radioMotivoCancelacionEntrega: {
+//       required: 'Campo requerido *'
+//     }
+//   },
+//   invalidHandler: function(form) {
+//     //*Acción a ejecutar al no completar todos los campos requeridos
+//     M.toast({
+//       html: 'Por favor completa los campos requeridos',
+//       displayLength: 3000,
+//       classes: 'red'
+//     });
+//   },
+//   submitHandler: function(form) {
+//     var action = 'CancelarEntregaPedido';
+//     var idMotivo = $('input[name=radioMotivoCancelacionEntrega]:checked').val();
+//     var motivo = $('#txt_motivo_cancelacion_entrega').val();
+//     var idEntrega = $('#txt_id_entrega_cancelar_admin').val();
+//     swal({
+//       title: '¿Estás seguro?',
+//       type: 'warning',
+//       showCancelButton: true,
+//       confirmButtonColor: '#3085d6',
+//       cancelButtonColor: '#d33',
+//       confirmButtonText: 'Si',
+//       cancelButtonText: 'Cancelar'
+//     }).then(result => {
+//       if (result.value) {
+//         $.ajax({
+//           data: {
+//             action: action,
+//             idEntrega: idEntrega,
+//             idMotivo: idMotivo,
+//             motivo: motivo
+//           },
+//           url: '../app/control/despEntregas.php',
+//           type: 'POST',
+//           success: function(resp) {
+//             console.log(resp);
+
+//             switch (resp) {
+//               case '1':
+//                 swal('Listo', 'La Entrega ha sido cancelada', 'success');
+//                 cargarTablaEntregasPendientes();
+//                 $('#modal_cancelar_entrega_compra').modal('close');
+//                 // *La función se ejecutó correctamente
+//                 break;
+//               case '2':
+//                 swal(
+//                   'Error!',
+//                   'No puedes cancelar un pedido que ya ha sido entregado',
+//                   'error'
+//                 );
+//                 break;
+//               case '3':
+//                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+//                 break;
+//             }
+//           },
+//           error: function() {
+//             alert('Lo sentimos ha ocurrido un error.');
+//           }
+//         });
+//       }
+//     });
+//   }
+// });
+
+// // *Cierra el modal recorrido info entrega
+// $('#cancelar_modal_recorrido_info_entrega').click(function(evt) {
+//   evt.preventDefault();
+//   $('#modal_recorrido_info_entrega_repartidor').modal('close');
+// });
+
+// function cancelarEntregaRepartidor(IdEntrega, CodigoVenta) {
+//   $('#txt_id_entrega_cancelar_repartidor').val(IdEntrega);
+//   $('#modal_cancelar_entrega_repartidor').modal('open');
+// }
+
+// $('input[name="radioMotivoCancelacionEntregaRepartidor"]').change(function() {
+//   if ($(this).val() == 4) {
+//     $('#input_motivo_cancelacion_entrega_repartidor').removeClass('hide');
+//     $('#form_cancelar_entrega_repartidor').validate(); //sets up the validator
+//     $('#txt_motivo_cancelacion_entrega_repartidor').rules('add', {
+//       required: true,
+//       minlength: 3,
+//       maxlength: 200,
+//       messages: {
+//         required: 'Campo requerido *',
+//         minlength: 'Mínimo 3 caracteres',
+//         maxlength: 'Máximo 200 caracteres'
+//       }
+//     });
+//   } else {
+//     $(this).rules('remove');
+//     $('#input_motivo_cancelacion_entrega_repartidor').addClass('hide');
+//   }
+// });
+
+// // *Se cierra el modal al presionar el botón cancelar
+// $('#cancelar_modal_cancelar_entrega_repartidor').click(function(evt) {
+//   evt.preventDefault();
+//   $('#modal_cancelar_entrega_repartidor').modal('close');
+// });
+
+// $('#form_cancelar_entrega_repartidor').validate({
+//   errorClass: 'invalid red-text',
+//   validClass: 'valid',
+//   errorElement: 'div',
+//   errorPlacement: function(error, element) {
+//     $(element)
+//       .closest('form')
+//       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
+//       .attr('data-error', error.text()); //*Se obtiene el texto de erro
+//     error.insertAfter(element); //*Se inserta el error después del elemento
+//   },
+//   rules: {
+//     radioMotivoCancelacionEntregaRepartidor: {
+//       required: true
+//     }
+//   },
+//   messages: {
+//     radioMotivoCancelacionEntregaRepartidor: {
+//       required: 'Campo requerido *'
+//     }
+//   },
+//   invalidHandler: function(form) {
+//     //*Acción a ejecutar al no completar todos los campos requeridos
+//     M.toast({
+//       html: 'Por favor completa los campos requeridos',
+//       displayLength: 3000,
+//       classes: 'red'
+//     });
+//   },
+//   submitHandler: function(form) {
+//     var action = 'CancelarEntregaPedido';
+//     var idMotivo = $(
+//       'input[name=radioMotivoCancelacionEntregaRepartidor]:checked'
+//     ).val();
+//     var motivo = $('#txt_motivo_cancelacion_entrega_repartidor').val();
+//     var idEntrega = $('#txt_id_entrega_cancelar_repartidor').val();
+//     swal({
+//       title: '¿Estás seguro?',
+//       type: 'warning',
+//       showCancelButton: true,
+//       confirmButtonColor: '#3085d6',
+//       cancelButtonColor: '#d33',
+//       confirmButtonText: 'Si',
+//       cancelButtonText: 'Cancelar'
+//     }).then(result => {
+//       if (result.value) {
+//         $.ajax({
+//           data: {
+//             action: action,
+//             idEntrega: idEntrega,
+//             idMotivo: idMotivo,
+//             motivo: motivo
+//           },
+//           url: '../app/control/despEntregas.php',
+//           type: 'POST',
+//           success: function(resp) {
+//             switch (resp) {
+//               case '1':
+//                 swal('Listo', 'La Entrega ha sido cancelada', 'success');
+//                 cargarTablaMisEntregasPendientesRepartidor();
+//                 $('#modal_cancelar_entrega_repartidor').modal('close');
+//                 // *La función se ejecutó correctamente
+//                 break;
+//               case '2':
+//                 swal(
+//                   'Error!',
+//                   'No se puede cancelar un pedido que ya ha sido entregado.',
+//                   'error'
+//                 );
+//                 break;
+//               case '3':
+//                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+//                 break;
+//             }
+//           },
+//           error: function() {
+//             alert('Lo sentimos ha ocurrido un error.');
+//           }
+//         });
+//       }
+//     });
+//   }
+// });
+
+// // *Función para filtrar los datos en la tabla
+// $('#txt_buscar_entregas_canceladas').on('keyup', function() {
+//   var caracterFiltro = $(this)
+//     .val()
+//     .toLowerCase();
+//   $('#body_tabla_entregas_canceladas_mikasa tr').filter(function() {
+//     $(this).toggle(
+//       $(this)
+//         .text()
+//         .toLowerCase()
+//         .indexOf(caracterFiltro) > -1
+//     );
+//   });
+// });
+
+// // *Función para cargar la tabla de entregas canceladas
+// function cargarTablaEntregasCanceladas() {
+//   var action = 'CargarTablaEntregasCanceladas';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despEntregas.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       var arr = JSON.parse(respuesta);
+//       // *Se parsea la respuesta json obtenida
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           $.each(arr, function(indice, item) {
+//             cargaHtml += '<tr>';
+//             cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+//             cargaHtml += '<td>' + item.Direccion + '</td>';
+//             cargaHtml += '<td>' + item.Cliente + '</td>';
+//             cargaHtml += '<td>' + item.Receptor + '</td>';
+//             cargaHtml += '<td>' + item.Fecha + '</td>';
+//             cargaHtml += '<td>' + item.Hora + '</td>';
+//             cargaHtml += '<td>' + item.TipoEntrega + '</td>';
+//             cargaHtml += '<td>' + item.TipoPago + '</td>';
+//             cargaHtml += '<td>$' + item.Valor + '</td>';
+//             cargaHtml += '<td>' + item.MotivoCancelacion + '</td>';
+//             cargaHtml += '<td>' + item.Empleado + '</td>';
+//             cargaHtml +=
+//               "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleEntregaCancelada(" +
+//               item.IdVenta +
+//               ")'><i class='material-icons'>more_vert</i></a></td>";
+//             cargaHtml += '</tr>';
+//           });
+
+//           $('#body_tabla_entregas_canceladas_mikasa').html(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para ver detalle de la entrega
+// function verDetalleEntregaCancelada(idVenta) {
+//   $('#modal_detalle_entrega_cancelada').modal('open');
+//   var actionPromoCompra = 'VerDetalleVentaPromoCompra';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: actionPromoCompra, IdVenta: idVenta },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     sync: false,
+//     success: function(resp) {
+//       var arrayDetalleVenta = JSON.parse(resp);
+//       var arrAgregados = arrayDetalleVenta[1];
+//       var arr = arrayDetalleVenta[0];
+//       if (arrayDetalleVenta[2] != null) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+//         cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+//         cargaHtml += '</ul>';
+//       }
+//       $.each(arr, function(i, item) {
+//         if (item.NombrePromo != null) {
+//           var arrayDetalle = JSON.stringify(eval(arr[i]));
+//           var arrayDosDetalle = JSON.parse(arrayDetalle);
+//           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+//           var arrayTresParse = JSON.parse(arrayTres);
+
+//           cargaHtml += '<ul class="collection">';
+//           cargaHtml += `<li class="collection-item"><b>${
+//             item.NombrePromo
+//           }</b></li>`;
+//           $.each(arrayTresParse, function(e, elem) {
+//             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
+//               elem.Detalle
+//             }</li>`;
+//           });
+//           cargaHtml += '</ul>';
+//         }
+//       });
+//       if (arrAgregados.length > 0) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += '<li class="collection-item"><b>Agregados Mikasa</b></li>';
+//         $.each(arrAgregados, function(a, agregado) {
+//           cargaHtml += `<li class="collection-item">${
+//             agregado.NombreAgregado
+//           }</li>`;
+//         });
+//         cargaHtml += '</ul>';
+//       }
+//       $('#cargar_detalle_entrega_cancelada').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para cargar la tabla de entregas canceladas
+// function cargarTablaEntregasRealizadas() {
+//   var action = 'CargarTablaEntregasRealizadas';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despEntregas.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       var arr = JSON.parse(respuesta);
+//       // *Se parsea la respuesta json obtenida
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           $.each(arr, function(indice, item) {
+//             cargaHtml += '<tr>';
+//             cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+//             cargaHtml += '<td>' + item.Direccion + '</td>';
+//             cargaHtml += '<td>' + item.Cliente + '</td>';
+//             cargaHtml += '<td>' + item.Receptor + '</td>';
+//             cargaHtml += '<td>' + item.Fecha + '</td>';
+//             cargaHtml += '<td>' + item.Hora + '</td>';
+//             cargaHtml += '<td>$' + item.Valor + '</td>';
+//             cargaHtml += '<td>' + item.Empleado + '</td>';
+//             cargaHtml +=
+//               "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleEntregaRealizada(" +
+//               item.IdVenta +
+//               ")'><i class='material-icons'>more_vert</i></a></td>";
+//             cargaHtml += '</tr>';
+//           });
+
+//           $('#body_tabla_entregas_realizadas_mikasa').html(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para ver detalle de la entrega
+// function verDetalleEntregaRealizada(idVenta) {
+//   $('#modal_detalle_entrega_realizada').modal('open');
+//   var actionPromoCompra = 'VerDetalleVentaPromoCompra';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: actionPromoCompra, IdVenta: idVenta },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     sync: false,
+//     success: function(resp) {
+//       var arrayDetalleVenta = JSON.parse(resp);
+//       var arrAgregados = arrayDetalleVenta[1];
+//       var arr = arrayDetalleVenta[0];
+//       if (arrayDetalleVenta[2] != null) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+//         cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+//         cargaHtml += '</ul>';
+//       }
+//       $.each(arr, function(i, item) {
+//         if (item.NombrePromo != null) {
+//           var arrayDetalle = JSON.stringify(eval(arr[i]));
+//           var arrayDosDetalle = JSON.parse(arrayDetalle);
+//           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+//           var arrayTresParse = JSON.parse(arrayTres);
+
+//           cargaHtml += '<ul class="collection">';
+//           cargaHtml += `<li class="collection-item"><b>${
+//             item.NombrePromo
+//           }</b></li>`;
+//           $.each(arrayTresParse, function(e, elem) {
+//             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
+//               elem.Detalle
+//             }</li>`;
+//           });
+//           cargaHtml += '</ul>';
+//         }
+//       });
+//       if (arrAgregados.length > 0) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += '<li class="collection-item"><b>Agregados Mikasa</b></li>';
+//         $.each(arrAgregados, function(a, agregado) {
+//           cargaHtml += `<li class="collection-item">${
+//             agregado.NombreAgregado
+//           }</li>`;
+//         });
+//         cargaHtml += '</ul>';
+//       }
+//       $('#cargar_detalle_entrega_realizada').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+$('#form_mantenedor_feriados').validate({
+  errorClass: 'invalid red-text',
+  validClass: 'valid',
+  errorElement: 'div',
+  errorPlacement: function errorPlacement(error, element) {
+    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
+    .attr('data-error', error.text()); //*Se obtiene el texto de erro
+    error.insertAfter(element); //*Se inserta el error después del elemento
+  },
+  rules: {
+    txt_descripcion_feriado: {
+      required: true,
+      minlength: 3,
+      maxlength: 200,
+      lettersonly: true
+    },
+    combo_dia_feriado: {
+      required: true,
+      min: 1,
+      max: 31
+    },
+    combo_mes_feriado: {
+      required: true,
+      min: 1,
+      max: 12
+    }
+  },
+  messages: {
+    txt_descripcion_feriado: {
+      required: 'Campo requerido *',
+      minlength: 'Mínimo 3 caracteres',
+      maxlength: 'Máximo 200 caracteres',
+      lettersonly: 'Solo letras permitidas'
+    },
+    combo_dia_feriado: {
+      required: 'Selecciona una opción',
+      min: 'Selecciona un dia válido',
+      max: 'Selecciona un dia válido'
+    },
+    combo_mes_feriado: {
+      required: 'Selecciona una opción',
+      min: 'Selecciona un dia válido',
+      max: 'Selecciona un dia válido'
+    }
+  },
+  invalidHandler: function invalidHandler(form) {
+    //*Acción a ejecutar al no completar todos los campos requeridos
+    M.toast({
+      html: 'Por favor completa los campos requeridos',
+      displayLength: 3000,
+      classes: 'red'
+    });
+  },
+  submitHandler: function submitHandler(form) {
+    // *Sweet alert para mostrar mensaje de confirmación de acción
+    swal({
+      title: '¿Estás seguro?',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText: 'Cancelar'
+    }).then(function (result) {
+      if (result.value) {
+        var action = '';
+        var dia = $('#combo_dia_feriado').val();
+        var mes = $('#combo_mes_feriado').val();
+        var descripcion = $('#txt_descripcion_feriado').val();
+        var data;
+        // *Si el label id oculto contiene un valor significa que se actualizará el registro con ese valor
+        // *Si no contiene valor se interpreta que se ingresará un nuevo 'feriado'
+        if ($('#lbl_id_feriado').text() == '') {
+          action = 'IngresarFeriado';
+          data = {
+            action: action,
+            dia: dia,
+            mes: mes,
+            descripcion: descripcion
+          };
         } else {
-          // *El navegador no soporta el uso de geolocalización
-          var lat = '-37.470144';
-          var lng = '-72.353745';
-          L.marker([lat, lng]).addTo(map);
-          L.Routing.control({
-            waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
-          }).addTo(map);
-          handleNoGeolocation(false);
+          action = 'ActualizarDatosFeriado';
+          data = {
+            action: action,
+            dia: dia,
+            mes: mes,
+            id: $('#lbl_id_feriado').text(),
+            descripcion: descripcion
+          };
         }
-      });
-      $('#info_entrega_pendiente_repartidor').html(cargaHtml);
+        //*Se envían datos del form y action, al controlador mediante ajax
+        $.ajax({
+          data: data,
+          url: '../app/control/despFeriados.php',
+          type: 'POST',
+          success: function success(resp) {
+            console.log(data);
+            //*Acción a ejecutar si la respuesta existe
+            switch (resp) {
+              case '1':
+                $('#modal_mantenedor_feriados').modal('close');
+                swal('Listo', 'Los datos han sido ingresados', 'success');
+                cargarMantenedorFeriados();
+                // *La función se ejecutó correctamente
+                break;
+              case '2':
+                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+                break;
+              default:
+                console.log(resp);
+            }
+          },
+          error: function error() {
+            alert('Lo sentimos ha ocurrido un error');
+          }
+        });
+      }
+    });
+  }
+});
+
+// *Cerrar el modal al presionar cancelar
+$('#cancelar_mantenedor_feriados').click(function (evt) {
+  evt.preventDefault();
+  $('#modal_mantenedor_feriados').modal('close');
+});
+
+// *Cargar tabla de datos feriados
+function cargarMantenedorFeriados(estado, caracter) {
+  var action = 'CargarMantenedorFeriados';
+  var cargaHtml = '';
+  var arrayMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  //*Se envían datos del form y action, al controlador mediante ajax
+  $.ajax({
+    data: 'action=' + action,
+    url: '../app/control/despFeriados.php',
+    type: 'POST',
+    success: function success(respuesta) {
+      // *-----------------------------------------------------------------------
+      //*Acción a ejecutar si la respuesta existe
+      switch (respuesta) {
+        case 'error':
+          alert('Lo sentimos ha ocurrido un error');
+          break;
+        default:
+          var arr = JSON.parse(respuesta);
+          //* Por defecto los datos serán cargados en pantalla
+          $.each(arr, function (indice, item) {
+            cargaHtml += '<tr>';
+            cargaHtml += '<td>' + item.Dia + ' de ' + arrayMeses[parseInt(item.Mes) - 1] + '</td>';
+            cargaHtml += '<td>' + item.Descripcion + '</td>';
+            cargaHtml += '<td><a class=\'btn-floating btn-medium waves-effect waves-light blue\' onclick=\'obtenerDatosActualizarFeriado(' + item.IdFeriado + ')\'><i class=\'material-icons\'>edit</i></a></td>';
+            cargaHtml += '<td><a class=\'btn-floating btn-medium waves-effect waves-light red\' onclick=\'eliminarFeriado(' + item.IdFeriado + ')\'><i class=\'material-icons\'>delete</i></a></td>';
+            cargaHtml += '</tr>';
+          });
+          $('#body_tabla_feriados').html(cargaHtml);
+          break;
+      }
     },
     error: function error() {
-      alert('Lo sentimos ha ocurrido un error al cargar los datos');
+      alert('Lo sentimos ha ocurrido un error');
     }
   });
 }
 
-// *Función que cambia el estado de la entrega a 'En camino'
-$('#form_realizar_entrega_mantenedor').submit(function (evt) {
-  evt.preventDefault();
-  var action = 'CambiarEstadoEntregaEnCaminoRepartidor';
-  var IdEntrega = $('#txt_id_entrega_mapa').val();
-  var CodigoVenta = $('#txt_codigo_venta_mapa').val();
+// *Función para eliminar un feriado de la BD
+function eliminarFeriado(IdFeriado) {
   swal({
     title: '¿Estás seguro?',
     type: 'warning',
@@ -1639,167 +2820,62 @@ $('#form_realizar_entrega_mantenedor').submit(function (evt) {
     confirmButtonText: 'Si',
     cancelButtonText: 'Cancelar'
   }).then(function (result) {
-    $.ajax({
-      data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
-      url: '../app/control/despEntregas.php',
-      type: 'POST',
-      success: function success(resp) {
-        switch (resp) {
-          case '1':
-            swal('Listo', 'La tarea se llevó a cabo', 'success');
-            cargarTablaEntregasPendientesRepartidor();
-            cargarTablaMisEntregasPendientesRepartidor();
-            $('#modal_realizar_entrega_repartidor').modal('close');
-            break;
-          case '2':
-            swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-            break;
+    if (result.value) {
+      var action = 'EliminarFeriado';
+      $.ajax({
+        data: { action: action, id: IdFeriado },
+        url: '../app/control/despFeriados.php',
+        type: 'POST',
+        success: function success(resp) {
+          switch (resp) {
+            case '1':
+              swal('Listo', 'El feriado se ha eliminado exitosamente', 'success');
+              cargarMantenedorFeriados();
+              break;
+            case '2':
+              swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+              cargarMantenedorFeriados();
+              break;
+          }
+        },
+        error: function error() {
+          alert('Lo sentimos ha ocurrido un error');
         }
-      },
-      error: function error() {
-        alert('Lo sentimos ha ocurrido un error al cargar los datos');
-      }
-    });
-  });
-});
-
-// *Función para tabla entregas pendientes del repartidor logueado
-function cargarTablaMisEntregasPendientesRepartidor() {
-  var action = 'CargarTablaMisEntregasPendientesRepartidor';
-  var cargaHtml = '';
-  $.ajax({
-    data: { action: action },
-    type: 'POST',
-    url: '../app/control/despEntregas.php',
-    success: function success(resp) {
-      var arr = JSON.parse(resp);
-      if (arr.length > 0) {
-        $.each(arr, function (i, item) {
-          cargaHtml += '<tr>';
-          cargaHtml += '<td>' + item.CodigoVenta + '</td>';
-          cargaHtml += '<td>' + item.Cliente + '</td>';
-          cargaHtml += '<td>' + item.Direccion + '</td>';
-          cargaHtml += '<td>' + item.TipoPago + '</td>';
-          cargaHtml += '<td>' + item.Hora + '</td>';
-          cargaHtml += '<td>' + item.Receptor + '</td>';
-          cargaHtml += '<td>$' + item.Valor + '</td>';
-          cargaHtml += '<td>' + item.EstadoEntrega + '</td>';
-          cargaHtml += '<td><button class="btn green btn-floating" onclick="verRecorridoEntregaRepartidor(\'' + item.IdEntrega + '\', \'' + item.CodigoVenta + '\')"><i class="material-icons">not_listed_location</i></button></td>';
-          cargaHtml += '<td><button class="btn blue btn-floating" onclick="terminarEntregaPedido(\'' + item.IdEntrega + '\', \'' + item.CodigoVenta + '\')"><i class="material-icons">done_all</i></button></td>';
-          cargaHtml += '</tr>';
-        });
-      } else {
-        cargaHtml += '<tr>';
-        cargaHtml += '<td colspan="10"></td>';
-        cargaHtml += '</tr>';
-      }
-      $('#body_tabla__mis_entregas_pendientes_repartidor_mikasa').html(cargaHtml);
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error al cargar los datos');
+      });
     }
   });
 }
 
-var routingControl = null;
-var intervaloMapaRecorrido;
-
-function verRecorridoEntregaRepartidor(IdEntrega, CodigoVenta) {
-  var action = 'ObtenerDatosPedidoPendienteRepartidor';
-  var cargaHtml = '';
-  $('#txt_id_entrega_mapa').val(IdEntrega);
-  $('#txt_codigo_venta_mapa').val(CodigoVenta);
-  $('#modal_recorrido_info_entrega_repartidor').modal('open');
+// *Al presionar el botón de editar del producto se cargarán los datos en los campos permitiendo editar los valores actuales
+function obtenerDatosActualizarFeriado(id) {
+  $('#accion_info_feriado').text('Actualizar Información de Feriado');
+  $('#modal_mantenedor_feriados').modal('open');
+  var action = 'CargarModalActualizarFeriado';
+  //   var mensajeHtml =
+  // '<div class="mensaje-precaucion" id="mensaje_precaucion_info_contacto"><p><b>Cuidado!:</b> Considera que puede que este elemento esté vinculado a uno o más registros y de ser alterado se verá también reflejado en aquella información.</p></div>';
+  //   $('#content_mensaje_precaucion_info_contacto').html(mensajeHtml);
+  //*Se envían datos del form y action, al controlador mediante ajax
   $.ajax({
-    data: { action: action, IdEntrega: IdEntrega, CodigoVenta: CodigoVenta },
-    url: '../app/control/despEntregas.php',
+    data: {
+      id: id,
+      action: action
+    },
+    url: '../app/control/despFeriados.php',
     type: 'POST',
-    success: function success(resp) {
-      map = L.map('map_recorrido_repartidor').setView([-37.465, -72.3693], 15).addLayer(osm);
-      var arr = JSON.parse(resp);
-
-      $.each(arr, function (i, item) {
-        // *Carga la ubicación del pedido indicada previamente por el admin
-        // L.marker([item.Lat, item.Lng])
-        //   .addTo(map)
-        //   .bindPopup(item.Direccion);
-        // *Carga la información de la entrega
-        cargaHtml += '<li class="collection-item"><b>Direcci\xF3n: </b>' + item.Direccion + '</li>';
-        cargaHtml += '<li class="collection-item"><b>Receptor: </b>' + item.Receptor + '</li>';
-        cargaHtml += '<li class="collection-item"><b>Hora de entrega: </b>' + item.Hora + '</li>';
-        // *Geolocalización
-        function success(position) {
-          var lat = position.coords.latitude;
-          var lng = position.coords.longitude;
-          routingControl = L.Routing.control({
-            waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
-          }).addTo(map);
-        }
-
-        function error(err) {
-          console.warn('ERROR(' + err.code + '): ' + err.message);
-        }
-
-        intervaloMapaRecorrido = setInterval(function () {
-          navigator.geolocation.getCurrentPosition(success, error);
-          if (typeof routingControl == 'undefined' || routingControl == null) {
-            console.log(routingControl);
-          } else {
-            routingControl.getPlan().setWaypoints([]);
-          }
-        }, 5000);
-        // if (navigator.geolocation) {
-        //   var marker;
-        //   // *El navegador soporta la geolocalización por lo que se marca la ruta
-        //   navigator.geolocation.getCurrentPosition(
-        //     function(position) {
-        //       var lat = position.coords.latitude;
-        //       var lng = position.coords.longitude;
-        //       // *Se recarga el ícono para mostrar la ubicación en tiempo real
-        //       // marker = new L.marker([lat, lng], { draggable: true });
-        //       // marker.addTo(map);
-        //       // L.Routing.control({
-        //       //   waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
-        //       // }).addTo(map);
-        //       var routingControl;
-        //       routingControl = L.Routing.control({
-        //         waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
-        //       }).addTo(map);
-        //       interval = setInterval(function() {
-        //         // if (typeof marker != 'undefined') {
-        //         // marker = new L.marker([lat, lng], { draggable: true });
-        //         // marker.addTo(map);
-        //         // } else {
-        //         // }
-        //         // marker.setLatLng([lat, lng]);
-        //         // map.getMap().then(function(map) {
-        //         map.removeControl(routingControl);
-        //         // });
-        //         routingControl = L.Routing.control({
-        //           waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
-        //         }).addTo(map);
-        //         console.log('ac');
-        //       }, 5000);
-        //     },
-        //     function() {
-        //       handleNoGeolocation(true);
-        //     }
-        //   );
-        // } else {
-        //   // *El navegador no soporta el uso de geolocalización
-        //   var lat = '-37.470144';
-        //   var lng = '-72.353745';
-        //   L.marker([lat, lng]).addTo(map);
-        //   L.Routing.control({
-        //     waypoints: [L.latLng(item.Lat, item.Lng), L.latLng(lat, lng)]
-        //   }).addTo(map);
-        //   handleNoGeolocation(false);
-        // }
+    success: function success(respuesta) {
+      $('#accion_info_feriado').text('Actualizar Información de Feriado');
+      var arr = JSON.parse(respuesta);
+      $.each(arr, function (indice, item) {
+        // *Los label adquieren la clase active para no quedar sobre el texto definido en val
+        $('#lbl_id_feriado').text(item.IdFeriado);
+        $("label[for='txt_descripcion_feriado']").addClass('active');
+        $('#txt_descripcion_feriado').val(item.Descripcion);
+        $('#combo_dia_feriado').val(item.Dia);
+        $('#combo_mes_feriado').val(item.Mes);
       });
-      $('#info_entrega_recorrido_repartidor').html(cargaHtml);
     },
     error: function error() {
-      alert('Lo sentimos ha ocurrido un error al cargar los datos');
+      alert('Lo sentimos ha ocurrido un problema');
     }
   });
 }
@@ -2629,1239 +3705,2024 @@ jQuery.validator.addMethod('notEqual', function (value, element, param) {
 });
 // });
 
-function cargarComboBoxTipoPago() {
-  var action = 'CargarComboBoxTipoPago';
-  var cargaHtml = '';
+// // *Cargar combobox de tipo de pago
+// function cargarComboBoxTipoPago() {
+//   var action = 'CargarComboBoxTipoPago';
+//   var cargaHtml = '';
 
-  $.ajax({
-    data: 'action=' + action,
-    url: '../app/control/despTipoPago.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      var arr = JSON.parse(respuesta);
-      $.each(arr, function (indice, item) {
-        cargaHtml += '<option value="' + item.IdTipoPago + '">' + item.Descripcion + '</option>';
-      });
-      $('select[name="combo_tipo_pago"]').html(cargaHtml);
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error.');
-    }
-  });
-}
-
-function cargarComboBoxTipoEntrega() {
-  var action = 'CargarComboBoxTipoEntrega';
-  var cargaHtml = '';
-
-  $.ajax({
-    data: 'action=' + action,
-    url: '../app/control/despTipoEntrega.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      var arr = JSON.parse(respuesta);
-      $.each(arr, function (indice, item) {
-        cargaHtml += '<option value="' + item.IdTipoEntrega + '">' + item.Descripcion + '</option>';
-      });
-      $('select[name="combo_tipo_entrega"]').html(cargaHtml);
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error.');
-    }
-  });
-}
-
-function cargarDatosCarritoCompraFinalizarCompra() {
-  var actionPromo = 'ObtenerDatosCarrito';
-  var actionAgregados = 'ObtenerDatosAgregadosCarrito';
-  var cargaHtml = '';
-  var cargaHtmlAgregados = '';
-
-  //   *Se cargan los datos de las promos creadas en el carrito
-  $.ajax({
-    data: 'action=' + actionPromo,
-    url: '../app/control/despPromoCompra.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      // *----------------------------------------------------------------------
-      var arr = JSON.parse(respuesta);
-      // *Se parsea la respuesta json obtenida
-      // *-----------------------------------------------------------------------
-      //*Acción a ejecutar si la respuesta existe
-      switch (respuesta) {
-        case 'error':
-          alert('Lo sentimos ha ocurrido un error');
-          break;
-        default:
-          //* Por defecto los datos serán cargados en pantalla
-          $.each(arr, function (indice, item) {
-            // *------------------------------------------
-            cargaHtml += '<li class="collection-item items-carrito">';
-            cargaHtml += '<span>' + item.Nombre + '</span>';
-            cargaHtml += '<span class=\'green-text\'>$' + item.PrecioTotal + '</span>';
-            cargaHtml += '</li>';
-          });
-          //   *--------------------------------------------------
-          $('#lista_productos_carrito').append(cargaHtml);
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-
-  //   *Se cargan los datos de los ingredientes en el carrito
-  $.ajax({
-    data: 'action=' + actionAgregados,
-    url: '../app/control/despPromoCompra.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      // *----------------------------------------------------------------------
-      var arr = JSON.parse(respuesta);
-      // *Se parsea la respuesta json obtenida
-      // *-----------------------------------------------------------------------
-      //*Acción a ejecutar si la respuesta existe
-      switch (respuesta) {
-        case 'error':
-          alert('Lo sentimos ha ocurrido un error');
-          break;
-        default:
-          //* Por defecto los datos serán cargados en pantalla
-          $.each(arr, function (indice, item) {
-            // *------------------------------------------
-            cargaHtmlAgregados += '<li class="collection-item items-carrito">';
-            cargaHtmlAgregados += '<span class="collapsible-text">' + item.Nombre + ' ' + item.Unidades + ' Unidades</span>';
-            cargaHtmlAgregados += '<span class=\'green-text\'>$' + item.PrecioTotal + '</span>';
-            cargaHtmlAgregados += '</li>';
-          });
-          //   *--------------------------------------------------
-          $('#lista_productos_carrito').append(cargaHtmlAgregados);
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-}
-
-function verificarListaCarrito() {
-  if ($('#lista_productos_carrito').has('li').length == 0) {
-    var cargaHtmlEmpty = '';
-    cargaHtmlEmpty += '<li class="collection-item items-carrito">';
-    cargaHtmlEmpty += '<span>No hay productos en el carrito de compras</span>';
-    cargaHtmlEmpty += '</li>';
-    $('#lista_productos_carrito').append(cargaHtmlEmpty);
-  }
-}
-
-$('input[name="radio_receptor"]').change(function () {
-  if ($(this).val() == 2) {
-    $('#input_receptor_pedido').removeClass('hide');
-    $('#form_compra_cliente').validate(); //sets up the validator
-    $('#txt_nombre_receptor').rules('add', {
-      required: true,
-      minlength: 3,
-      maxlength: 100,
-      lettersonly: true,
-      messages: {
-        required: 'Campo requerido *',
-        minlength: 'Mínimo 3 caracteres',
-        maxlength: 'Máximo 100 caracteres',
-        lettersonly: 'Ingresa solo letras'
-      }
-    });
-  } else {
-    $(this).rules('remove');
-    $('#input_receptor_pedido').addClass('hide');
-  }
-});
-
-var formCompra = $('#form_compra_cliente').validate({
-  errorClass: 'invalid red-text',
-  validClass: 'valid',
-  errorElement: 'div',
-  errorPlacement: function errorPlacement(error, element) {
-    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
-    .attr('data-error', error.text()); //*Se obtiene el texto de erro
-    error.insertAfter(element); //*Se inserta el error después del elemento
-  },
-  rules: {
-    txt_hora_entrega: {
-      required: true
-    },
-    txt_direccion_entrega: {
-      required: true,
-      minlength: 3,
-      maxlength: 100
-    },
-    radio_receptor: {
-      required: true
-    },
-    combo_tipo_pago: {
-      required: true
-    },
-    combo_tipo_entrega: {
-      required: true
-    }
-  },
-  messages: {
-    txt_hora_entrega: {
-      required: 'Campo requerido *'
-    },
-    txt_direccion_entrega: {
-      required: 'Campo requerido *',
-      minlength: 'Mínimo 3 caracteres',
-      maxlength: 'Máximo 100 caracteres'
-    },
-    radio_receptor: {
-      required: 'Campo requerido *'
-    },
-    combo_tipo_pago: {
-      required: 'Selecciona una opción'
-    },
-    combo_tipo_entrega: {
-      required: 'Selecciona una opción'
-    }
-  },
-  invalidHandler: function invalidHandler(form) {
-    //*Acción a ejecutar al no completar todos los campos requeridos
-    M.toast({
-      html: 'Por favor completa los campos requeridos',
-      displayLength: 3000,
-      classes: 'red'
-    });
-  },
-  submitHandler: function submitHandler(form) {
-    validarFechaCompra($('#txt_hora_entrega').val()).done(function (data) {
-      switch (data) {
-        case 'errorDiaEntrega':
-          swal('Error!', 'La compra no puede llevarse a cabo debido a que el local está cerrado.', 'error');
-          break;
-        case 'errorHoraEntrega':
-          swal('Error!', 'Selecciona una hora válida.', 'error');
-          break;
-        case 'puedescomprar':
-          swal({
-            title: '¿Estás seguro?',
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Si',
-            cancelButtonText: 'Cancelar'
-          }).then(function (result) {
-            if (result.value) {
-              swal({
-                title: 'Espera',
-                html: 'Estamos procesando tu compra.',
-                timer: 1800,
-                onOpen: function onOpen() {
-                  swal.showLoading();
-                }
-              });
-              var action = 'GenerarVenta';
-              var dataInfo = '';
-              var receptor = '';
-              if ($('input[name=radio_receptor]:checked').val() == 2) {
-                receptor = $('#txt_nombre_receptor').val();
-              } else {
-                receptor = '1';
-              }
-
-              dataInfo = {
-                action: action,
-                tipo_pago: $('#combo_tipo_pago_form_cliente').val(),
-                tipo_entrega: $('#combo_tipo_entrega_form').val(),
-                hora_entrega: $('#txt_hora_entrega').val(),
-                direccion_entrega: $('#txt_direccion_entrega').val(),
-                receptor: receptor
-              };
-              $.ajax({
-                data: dataInfo,
-                url: '../app/control/despPromoCompra.php',
-                type: 'POST',
-                async: false,
-                success: function success(resp) {
-                  switch (resp) {
-                    case '1':
-                      swal('Listo', 'Su solicitud de compra ha sido enviada por favor espere a que esta sea aceptada.', 'success');
-                      setTimeout(function () {
-                        location.href = 'index-cliente.php';
-                      }, 1500);
-                      // *La función se ejecutó correctamente
-                      break;
-                    case '2':
-                      swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-                      break;
-                    case '3':
-                      swal('Error!', 'Para generar la compra primero debes haber agregado productos al carro de compras.', 'error');
-                      break;
-                    case '4':
-                      swal('Error!', 'Lo sentimos has sobrepasado el precio máximo de compra', 'error');
-                      break;
-                  }
-                },
-                error: function error() {
-                  alert('Lo sentimos ha ocurrido un error.');
-                }
-              });
-            }
-          });
-          break;
-      }
-    });
-  }
-});
-
-function ObtenerPrecioTotalCarrito() {
-  var action = 'ObtenerPrecioTotalCarrito';
-  var cargaHtml = '';
-  //   *Se cargan los datos de los ingredientes en el carrito
-  $.ajax({
-    data: 'action=' + action,
-    url: '../app/control/despPromoCompra.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      // *----------------------------------------------------------------------
-      // var arr = JSON.parse(respuesta);
-      // *Se parsea la respuesta json obtenida
-      // *-----------------------------------------------------------------------
-      //*Acción a ejecutar si la respuesta existe
-      switch (respuesta) {
-        case 'error':
-          alert('Lo sentimos ha ocurrido un error');
-          break;
-        default:
-          //* Por defecto los datos serán cargados en pantalla
-          cargaHtml += respuesta;
-          //   *--------------------------------------------------
-          $('#total_compra').append(cargaHtml);
-          $('#total_compra_carro').html(cargaHtml);
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-}
-
-function validarFechaCompra(hora) {
-  var action = 'ValidarFechaCompra';
-  return $.ajax({
-    data: { action: action, horaEntrega: hora },
-    url: '../app/control/despPromoCompra.php',
-    type: 'POST',
-    async: false,
-    success: function success(resp) {
-      return resp;
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-}
-
-function CargarTablaVentasPendientes() {
-  var action = 'CargarTablaVentas';
-  var cargaHtml = '';
-  //*Se envían datos del form y action, al controlador mediante ajax
-  $.ajax({
-    data: 'action=' + action,
-    url: '../app/control/despVenta.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      var arr = JSON.parse(respuesta);
-      // *Se parsea la respuesta json obtenida
-      // *-----------------------------------------------------------------------
-      //*Acción a ejecutar si la respuesta existe
-      switch (respuesta) {
-        case 'error':
-          alert('Lo sentimos ha ocurrido un error');
-          break;
-        default:
-          //* Por defecto los datos serán cargados en pantalla
-          $.each(arr, function (indice, item) {
-            cargaHtml += '<tr>';
-            cargaHtml += '<td>' + item.CodigoVenta + '</td>';
-            cargaHtml += '<td>' + item.NombreCliente + '</td>';
-            cargaHtml += '<td>' + item.Fecha + '</td>';
-            cargaHtml += '<td>' + item.TipoEntrega + '</td>';
-            cargaHtml += '<td>' + item.TipoPago + '</td>';
-            cargaHtml += '<td>' + item.TipoVenta + '</td>';
-            cargaHtml += '<td>' + item.HoraEntrega + '</td>';
-            cargaHtml += '<td>$' + item.Valor + '</td>';
-            cargaHtml += '<td>' + item.EstadoVenta + '</td>';
-            cargaHtml += "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleVenta(" + item.IdVenta + ")'><i class='material-icons'>more_vert</i></a></td>";
-            cargaHtml += '<td><a class=\'btn-floating btn-medium waves-effect waves-light green\' onclick=\'aceptarVenta("' + item.IdVenta + '", "' + item.CodigoVenta + '")\'><i class=\'material-icons\'>done</i></a></td>';
-            cargaHtml += "<td><a class='btn-floating btn-medium waves-effect waves-light red' onclick='cancelarVenta(" + item.IdVenta + ")'><i class='material-icons'>clear</i></a></td>";
-            cargaHtml += '</tr>';
-          });
-
-          $('#body_tabla_ventas_mikasa').html(cargaHtml);
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-}
-
-$('input[name="radioMotivo"]').change(function () {
-  if ($(this).val() == 4) {
-    $('#input_motivo_cancelacion').removeClass('hide');
-    $('#form_cancelar_venta').validate(); //sets up the validator
-    $('#txt_motivo_cancelación').rules('add', {
-      required: true,
-      minlength: 3,
-      maxlength: 200,
-      messages: {
-        required: 'Campo requerido *',
-        minlength: 'Mínimo 3 caracteres',
-        maxlength: 'Máximo 200 caracteres'
-      }
-    });
-  } else {
-    $(this).rules('remove');
-    $('#input_motivo_cancelacion').addClass('hide');
-  }
-  console.log($(this).val());
-});
-
-function cancelarVenta(id) {
-  $('#modal_mantenedor_cancelar_compra').modal('open');
-  $('#txt_id_venta_cancelar').val(id);
-}
-
-var markerMap = '';
-function aceptarVenta(id, codigoCompra) {
-  var action = 'ValidarTipoEntrega';
-  $.ajax({
-    data: { action: action, idVenta: id },
-    url: '../app/control/despVenta.php',
-    type: 'POST',
-    // async: false,
-    success: function success(resp) {
-      console.log(resp);
-      switch (resp) {
-        // *Si el tipo de entrega es en local no se ingresan latitud ni longitud
-        case 'Local':
-          aceptarVentaPedido(id, resp, codigoCompra);
-          console.log('sacsa');
-          break;
-        case 'Domicilio':
-          $('#modal_mantenedor_aceptar_compra').modal('open');
-          $('#txt_id_compra_mapa').val(id);
-          $('#txt_entrega_compra_mapa').val(resp);
-          $('#txt_codigo_compra_mapa').val(codigoCompra);
-          var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-              osm = L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
-            maxZoom: 16,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          });
-          var map = L.map('map').setView([-37.465, -72.3693], 15).addLayer(osm);
-
-          var marker;
-          map.on('click', function (e) {
-            if (typeof marker === 'undefined') {
-              marker = new L.marker(e.latlng, { draggable: true });
-              marker.addTo(map);
-            } else {
-              marker.setLatLng(e.latlng);
-            }
-            markerMap = marker.getLatLng();
-          });
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error.');
-    }
-  });
-}
-
-// *Se cierra el modal al presionar el botón cancelar
-$('#cancelar_modal_canc_compra').click(function (evt) {
-  evt.preventDefault();
-  $('#modal_mantenedor_cancelar_compra').modal('close');
-});
-
-// *Función para filtrar los datos en la tabla
-$('#txt_buscar_ventas').on('keyup', function () {
-  var caracterFiltro = $(this).val().toLowerCase();
-  $('#body_tabla_ventas_mikasa tr').filter(function () {
-    $(this).toggle($(this).text().toLowerCase().indexOf(caracterFiltro) > -1);
-  });
-});
-
-function aceptarVentaPedido(id, tipoEntrega, codigoCompra) {
-  var action = 'AceptarVenta';
-  var lat = '';
-  var lng = '';
-  // *Dependiendo del tipo de entrega las coordenadas son ingresadas en formato null
-  if (tipoEntrega == 'Domicilio') {
-    if (markerMap == '' || markerMap == null) {
-      M.toast({
-        html: 'Por favor completa los campos requeridos',
-        displayLength: 3000,
-        classes: 'red'
-      });
-    } else {
-      lat = markerMap.lat;
-      lng = markerMap.lng;
-    }
-  } else {
-    lat = null;
-    lng = null;
-  }
-  $.ajax({
-    data: {
-      action: action,
-      idVenta: id,
-      lng: lng,
-      lat: lat,
-      CodigoVenta: codigoCompra
-    },
-    url: '../app/control/despVenta.php',
-    type: 'POST',
-    success: function success(resp) {
-      console.log(resp);
-      switch (resp) {
-        case '1':
-          swal('Listo', 'La venta ha sido aceptada.', 'success');
-          markerMap = '';
-          $('#modal_mantenedor_aceptar_compra').modal('close');
-          CargarTablaVentasPendientes();
-          break;
-        case '2':
-          swal('Error!', 'La compra no pudo ser aceptada.', 'error');
-          break;
-        case '2':
-          swal('Ha ocurrido un error', 'El correo de notificación no pudo ser enviado', 'error');
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error.');
-    }
-  });
-}
-
-$('#cancelar_modal_aceptar_compra').on('click', function (evt) {
-  evt.preventDefault();
-  markerMap = '';
-  $('#modal_mantenedor_aceptar_compra').modal('close');
-});
-
-$('#form_aceptar_compra').submit(function (evt) {
-  evt.preventDefault();
-  var id = $('#txt_id_compra_mapa').val();
-  var entrega = $('#txt_entrega_compra_mapa').val();
-  var codigoCompra = $('#txt_codigo_compra_mapa').val();
-  aceptarVentaPedido(id, entrega, codigoCompra);
-});
-
-var formCompra = $('#form_cancelar_venta').validate({
-  errorClass: 'invalid red-text',
-  validClass: 'valid',
-  errorElement: 'div',
-  errorPlacement: function errorPlacement(error, element) {
-    $(element).closest('form').find('label[for=' + element.attr('id') + ']') //*Se insertará un label para representar el error
-    .attr('data-error', error.text()); //*Se obtiene el texto de erro
-    error.insertAfter(element); //*Se inserta el error después del elemento
-  },
-  rules: {
-    radio_receptor: {
-      required: true
-    }
-  },
-  messages: {
-    radio_receptor: {
-      required: 'Campo requerido *'
-    }
-  },
-  invalidHandler: function invalidHandler(form) {
-    //*Acción a ejecutar al no completar todos los campos requeridos
-    M.toast({
-      html: 'Por favor completa los campos requeridos',
-      displayLength: 3000,
-      classes: 'red'
-    });
-  },
-  submitHandler: function submitHandler(form) {
-    var action = 'CancelarVenta';
-    var idMotivo = $('input[name=radioMotivo]:checked').val();
-    var motivo = $('#txt_motivo_cancelación').val();
-    var idVenta = $('#txt_id_venta_cancelar').val();
-    swal({
-      title: '¿Estás seguro?',
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Si',
-      cancelButtonText: 'Cancelar'
-    }).then(function (result) {
-      if (result.value) {
-        $.ajax({
-          data: {
-            action: action,
-            idVenta: idVenta,
-            idMotivo: idMotivo,
-            motivo: motivo
-          },
-          url: '../app/control/despVenta.php',
-          type: 'POST',
-          success: function success(resp) {
-            console.log(resp);
-            switch (resp) {
-              case '1':
-                swal('Listo', 'La venta ha sido cancelada', 'success');
-                CargarTablaVentasPendientes();
-                $('#modal_mantenedor_cancelar_compra').modal('close');
-                // *La función se ejecutó correctamente
-                break;
-              case '2':
-                swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-                break;
-            }
-          },
-          error: function error() {
-            alert('Lo sentimos ha ocurrido un error.');
-          }
-        });
-      }
-    });
-  }
-});
-
-function verDetalleVenta(idVenta) {
-  $('#modal_detalle_venta_pendientes').modal('open');
-  var actionPromoCompra = 'VerDetalleVentaPromoCompra';
-  var cargaHtml = '';
-  $.ajax({
-    data: { action: actionPromoCompra, IdVenta: idVenta },
-    url: '../app/control/despVenta.php',
-    type: 'POST',
-    sync: false,
-    success: function success(resp) {
-      var arr = JSON.parse(resp);
-      console.log(arr);
-      $.each(arr, function (i, item) {
-        var arrayDetalle = JSON.stringify(eval(item.Detalle));
-        var arrayDosDetalle = JSON.parse(arrayDetalle);
-        console.log(arrayDosDetalle);
-        cargaHtml += '<ul class="collection with-header">';
-        cargaHtml += '<li class="collection-header"><p>' + item.NombrePromo + '</p></li>';
-
-        // $.each(arrayDosDetalle, function(indice, elem) {
-        cargaHtml += '<li class="collection-item">' + arrayDosDetalle + '</li>';
-        // });
-        cargaHtml += '</ul>';
-      });
-      $('#cargar_detalle_venta').html(cargaHtml);
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-}
-
-// *Función para cargar la tabla de ventas canceladas
-function cargarTablaVentasCanceladas() {
-  var action = 'CargarTablaVentasCanceladas';
-  var cargaHtml = '';
-  //*Se envían datos del form y action, al controlador mediante ajax
-  $.ajax({
-    data: 'action=' + action,
-    url: '../app/control/despVenta.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      console.log(respuesta);
-      var arr = JSON.parse(respuesta);
-      // *Se parsea la respuesta json obtenida
-      // *-----------------------------------------------------------------------
-      //*Acción a ejecutar si la respuesta existe
-      switch (respuesta) {
-        case 'error':
-          alert('Lo sentimos ha ocurrido un error');
-          break;
-        default:
-          //* Por defecto los datos serán cargados en pantalla
-          $.each(arr, function (indice, item) {
-            cargaHtml += '<tr>';
-            cargaHtml += '<td>' + item.CodigoVenta + '</td>';
-            cargaHtml += '<td>' + item.NombreCliente + '</td>';
-            cargaHtml += '<td>' + item.Fecha + '</td>';
-            cargaHtml += '<td>' + item.TipoEntrega + '</td>';
-            cargaHtml += '<td>' + item.TipoPago + '</td>';
-            cargaHtml += '<td>$' + item.Valor + '</td>';
-            cargaHtml += '<td>' + item.Motivo + '</td>';
-          });
-
-          $('#body_tabla_ventas_canceladas_mikasa').html(cargaHtml);
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-}
-
-// *Función para filtrar los datos en la tabla
-$('#txt_buscar_ventas_canceladas').on('keyup', function () {
-  var caracterFiltro = $(this).val().toLowerCase();
-  $('#body_tabla_ventas_canceladas_mikasa tr').filter(function () {
-    $(this).toggle($(this).text().toLowerCase().indexOf(caracterFiltro) > -1);
-  });
-});
-
-// *Variables globales utilizadas para la generación de rolls
-var cantidadPiezasArmaTuPromo = 0;
-var cantidadOpcionesCoberturas = 2;
-var cantidadOpcionesRellenos = 0;
-var arrayRollsCreados = [];
-var coberturasPromoAGustoChef = [];
-var cantidadSeleccionCoberturasChef = 0;
-// *---------------------------------------------------
-
-function cargarPromosCarta(estado, caracter) {
-  var action = 'CargarPromosCarta';
-  var cargaHtml = '';
-  //*Se envían datos del form y action, al controlador mediante ajax
-  $.ajax({
-    data: 'action=' + action,
-    url: '../app/control/despPromos.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      // *----------------------------------------------------------------------
-      var arr = JSON.parse(respuesta);
-      // *Se parsea la respuesta json obtenida
-
-      // *-----------------------------------------------------------------------
-      //*Acción a ejecutar si la respuesta existe
-      switch (respuesta) {
-        case 'error':
-          alert('Lo sentimos ha ocurrido un error');
-          break;
-        default:
-          //* Por defecto los datos serán cargados en pantalla
-          $.each(arr, function (indice, item) {
-            // *Se cargarán los datos en el menú index
-            cargaHtml += '<div class="col s12 m6 l4 xl3">';
-            cargaHtml += '<div class="card col s12 m12 l12">';
-            if (item.Descuento > 0) {
-              cargaHtml += '<div class="descuento"><p class="center-align">-' + item.Descuento + '%</p></div>';
-            }
-            cargaHtml += '<div class="card-image waves-effect waves-block waves-light">';
-            cargaHtml += '<img class="activator" src="uploads/' + item.ImgUrl + '">';
-            cargaHtml += '</div>';
-            cargaHtml += '<div class="card-content">';
-            cargaHtml += '<span class="card-title activator grey-text text-darken-4">' + item.Nombre + '<i class="material-icons right">more_vert</i></span>';
-            cargaHtml += '<div class="precios-productos">';
-            if (item.Descuento > 0) {
-              cargaHtml += '<span class="red-text"><strike>Antes: $' + item.Precio + '</strike></span>';
-              cargaHtml += '<span class="green-text">Ahora: $' + (item.Precio - item.Precio / 100 * item.Descuento) + '</span>';
-            } else {
-              cargaHtml += '<span class="green-text">Precio: $' + item.Precio + '</span>';
-            }
-            cargaHtml += '</div>';
-            cargaHtml += '<div class="divider"></div>';
-            cargaHtml += '<div class="btn-mant-productos">';
-
-            if (item.IdTipoPreparacion == 2) {
-              cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(' + item.IdPromo + ')"><i class="material-icons">add_shopping_cart</i></a>';
-            } else if (item.IdTipoPreparacion == 1) {
-              cargaHtml += '<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(' + item.IdPromo + ')"><i class="material-icons">add_shopping_cart</i></a>';
-            }
-
-            cargaHtml += '</div>';
-            cargaHtml += '</div>';
-            cargaHtml += '</div>';
-            cargaHtml += '</div>';
-          });
-
-          $('#carga_promos_cliente').html(cargaHtml);
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-}
-
-// *Función para cargar los checkbox de coberturas en arma tu promo
-function cargarRadioButtonCoberturas(estado, caracter) {
-  var action = 'CargarCoberturasCarta';
-  var cargaHtml = '';
-  //*Se envían datos del form y action, al controlador mediante ajax
-  $.ajax({
-    data: 'action=' + action,
-    url: '../app/control/despCoberturas.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      // *----------------------------------------------------------------------
-      var arr = JSON.parse(respuesta);
-      // *-----------------------------------------------------------------------
-      //*Acción a ejecutar si la respuesta existe
-      switch (respuesta) {
-        case 'error':
-          alert('Lo sentimos ha ocurrido un error');
-          break;
-        default:
-          // *Las coberturas se cargan de forma ordenada según su índice
-          var groupBy = function groupBy(collection, property) {
-            var i = 0,
-                val,
-                index,
-                values = [],
-                result = [];
-            for (; i < collection.length; i++) {
-              val = collection[i][property];
-              index = values.indexOf(val);
-              if (index > -1) result[index].push(collection[i]);else {
-                values.push(val);
-                result.push([collection[i]]);
-              }
-            }
-            cantidadOpcionesCoberturas = result.length;
-
-            return result;
-          };
-
-          var obj = groupBy(arr, 'Indice');
-          $.each(obj, function (indice, item) {
-            cargaHtml += '<div class="content_coberturas">';
-            cargaHtml += '<p>' + (indice + 1) + '.- </p>';
-            $.each(item, function (i, elementos) {
-              cargaHtml += '<div class="radio_coberturas">';
-              cargaHtml += '<p>';
-              cargaHtml += '<label>';
-              cargaHtml += '<input name=\'cobertura\' type=\'radio\' nombre=\'' + elementos.Nombre + '\' value=\'' + elementos.IdCobertura + '\'></input>';
-              if (elementos.Precio != 0) {
-                cargaHtml += '<span>' + elementos.Nombre + '/+$' + elementos.Precio + '</span>';
-              } else {
-                cargaHtml += '<span>' + elementos.Nombre + '</span>';
-              }
-              cargaHtml += '</label>';
-              cargaHtml += '</p>';
-              cargaHtml += '</div>';
-            });
-            cargaHtml += '</div>';
-            $('#carga_chekbox_cobertura').html(cargaHtml);
-          });
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-}
-
-// *Función para cargar los checkbox de rellenos en arma tu promo
-function cargarRadioButtonRellenos(estado, caracter) {
-  var action = 'CargarRellenosCarta';
-  var cargaHtml = '';
-  //*Se envían datos del form y action, al controlador mediante ajax
-  $.ajax({
-    data: 'action=' + action,
-    url: '../app/control/despRellenos.php',
-    type: 'POST',
-    success: function success(respuesta) {
-      // *----------------------------------------------------------------------
-      var arr = JSON.parse(respuesta);
-      // *-----------------------------------------------------------------------
-      //*Acción a ejecutar si la respuesta existe
-      switch (respuesta) {
-        case 'error':
-          alert('Lo sentimos ha ocurrido un error');
-          break;
-        default:
-          // *Los rellenos se cargan de forma ordenada según su índice
-          var groupBy = function groupBy(collection, property) {
-            var i = 0,
-                val,
-                index,
-                values = [],
-                result = [];
-            for (; i < collection.length; i++) {
-              val = collection[i][property];
-              index = values.indexOf(val);
-              if (index > -1) result[index].push(collection[i]);else {
-                values.push(val);
-                result.push([collection[i]]);
-              }
-            }
-
-            cantidadOpcionesRellenos = result.length;
-            return result;
-          };
-
-          var obj = groupBy(arr, 'Indice');
-          $.each(obj, function (indice, item) {
-            cargaHtml += '<div class="content_rellenos">';
-            cargaHtml += '<p>' + (indice + 1) + '.- </p>';
-            $.each(item, function (i, elementos) {
-              cargaHtml += '<div class="radio_rellenos">';
-              cargaHtml += '<p>';
-              cargaHtml += '<label class="radio-button-text">';
-              cargaHtml += '<input name=\'relleno' + elementos.Indice + '\' type=\'radio\' nombre=\'' + elementos.Nombre + '\' value=\'' + elementos.IdRelleno + '\'></input>';
-              if (elementos.Precio != 0) {
-                cargaHtml += '<span>' + elementos.Nombre + '/+$' + elementos.Precio + '</span>';
-              } else {
-                cargaHtml += '<span>' + elementos.Nombre + '</span>';
-              }
-              cargaHtml += '</label>';
-              cargaHtml += '</p>';
-              cargaHtml += '</div>';
-            });
-            cargaHtml += '</div>';
-            $('#carga_chekbox_rellenos').html(cargaHtml);
-          });
-          break;
-      }
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error');
-    }
-  });
-}
-
-function cargarComboCantidadRollsArmaTuPromo() {
-  var cantidadOpciones = cantidadPiezasArmaTuPromo / 10;
-  var insertHtml = '';
-  if (cantidadOpciones != 0) {
-    for (var i = 1; i <= cantidadOpciones; i++) {
-      insertHtml += '<option value=\'' + i * 10 + '\'>' + i * 10 + '</option>';
-    }
-  } else {
-    insertHtml += '<option value="0">Selección completada</option>';
-  }
-  $('#cantidad_de_piezas_add_carro').html(insertHtml);
-}
-
-// *Comprueba el tipo de preparación de la promo mediante el id
-function ComprobarTipoDePromo(id) {
-  var idPromo = id;
-  var action = 'ComprobarTipoDePromo';
-  $.ajax({
-    data: {
-      action: action,
-      id: idPromo
-    },
-    url: '../app/control/despPromos.php',
-    type: 'POST',
-    success: function success(resp) {
-      var arrayResp = JSON.parse(resp);
-      $.each(arrayResp, function (indice, item) {
-        if (item.IdTipoPreparacion == 2) {
-          $('#accion_promo_compra').text('Arma tu promo ' + item.Nombre);
-          $('#modal_add_arma_tu_promo').modal('open');
-          $('#lbl_id_promo_compra').val(idPromo);
-          cantidadPiezasArmaTuPromo = item.Cantidad;
-          cargarComboCantidadRollsArmaTuPromo();
-          cargarRadioButtonCoberturas();
-          cargarRadioButtonRellenos();
-        } else {
-          $('#lbl_id_promo_compra_chef').val(idPromo);
-          var actionPromoChef = 'ComprobarTipoCoberturasPromoChef';
-          var cargaHtml = '';
-          $.ajax({
-            data: {
-              action: actionPromoChef,
-              id: idPromo
-            },
-            url: '../app/control/despPromos.php',
-            type: 'POST',
-            success: function success(resp) {
-              var arrayResp = JSON.parse(resp);
-              switch (arrayResp) {
-                // *No hay tipo de cobertura con más de una opción
-                case '1':
-                  alert('No hay opciones de selección');
-                  break;
-                default:
-                  $('#modal_promo_chef_compra').modal('open');
-                  $('#accion_promo_compra_chef').text('A gusto del chef ' + item.Nombre);
-                  $.each(arrayResp, function (indice, item) {
-                    var index = indice;
-                    var a = JSON.stringify(eval(item.Coberturas));
-                    var arrayCoberturas = JSON.parse(a);
-                    cargaHtml += '<p class="modal-titulo-eleccion-ingredientes">Cobertura ' + item.NombreTipoCobertura + '</p>';
-                    cargaHtml += '<div class="content_coberturas">';
-                    $.each(arrayCoberturas, function (i, elem) {
-                      cargaHtml += '<div class="radio_coberturas">';
-                      cargaHtml += '<p>';
-                      cargaHtml += '<label class="radio-button-text">';
-                      cargaHtml += '<input name=\'coberturaChef' + (index + 1) + '\' type=\'radio\' value=\'' + elem.id + '\' data-cantidad=\'' + elem.cantidad + '\'></input>';
-                      cargaHtml += '<span>' + elem.nombre + '</span>';
-                      cargaHtml += '</label>';
-                      cargaHtml += '</p>';
-                      cargaHtml += '</div>';
-                    });
-                    cargaHtml += '</div>';
-                    $('#carga_chekbox_coberturas_chef').html(cargaHtml);
-                    cantidadSeleccionCoberturasChef++;
-                  });
-                  // indice++;
-                  break;
-              }
-            },
-            error: function error() {
-              alert('Lo sentimos ha ocurrido un error al comprobar la promo seleccionada');
-            }
-          });
-        }
-      });
-    },
-    error: function error() {
-      alert('Lo sentimos ha ocurrido un error al comprobar la promo seleccionada');
-    }
-  });
-}
-
-// *Los datos seleccionados se añaden a la lista para llevar la cuenta total de productos
-// *Almacena los rolls creados
-$('#btn_add_roll_promo').click(function () {
-  if (cantidadPiezasArmaTuPromo == 0) {
-    alert('Ya haz seleccionado la cantidad posible.');
-  } else {
-    $('#lista_rolls_compra').empty();
-    var arrayRoll = [];
-    var arrayCoberturaDetalleRoll = [];
-    var arrayRellenoDetalleRoll = [];
-    var listaHtml = '';
-    var cantidadPiezas = $('#cantidad_de_piezas_add_carro').val();
-    // for (var i = 1; i <= cantidadOpcionesCoberturas; i++) {
-    var idCobertura = $('input[name=cobertura]:checked').val();
-    var nombreCobertura = $('input[name=cobertura]:checked').attr('nombre');
-    if (idCobertura == null || nombreCobertura == null) {
-      M.toast({
-        html: 'Debes seleccionar una cobertura',
-        displayLength: 3000,
-        classes: 'red'
-      });
-      arrayCoberturaDetalleRoll = [];
-    } else {
-      arrayCoberturaDetalleRoll.push({
-        Id: idCobertura,
-        Nombre: nombreCobertura
-      });
-    }
-    // }
-    for (var j = 1; j <= cantidadOpcionesRellenos; j++) {
-      var idRelleno = $('input[name=relleno' + j + ']:checked').val();
-      var nombreRelleno = $('input[name=relleno' + j + ']:checked').attr('nombre');
-      if (idRelleno == null || nombreRelleno == null) {
-        M.toast({
-          html: 'Selecciona al menos un relleno por opción.',
-          displayLength: 3000,
-          classes: 'red'
-        });
-        arrayCoberturaDetalleRoll = [];
-        arrayRellenoDetalleRoll = [];
-        break;
-      } else {
-        arrayRellenoDetalleRoll.push({
-          Id: idRelleno,
-          Nombre: nombreRelleno
-        });
-      }
-    }
-    if (arrayCoberturaDetalleRoll.length > 0 && arrayRellenoDetalleRoll.length > 0) {
-      arrayRoll.push(cantidadPiezas);
-      cantidadPiezasArmaTuPromo -= cantidadPiezas;
-      arrayRoll.push({ Coberturas: arrayCoberturaDetalleRoll });
-      arrayRoll.push({ Rellenos: arrayRellenoDetalleRoll });
-      arrayRollsCreados.push({ arrayRoll: arrayRoll });
-
-      $.each(arrayRollsCreados, function (indice, item) {
-        listaHtml += '<li class="collection-item">';
-        listaHtml += '<span>' + item.arrayRoll[0] + ' piezas con: </span>';
-        $.each(item.arrayRoll, function (indice, elem) {
-          $.each(elem.Coberturas, function (ind, elem) {
-            listaHtml += '<span>' + elem.Nombre + ' | </span>';
-          });
-          $.each(elem.Rellenos, function (ind, elem) {
-            listaHtml += '<span>' + elem.Nombre + ' | </span>';
-          });
-        });
-        listaHtml += '<a onclick=\'eliminarRollCompraList(' + indice + ')\' href="#">Eliminar<a/>';
-        listaHtml += '</li>';
-      });
-      cargarComboCantidadRollsArmaTuPromo();
-      $('#lista_rolls_compra').append(listaHtml);
-    }
-  }
-});
-
-// *Elimina el rol específico de la lista arma tu promo
-function eliminarRollCompraList(indice) {
-  var listaHtml = '';
-  var cantidadEliminada = arrayRollsCreados[indice].arrayRoll[0];
-  arrayRollsCreados.splice(indice);
-  cantidadPiezasArmaTuPromo = parseInt(cantidadPiezasArmaTuPromo) + parseInt(cantidadEliminada);
-  $('#lista_rolls_compra').empty();
-  $.each(arrayRollsCreados, function (indice, item) {
-    listaHtml += '<li class="collection-item">';
-    listaHtml += '<span>' + item.arrayRoll[0] + ' piezas con: </span>';
-    $.each(item.arrayRoll, function (indice, elem) {
-      $.each(elem.Coberturas, function (ind, elem) {
-        listaHtml += '<span>' + elem.Nombre + ' | </span>';
-      });
-      $.each(elem.Rellenos, function (ind, elem) {
-        listaHtml += '<span>' + elem.Nombre + ' | </span>';
-      });
-    });
-    listaHtml += '<a onclick=\'eliminarRollCompraList(' + indice + ')\' href="#">Eliminar<a/>';
-    listaHtml += '</li>';
-  });
-  $('#lista_rolls_compra').append(listaHtml);
-  cargarComboCantidadRollsArmaTuPromo();
-}
-
-$('#cancelar_arma_tu_promo_compra').on('click', function (evt) {
-  evt.preventDefault();
-  $('#modal_add_arma_tu_promo').modal('close');
-  // *Borra los datos de la lista
-  cantidadPiezasArmaTuPromo = 0;
-  cantidadOpcionesCoberturas = 0;
-  cantidadOpcionesRellenos = 0;
-  arrayRollsCreados = [];
-});
-
-$('#cancelar_promo_chef_compra').on('click', function (evt) {
-  evt.preventDefault();
-  $('#modal_promo_chef_compra').modal('close');
-  // *Borra los datos de la lista
-  cantidadPiezasArmaTuPromo = 0;
-  cantidadOpcionesCoberturas = 0;
-  cantidadOpcionesRellenos = 0;
-  arrayRollsCreados = [];
-  cantidadSeleccionCoberturasChef = 0;
-});
-
-$('#form_arma_tu_promo').submit(function (evt) {
-  evt.preventDefault();
-  if (arrayRollsCreados.length == 0 || cantidadPiezasArmaTuPromo != 0) {
-    alert('Por favor selecciona las piezas que deseas comprar');
-  } else {
-    var dataInfo = ';';
-    var action = 'IngresarPromoCompra';
-    var arrayRollsAIngresar = JSON.stringify(arrayRollsCreados);
-    var id_promo = $('#lbl_id_promo_compra').val();
-    dataInfo = {
-      rollscompra: arrayRollsAIngresar,
-      id_promo: id_promo,
-      action: action
-    };
-    $.ajax({
-      data: dataInfo,
-      url: '../app/control/despPromoCompra.php',
-      type: 'POST',
-      success: function success(resp) {
-        switch (resp) {
-          case '1':
-            $('#modal_add_arma_tu_promo').modal('close');
-            M.toast({
-              html: 'Se añadió un producto al carro',
-              displayLength: 3000,
-              classes: 'light-green accent-3'
-            });
-            pulseBoton();
-            break;
-          case '2':
-            swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-            break;
-        }
-      },
-      error: function error() {
-        alert('Lo sentimos ha ocurrido un error.');
-      }
-    });
-  }
-});
-
-// function pulseBoton() {
-//   $('#btn_carrito').toggleClass('pulse-button animated tada');
-//   setTimeout(function() {
-//     $('#btn_carrito').toggleClass('pulse-button animated tada');
-//   }, 6000);
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despTipoPago.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       var arr = JSON.parse(respuesta);
+//       $.each(arr, function(indice, item) {
+//         cargaHtml += `<option value="${item.IdTipoPago}">${
+//           item.Descripcion
+//         }</option>`;
+//       });
+//       $('select[name="combo_tipo_pago"]').html(cargaHtml);
+//       // *Se inserta en código html en el elemento seleccionado
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error.');
+//     }
+//   });
 // }
 
-$('#form_arma_tu_promo_chef').submit(function (evt) {
-  swal({
-    title: 'Espera',
-    html: 'Estamos procesando tu pedido',
-    timer: 1000,
-    onOpen: function onOpen() {
-      swal.showLoading();
-    }
-  });
-  evt.preventDefault();
-  for (var j = 1; j <= cantidadSeleccionCoberturasChef; j++) {
-    var idCobertura = parseInt($('input[name=coberturaChef' + j + ']:checked').val());
-    var cantidad = parseInt($('input[name=coberturaChef' + j + ']:checked').attr('data-cantidad'));
-    if (idCobertura == null) {
-      M.toast({
-        html: 'Selecciona al menos una cobertura por opción.',
-        displayLength: 3000,
-        classes: 'red'
-      });
-      break;
-    } else {
-      arrayRollsCreados.push({
-        Cantidad: cantidad,
-        IdCobertura: idCobertura
-      });
-    }
-  }
-  if (arrayRollsCreados.length == 0) {
-    alert('Por favor selecciona las piezas que deseas comprar');
-  } else {
-    var dataInfo = '';
-    var action = 'IngresarPromoCompraChef';
-    var id_promo = $('#lbl_id_promo_compra_chef').val();
-    var arrayRollsAIngresarChef = JSON.stringify(arrayRollsCreados);
-    dataInfo = {
-      rollscompra: arrayRollsAIngresarChef,
-      id_promo: id_promo,
-      action: action
-    };
-    $.ajax({
-      data: dataInfo,
-      url: '../app/control/despPromoCompra.php',
-      type: 'POST',
-      success: function success(resp) {
-        console.log(resp);
-        switch (resp) {
-          case '1':
-            $('#modal_promo_chef_compra').modal('close');
-            M.toast({
-              html: 'Se añadió un producto al carro',
-              displayLength: 3000,
-              classes: 'light-green accent-3'
-            });
-            pulseBoton();
-            break;
-          case '2':
-            swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
-            break;
-        }
-      },
-      error: function error() {
-        alert('Lo sentimos ha ocurrido un error.');
-      }
-    });
-  }
-});
+// // *Cargar Combobox tipo entrega
+// function cargarComboBoxTipoEntrega() {
+//   var action = 'CargarComboBoxTipoEntrega';
+//   var cargaHtml = '';
+
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despTipoEntrega.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       var arr = JSON.parse(respuesta);
+//       $.each(arr, function(indice, item) {
+//         cargaHtml += `<option value="${item.IdTipoEntrega}">${
+//           item.Descripcion
+//         }</option>`;
+//       });
+//       $('select[name="combo_tipo_entrega"]').html(cargaHtml);
+//       // *Se inserta en código html en el elemento seleccionado
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error.');
+//     }
+//   });
+// }
+
+// function cargarDatosCarritoCompraFinalizarCompra() {
+//   var actionPromo = 'ObtenerDatosCarrito';
+//   var actionAgregados = 'ObtenerDatosAgregadosCarrito';
+//   var cargaHtml = '';
+//   var cargaHtmlAgregados = '';
+
+//   //   *Se cargan los datos de las promos creadas en el carrito
+//   $.ajax({
+//     data: `action=${actionPromo}`,
+//     url: '../app/control/despPromoCompra.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       // *----------------------------------------------------------------------
+//       var arr = JSON.parse(respuesta);
+//       // *Se parsea la respuesta json obtenida
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           $.each(arr, function(indice, item) {
+//             // *------------------------------------------
+//             cargaHtml += '<li class="collection-item items-carrito">';
+//             cargaHtml += `<span>${item.Nombre}</span>`;
+//             cargaHtml += `<span class='green-text'>$${item.PrecioTotal}</span>`;
+//             cargaHtml += '</li>';
+//           });
+//           //   *--------------------------------------------------
+//           $('#lista_productos_carrito').append(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+
+//   //   *Se cargan los datos de los agregados en el carrito
+//   $.ajax({
+//     data: `action=${actionAgregados}`,
+//     url: '../app/control/despPromoCompra.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       // *----------------------------------------------------------------------
+//       var arr = JSON.parse(respuesta);
+//       // *Se parsea la respuesta json obtenida
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           $.each(arr, function(indice, item) {
+//             // *------------------------------------------
+//             cargaHtmlAgregados += '<li class="collection-item items-carrito">';
+//             cargaHtmlAgregados += `<span class="collapsible-text">${
+//               item.Nombre
+//             } ${item.Unidades} Unidades</span>`;
+//             cargaHtmlAgregados += `<span class='green-text'>$${
+//               item.PrecioTotal
+//             }</span>`;
+//             cargaHtmlAgregados += '</li>';
+//           });
+//           //   *--------------------------------------------------
+//           $('#lista_productos_carrito').append(cargaHtmlAgregados);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// function verificarListaCarrito() {
+//   if ($('#lista_productos_carrito').has('li').length == 0) {
+//     var cargaHtmlEmpty = '';
+//     cargaHtmlEmpty += '<li class="collection-item items-carrito">';
+//     cargaHtmlEmpty += `<span>No hay productos en el carrito de compras</span>`;
+//     cargaHtmlEmpty += '</li>';
+//     $('#lista_productos_carrito').append(cargaHtmlEmpty);
+//     // *Verifica la cantidad de items en la lista del carrito
+//   }
+// }
+
+// // *Si el radio de selección del receptor contiene el texto otro(valor 2)
+// // *Se muestra en pantalla el campo de texto de especificación
+// $('input[name="radio_receptor"]').change(function() {
+//   if ($(this).val() == 2) {
+//     $('#input_receptor_pedido').removeClass('hide');
+//     $('#form_compra_cliente').validate(); //sets up the validator
+//     $('#txt_nombre_receptor').rules('add', {
+//       required: true,
+//       minlength: 3,
+//       maxlength: 100,
+//       lettersonly: true,
+//       messages: {
+//         required: 'Campo requerido *',
+//         minlength: 'Mínimo 3 caracteres',
+//         maxlength: 'Máximo 100 caracteres',
+//         lettersonly: 'Ingresa solo letras'
+//       }
+//     });
+//   } else {
+//     $(this).rules('remove');
+//     $('#input_receptor_pedido').addClass('hide');
+//   }
+// });
+
+// // *Se valida el formulario para dar por finalizada la compra
+// var formCompra = $('#form_compra_cliente').validate({
+//   errorClass: 'invalid red-text',
+//   validClass: 'valid',
+//   errorElement: 'div',
+//   errorPlacement: function(error, element) {
+//     $(element)
+//       .closest('form')
+//       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
+//       .attr('data-error', error.text()); //*Se obtiene el texto de erro
+//     error.insertAfter(element); //*Se inserta el error después del elemento
+//     if (element.is(':checkbox')) {
+//       error.appendTo(element.parents('.check_terminos'));
+//     }
+//     if (element.is(':radio')) {
+//       error.appendTo(element.parents('.radio_pago'));
+//     }
+//   },
+//   rules: {
+//     txt_hora_entrega: {
+//       required: true
+//     },
+//     txt_direccion_entrega: {
+//       required: true,
+//       minlength: 3,
+//       maxlength: 100
+//     },
+//     radio_receptor: {
+//       required: true
+//     },
+//     // combo_tipo_pago: {
+//     //   required: true
+//     // },
+//     check_metodo_pago: {
+//       required: true
+//     },
+//     combo_tipo_entrega: {
+//       required: true
+//     },
+//     check_terminos_condiciones: {
+//       required: true
+//     },
+//     txt_comentario_compra: {
+//       minlength: 0,
+//       maxlength: 200
+//     }
+//   },
+//   messages: {
+//     txt_hora_entrega: {
+//       required: 'Campo requerido *'
+//     },
+//     txt_direccion_entrega: {
+//       required: 'Campo requerido *',
+//       minlength: 'Mínimo 3 caracteres',
+//       maxlength: 'Máximo 100 caracteres'
+//     },
+//     radio_receptor: {
+//       required: 'Campo requerido *'
+//     },
+//     // combo_tipo_pago: {
+//     //   required: 'Selecciona una opción'
+//     // },
+//     combo_tipo_entrega: {
+//       required: 'Selecciona una opción'
+//     },
+//     check_terminos_condiciones: {
+//       required: 'Debes aceptar los términos y condiciones de servicio'
+//     },
+//     check_metodo_pago: {
+//       required: 'Selecciona el medio de pago'
+//     },
+//     txt_comentario_compra: {
+//       minlength: 0,
+//       maxlength: 'Máximo 200 caracteres'
+//     }
+//   },
+//   invalidHandler: function(form) {
+//     //*Acción a ejecutar al no completar todos los campos requeridos
+//     M.toast({
+//       html: 'Por favor completa los campos requeridos',
+//       displayLength: 3000,
+//       classes: 'red'
+//     });
+//   },
+//   submitHandler: function(form) {
+//     // *Se valida la fecha de la compra y el horario de la entrega
+//     validarFechaCompra($('#txt_hora_entrega').val()).done(function(data) {
+//       switch (data) {
+//         case 'errorDiaEntrega':
+//           swal(
+//             'Error!',
+//             'La compra no puede llevarse a cabo debido a que el local está cerrado.',
+//             'error'
+//           );
+//           break;
+//         case 'errorHoraEntrega':
+//           swal('Error!', 'Selecciona una hora válida.', 'error');
+//           break;
+//         case 'puedescomprar':
+//           var action = 'ConsultarFactibilidadCompra';
+//           $.ajax({
+//             data: { action: action },
+//             url: '../app/control/despPromoCompra.php',
+//             type: 'POST',
+//             async: false,
+//             success: function(resp) {
+//               switch (resp) {
+//                 case '1':
+//                   $('#modal_pago_webpay').modal('open');
+//                   // swal(
+//                   //   'Listo',
+//                   //   'Su solicitud de compra ha sido enviada por favor espere a que esta sea aceptada.',
+//                   //   'success'
+//                   // );
+//                   // setTimeout(function() {
+//                   //   location.href = 'index-cliente.php';
+//                   // }, 1500);
+//                   // *La función se ejecutó correctamente
+//                   break;
+//                 case '2':
+//                   swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+//                   break;
+//                 case '3':
+//                   swal(
+//                     'Error!',
+//                     'Para generar la compra primero debes haber agregado productos al carro de compras.',
+//                     'error'
+//                   );
+//                   break;
+//                 case '4':
+//                   swal(
+//                     'Error!',
+//                     'Lo sentimos has sobrepasado el precio máximo de compra, si necesitas realizar una compra especial contacte con nosotros.',
+//                     'error'
+//                   );
+//                   break;
+//                 case '5':
+//                   swal('Error!', 'En el día de hoy no atendemos.', 'error');
+//                   break;
+//               }
+//             },
+//             error: function() {
+//               alert('Lo sentimos ha ocurrido un error.');
+//             }
+//           });
+
+//           break;
+//       }
+//     });
+//   }
+// });
+
+// $('#btn_pagar_webpay').click(function(evt) {
+//   evt.preventDefault();
+//   finalizarCompraCliente();
+// });
+
+// function finalizarCompraCliente() {
+//   validarFechaCompra($('#txt_hora_entrega').val()).done(function(data) {
+//     switch (data) {
+//       case 'errorDiaEntrega':
+//         swal(
+//           'Error!',
+//           'La compra no puede llevarse a cabo debido a que el local está cerrado.',
+//           'error'
+//         );
+//         break;
+//       case 'errorHoraEntrega':
+//         swal('Error!', 'Selecciona una hora válida.', 'error');
+//         break;
+//       case 'puedescomprar':
+//         var pagoWebpay = '3';
+//         swal({
+//           title: '¿Estás seguro?',
+//           type: 'warning',
+//           showCancelButton: true,
+//           confirmButtonColor: '#3085d6',
+//           cancelButtonColor: '#d33',
+//           confirmButtonText: 'Si',
+//           cancelButtonText: 'Cancelar'
+//         }).then(result => {
+//           if (result.value) {
+//             swal({
+//               title: 'Espera',
+//               html: 'Estamos procesando tu compra.',
+//               timer: 1800,
+//               onOpen: () => {
+//                 swal.showLoading();
+//               }
+//             });
+//             var action = 'GenerarVenta';
+//             var dataInfo = '';
+//             var receptor = '';
+//             // *Si el receptor asignado es otro se ingresa el texto ingresado en el texto
+//             if ($('input[name=radio_receptor]:checked').val() == 2) {
+//               receptor = $('#txt_nombre_receptor').val();
+//             } else {
+//               receptor = '1';
+//               // *Si el mismo cliente recibirá el pedido se ingresa el valor 1 que en el procedimiento
+//               // *Guarda el nombre del cliente como receptor
+//             }
+
+//             dataInfo = {
+//               action: action,
+//               tipo_pago: pagoWebpay,
+//               tipo_entrega: $('#combo_tipo_entrega_form').val(),
+//               hora_entrega: $('#txt_hora_entrega').val(),
+//               direccion_entrega: $('#txt_direccion_entrega').val(),
+//               comentario: $('#txt_comentario_compra').val(),
+//               receptor: receptor
+//             };
+
+//             $.ajax({
+//               data: dataInfo,
+//               url: '../app/control/despPromoCompra.php',
+//               type: 'POST',
+//               success: function(resp) {
+//                 switch (resp) {
+//                   case '1':
+//                     $('#modal_pago_webpay').modal('close');
+//                     swal(
+//                       'Listo',
+//                       'Su solicitud de compra ha sido enviada por favor espere a que esta sea aceptada.',
+//                       'success'
+//                     );
+//                     setTimeout(function() {
+//                       location.href = 'index-cliente.php';
+//                     }, 1500);
+//                     // *La función se ejecutó correctamente
+//                     break;
+//                   case '2':
+//                     swal(
+//                       'Error!',
+//                       'Ha ocurrido un error al realizar la venta prueba de nuevo más tarde',
+//                       'error'
+//                     );
+//                     setTimeout(function() {
+//                       location.href = 'index-cliente.php';
+//                     }, 1500);
+//                     break;
+//                   case '3':
+//                     swal(
+//                       'Error!',
+//                       'No cuentas con saldo suficiente para realizar la compra',
+//                       'error'
+//                     );
+//                     break;
+//                 }
+//               },
+//               error: function() {
+//                 alert('Lo sentimos ha ocurrido un error.');
+//               }
+//             });
+//           }
+//         });
+//         break;
+//     }
+//   });
+// }
+
+// function ObtenerPrecioTotalCarrito() {
+//   var action = 'ObtenerPrecioTotalCarrito';
+//   var cargaHtml = '';
+//   //   *Se cargan los datos de los ingredientes en el carrito
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despPromoCompra.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       // *----------------------------------------------------------------------
+//       // var arr = JSON.parse(respuesta);
+//       // *Se parsea la respuesta json obtenida
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           cargaHtml += `$${respuesta}`;
+//           //   *--------------------------------------------------
+//           $('#total_compra').append(cargaHtml);
+//           $('#total_compra_carro').html(cargaHtml);
+//           $('#precio_total_carrito_webpay').html(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// function validarFechaCompra(hora) {
+//   var action = 'ValidarFechaCompra';
+//   return $.ajax({
+//     data: { action: action, horaEntrega: hora },
+//     url: '../app/control/despPromoCompra.php',
+//     type: 'POST',
+//     async: false,
+//     success: function(resp) {
+//       return resp;
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// function CargarTablaVentasPendientes() {
+//   var action = 'CargarTablaVentas';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       var arr = JSON.parse(respuesta);
+//       // *Se parsea la respuesta json obtenida
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           $.each(arr, function(indice, item) {
+//             cargaHtml += '<tr>';
+//             cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+//             cargaHtml += '<td>' + item.NombreCliente + '</td>';
+//             cargaHtml += '<td>' + item.Fecha + '</td>';
+//             cargaHtml += '<td>' + item.TipoEntrega + '</td>';
+//             cargaHtml += '<td>' + item.TipoPago + '</td>';
+//             cargaHtml += '<td>' + item.TipoVenta + '</td>';
+//             cargaHtml += '<td>' + item.HoraEntrega + '</td>';
+//             cargaHtml += '<td>$' + item.Valor + '</td>';
+//             cargaHtml += '<td>' + item.EstadoVenta + '</td>';
+//             cargaHtml +=
+//               "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleVenta(" +
+//               item.IdVenta +
+//               ")'><i class='material-icons'>more_vert</i></a></td>";
+//             cargaHtml += `<td><a class='btn-floating btn-medium waves-effect waves-light green' onclick='aceptarVenta("${
+//               item.IdVenta
+//             }", "${
+//               item.CodigoVenta
+//             }")'><i class='material-icons'>done</i></a></td>`;
+//             cargaHtml += `<td><a class='btn-floating btn-medium waves-effect waves-light red' onclick='cancelarVenta("${
+//               item.IdVenta
+//             }", "${
+//               item.CodigoVenta
+//             }")'><i class='material-icons'>clear</i></a></td>`;
+//             cargaHtml += '</tr>';
+//           });
+
+//           $('#body_tabla_ventas_mikasa').html(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Si el motivo de cancelación es otro se muestra el campo de texto de especificación de motivo
+// $('input[name="radioMotivo"]').change(function() {
+//   if ($(this).val() == 4) {
+//     $('#input_motivo_cancelacion').removeClass('hide');
+//     $('#form_cancelar_venta').validate(); //sets up the validator
+//     $('#txt_motivo_cancelacion').rules('add', {
+//       required: true,
+//       minlength: 3,
+//       maxlength: 200,
+//       messages: {
+//         required: 'Campo requerido *',
+//         minlength: 'Mínimo 3 caracteres',
+//         maxlength: 'Máximo 200 caracteres'
+//       }
+//     });
+//   } else {
+//     $(this).rules('remove');
+//     $('#input_motivo_cancelacion').addClass('hide');
+//   }
+// });
+
+// // *Al presionar cancelar venta se abre el modal para la selección del motivo
+// function cancelarVenta(id, codigoVenta) {
+//   $('#modal_mantenedor_cancelar_compra').modal('open');
+//   $('#txt_id_venta_cancelar').val(id);
+//   $('#txt_codigo_venta_cancelar').val(codigoVenta);
+// }
+
+// var markerMap = '';
+// // *Variable global que recibe las coordenadas seleccionadas en el mapa
+// var mapVenta;
+// // *Variable global que garantiza que solo se selecciona una ubicación
+// function aceptarVenta(id, codigoCompra) {
+//   var action = 'ValidarTipoEntrega';
+//   $.ajax({
+//     data: { action: action, idVenta: id },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     // async: false,
+//     success: function(resp) {
+//       switch (resp) {
+//         // *Si el tipo de entrega es en local no se ingresan latitud ni longitud
+//         case 'Local':
+//           aceptarVentaPedido(id, resp, codigoCompra);
+//           break;
+//         case 'Domicilio':
+//           $('#modal_mantenedor_aceptar_compra').modal('open');
+//           $('#txt_id_compra_mapa').val(id);
+//           $('#txt_entrega_compra_mapa').val(resp);
+//           $('#txt_codigo_compra_mapa').val(codigoCompra);
+//           // *Se inicializa el mapa en leaflet utilizando la API de openstreetmap
+//           var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+//             osmAttrib =
+//               '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+//             osm = L.tileLayer(
+//               'https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
+//               {
+//                 maxZoom: 16,
+//                 attribution:
+//                   '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+//               }
+//             );
+//           mapVenta = L.map('map')
+//             .setView([-37.465, -72.3693], 15)
+//             .addLayer(osm);
+//           // *Centra el mapa para mejor visualización
+
+//           var marker;
+//           mapVenta.on('click', function(e) {
+//             // *Al hacer click en el mapa se añade un solo marcador
+//             // *Si hay otro este se elimina
+//             if (typeof marker === 'undefined') {
+//               marker = new L.marker(e.latlng, { draggable: true });
+//               marker.addTo(mapVenta);
+//             } else {
+//               marker.setLatLng(e.latlng);
+//             }
+//             markerMap = marker.getLatLng();
+//           });
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error.');
+//     }
+//   });
+// }
+
+// // *Se cierra el modal al presionar el botón cancelar
+// $('#cancelar_modal_canc_compra').click(function(evt) {
+//   evt.preventDefault();
+//   $('#modal_mantenedor_cancelar_compra').modal('close');
+// });
+
+// // *Función para filtrar los datos en la tabla
+// $('#txt_buscar_ventas').on('keyup', function() {
+//   var caracterFiltro = $(this)
+//     .val()
+//     .toLowerCase();
+//   $('#body_tabla_ventas_mikasa tr').filter(function() {
+//     $(this).toggle(
+//       $(this)
+//         .text()
+//         .toLowerCase()
+//         .indexOf(caracterFiltro) > -1
+//     );
+//   });
+// });
+
+// function aceptarVentaPedido(id, tipoEntrega, codigoCompra) {
+//   var action = 'AceptarVenta';
+//   var lat = '';
+//   var lng = '';
+//   // *Dependiendo del tipo de entrega las coordenadas son ingresadas en formato null
+
+//   // *Se valida que se haya seleccionado una ubicación en el mapa
+//   if (tipoEntrega == 'Domicilio') {
+//     if (markerMap == '' || markerMap == null) {
+//       M.toast({
+//         html: 'Por favor completa los campos requeridos',
+//         displayLength: 3000,
+//         classes: 'red'
+//       });
+//       // *Valida que se haya seleccionado una ubicación
+//     } else {
+//       lat = markerMap.lat;
+//       lng = markerMap.lng;
+//     }
+//   } else {
+//     lat = null;
+//     lng = null;
+//   }
+//   swal({
+//     title: '¿Estás seguro?',
+//     type: 'warning',
+//     showCancelButton: true,
+//     confirmButtonColor: '#3085d6',
+//     cancelButtonColor: '#d33',
+//     confirmButtonText: 'Si',
+//     cancelButtonText: 'Cancelar'
+//   }).then(result => {
+//     if (result.value) {
+//       swal({
+//         title: 'Espera',
+//         html: 'Estamos procesando la solicitud.',
+//         timer: 9000,
+//         onOpen: () => {
+//           swal.showLoading();
+//         }
+//       });
+//       $.ajax({
+//         data: {
+//           action: action,
+//           idVenta: id,
+//           lng: lng,
+//           lat: lat,
+//           CodigoVenta: codigoCompra
+//         },
+//         url: '../app/control/despVenta.php',
+//         type: 'POST',
+//         success: function(resp) {
+//           console.log(resp);
+
+//           switch (resp) {
+//             case '1':
+//               swal('Listo', 'La venta ha sido aceptada.', 'success');
+//               markerMap = '';
+//               $('#modal_mantenedor_aceptar_compra').modal('close');
+//               CargarTablaVentasPendientes();
+//               break;
+//             case '2':
+//               swal('Error!', 'La compra no pudo ser aceptada.', 'error');
+//               break;
+//             case '3':
+//               swal(
+//                 'Ha ocurrido un error',
+//                 'El correo de notificación no pudo ser enviado',
+//                 'error'
+//               );
+//               break;
+//             case '4':
+//               swal(
+//                 'Ha ocurrido un error',
+//                 'Hay uno o más <a href="mantenedor-ingredientes.php">ingredientes</a> que no tienen stock',
+//                 'error'
+//               );
+//               break;
+//             case '5':
+//               swal(
+//                 'Ha ocurrido un error',
+//                 'No hay suficiente stock de coberturas',
+//                 'error'
+//               );
+//               break;
+//           }
+//         },
+//         error: function() {
+//           alert('Lo sentimos ha ocurrido un error.');
+//         }
+//       });
+//     }
+//   });
+// }
+
+// // *Se cierra el modal de aceptar venta y se limpia la variable global de ubicación en el mapa seleccionada
+// $('#cancelar_modal_aceptar_compra').on('click', function(evt) {
+//   evt.preventDefault();
+//   markerMap = '';
+//   $('#modal_mantenedor_aceptar_compra').modal('close');
+// });
+
+// $('#form_aceptar_compra').submit(function(evt) {
+//   evt.preventDefault();
+//   var id = $('#txt_id_compra_mapa').val();
+//   var entrega = $('#txt_entrega_compra_mapa').val();
+//   var codigoCompra = $('#txt_codigo_compra_mapa').val();
+//   aceptarVentaPedido(id, entrega, codigoCompra);
+// });
+
+// // *Se valida el formulario de cancelar compra
+// var formCompra = $('#form_cancelar_venta').validate({
+//   errorClass: 'invalid red-text',
+//   validClass: 'valid',
+//   errorElement: 'div',
+//   errorPlacement: function(error, element) {
+//     $(element)
+//       .closest('form')
+//       .find(`label[for=${element.attr('id')}]`) //*Se insertará un label para representar el error
+//       .attr('data-error', error.text()); //*Se obtiene el texto de erro
+//     error.insertAfter(element); //*Se inserta el error después del elemento
+//   },
+//   rules: {
+//     radioMotivo: {
+//       required: true
+//     }
+//   },
+//   messages: {
+//     radioMotivo: {
+//       required: 'Campo requerido *'
+//     }
+//   },
+//   invalidHandler: function(form) {
+//     //*Acción a ejecutar al no completar todos los campos requeridos
+//     M.toast({
+//       html: 'Por favor completa los campos requeridos',
+//       displayLength: 3000,
+//       classes: 'red'
+//     });
+//   },
+//   submitHandler: function(form) {
+//     var action = 'CancelarVenta';
+//     var idMotivo = $('input[name=radioMotivo]:checked').val();
+//     var motivo = $('#txt_motivo_cancelacion').val();
+//     var idVenta = $('#txt_id_venta_cancelar').val();
+//     var codigoVenta = $('#txt_codigo_venta_cancelar').val();
+//     swal({
+//       title: '¿Estás seguro?',
+//       type: 'warning',
+//       showCancelButton: true,
+//       confirmButtonColor: '#3085d6',
+//       cancelButtonColor: '#d33',
+//       confirmButtonText: 'Si',
+//       cancelButtonText: 'Cancelar'
+//     }).then(result => {
+//       if (result.value) {
+//         swal({
+//           title: 'Espera',
+//           html: 'Se está procesando la solicitud.',
+//           timer: 9000,
+//           onOpen: () => {
+//             swal.showLoading();
+//           }
+//         });
+//         $.ajax({
+//           data: {
+//             action: action,
+//             idVenta: idVenta,
+//             idMotivo: idMotivo,
+//             codigoVenta: codigoVenta,
+//             motivo: motivo
+//           },
+//           url: '../app/control/despVenta.php',
+//           type: 'POST',
+//           success: function(resp) {
+//             console.log(resp);
+//             switch (resp) {
+//               case '1':
+//                 swal('Listo', 'La venta ha sido cancelada', 'success');
+//                 CargarTablaVentasPendientes();
+//                 $('#modal_mantenedor_cancelar_compra').modal('close');
+//                 // *La función se ejecutó correctamente
+//                 break;
+//               case '2':
+//                 swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+//                 break;
+//             }
+//           },
+//           error: function() {
+//             alert('Lo sentimos ha ocurrido un error.');
+//           }
+//         });
+//       }
+//     });
+//   }
+// });
+
+// // *Función para ver el detalle de al venta
+// function verDetalleVenta(idVenta) {
+//   $('#modal_detalle_venta_pendientes').modal('open');
+//   // *Se abre el modal
+//   var actionPromoCompra = 'VerDetalleVentaPromoCompra';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: actionPromoCompra, IdVenta: idVenta },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     sync: false,
+//     success: function(resp) {
+//       var arrayDetalleVenta = JSON.parse(resp);
+//       // *El json se convierte a array
+//       var arrAgregados = arrayDetalleVenta[1];
+//       // *Array de agregados vinculado a la venta
+//       var arr = arrayDetalleVenta[0];
+//       // *Se obtiene el comnetario vinculado a la venta
+//       if (arrayDetalleVenta[2] != null) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+//         cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+//         cargaHtml += '</ul>';
+//       }
+//       // *Si no existe un comentario no e muestra en pantalla
+//       $.each(arr, function(i, item) {
+//         if (item.NombrePromo != null) {
+//           var arrayDetalle = JSON.stringify(eval(arr[i]));
+//           // *Se convierte a astring parte del array e formato JSON
+//           var arrayDosDetalle = JSON.parse(arrayDetalle);
+//           // *Se convierte nuevamente a array
+//           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+//           // *Se parsea el json con el detalle de piezas de la promo creada
+//           var arrayTresParse = JSON.parse(arrayTres);
+
+//           cargaHtml += '<ul class="collection">';
+//           cargaHtml += `<li class="collection-item"><b>${
+//             item.NombrePromo
+//           }</b></li>`;
+//           $.each(arrayTresParse, function(e, elem) {
+//             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
+//               elem.Detalle
+//             }</li>`;
+//             // *Se crea una estructura html que cargue los datos de la venta
+//           });
+//           cargaHtml += '</ul>';
+//         }
+//       });
+//       if (arrAgregados.length > 0) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += '<li class="collection-item"><b>Agregados Mikasa</b></li>';
+//         $.each(arrAgregados, function(a, agregado) {
+//           cargaHtml += `<li class="collection-item">${
+//             agregado.NombreAgregado
+//           }</li>`;
+//           // *Esta estructura html carga los datos de los agregados vinculados a la venta
+//         });
+//         cargaHtml += '</ul>';
+//       }
+//       $('#cargar_detalle_venta').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para cargar la tabla de ventas canceladas
+// function cargarTablaVentasCanceladas() {
+//   var action = 'CargarTablaVentasCanceladas';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       var arr = JSON.parse(respuesta);
+//       // *Se parsea la respuesta json obtenida
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           $.each(arr, function(indice, item) {
+//             cargaHtml += '<tr>';
+//             cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+//             cargaHtml += '<td>' + item.NombreCliente + '</td>';
+//             cargaHtml += '<td>' + item.Fecha + '</td>';
+//             cargaHtml += '<td>' + item.TipoEntrega + '</td>';
+//             cargaHtml += '<td>' + item.TipoPago + '</td>';
+//             cargaHtml += '<td>$' + item.Valor + '</td>';
+//             cargaHtml += '<td>' + item.Motivo + '</td>';
+//             cargaHtml += '<td>' + item.Empleado + '</td>';
+//             cargaHtml +=
+//               "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleVentaCancelada(" +
+//               item.IdVenta +
+//               ")'><i class='material-icons'>more_vert</i></a></td>";
+//             cargaHtml += '</tr>';
+//           });
+
+//           $('#body_tabla_ventas_canceladas_mikasa').html(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// function verDetalleVentaCancelada(idVenta) {
+//   $('#modal_detalle_venta_cancelada').modal('open');
+//   var actionPromoCompra = 'VerDetalleVentaPromoCompra';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: actionPromoCompra, IdVenta: idVenta },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     sync: false,
+//     success: function(resp) {
+//       var arrayDetalleVenta = JSON.parse(resp);
+//       // *El json se convierte a array
+//       var arrAgregados = arrayDetalleVenta[1];
+//       // *Array de agregados vinculado a la venta
+//       var arr = arrayDetalleVenta[0];
+//       // *Se obtiene el comnetario vinculado a la venta
+//       if (arrayDetalleVenta[2] != null) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+//         cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+//         cargaHtml += '</ul>';
+//       }
+//       // *Si no existe un comentario no e muestra en pantalla
+//       $.each(arr, function(i, item) {
+//         if (item.NombrePromo != null) {
+//           var arrayDetalle = JSON.stringify(eval(arr[i]));
+//           // *Se convierte a astring parte del array e formato JSON
+//           var arrayDosDetalle = JSON.parse(arrayDetalle);
+//           // *Se convierte nuevamente a array
+//           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+//           // *Se parsea el json con el detalle de piezas de la promo creada
+//           var arrayTresParse = JSON.parse(arrayTres);
+
+//           cargaHtml += '<ul class="collection">';
+//           cargaHtml += `<li class="collection-item"><b>${
+//             item.NombrePromo
+//           }</b></li>`;
+//           $.each(arrayTresParse, function(e, elem) {
+//             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
+//               elem.Detalle
+//             }</li>`;
+//             // *Se crea una estructura html que cargue los datos de la venta
+//           });
+//           cargaHtml += '</ul>';
+//         }
+//       });
+//       if (arrAgregados.length > 0) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += '<li class="collection-item"><b>Agregados Mikasa</b></li>';
+//         $.each(arrAgregados, function(a, agregado) {
+//           cargaHtml += `<li class="collection-item">${
+//             agregado.NombreAgregado
+//           }</li>`;
+//           // *Esta estructura html carga los datos de los agregados vinculados a la venta
+//         });
+//         cargaHtml += '</ul>';
+//       }
+//       $('#cargar_detalle_venta_cancelada').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para filtrar los datos en la tabla
+// $('#txt_buscar_ventas_canceladas').on('keyup', function() {
+//   var caracterFiltro = $(this)
+//     .val()
+//     .toLowerCase();
+//   $('#body_tabla_ventas_canceladas_mikasa tr').filter(function() {
+//     $(this).toggle(
+//       $(this)
+//         .text()
+//         .toLowerCase()
+//         .indexOf(caracterFiltro) > -1
+//     );
+//   });
+// });
+
+// // *Se carga el precio máximo permitido por compra para mostrarlo en pantalla
+// function cargarPrecioMaximoCompra() {
+//   var action = 'CargarPrecioMaximoCompra';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: action },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     success: function(resp) {
+//       if (resp != null || parseInt(resp) != 0) {
+//         cargaHtml += `<p>Precio Máximo permitido: $${resp}</p>`;
+//       } else {
+//         cargaHtml += '<p>Precio Máximo permitido: No Definido</p>';
+//       }
+//       $('#precio_maximo').html(cargaHtml);
+//     },
+//     error: function() {
+//       cargaHtml += cargaHtml += '<p>Precio Máximo permitido: No Definido</p>';
+//       $('#precio_maximo').html(cargaHtml);
+//     }
+//   });
+// }
+
+// // *Función para filtrar los datos en la tabla
+// $('#txt_buscar_ventas_historial').on('keyup', function() {
+//   var caracterFiltro = $(this)
+//     .val()
+//     .toLowerCase();
+//   $('#body_tabla_historial_ventas_mikasa tr').filter(function() {
+//     $(this).toggle(
+//       $(this)
+//         .text()
+//         .toLowerCase()
+//         .indexOf(caracterFiltro) > -1
+//     );
+//   });
+// });
+
+// // *Función para cargar la tabla de ventas canceladas
+// function cargarTablaHistorialVentas() {
+//   var action = 'CargarTablaHistorialVentas';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       var arr = JSON.parse(respuesta);
+
+//       // *Se parsea la respuesta json obtenida
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+
+//           $.each(arr, function(indice, item) {
+//             cargaHtml += '<tr>';
+//             cargaHtml += '<td>' + item.CodigoVenta + '</td>';
+//             cargaHtml += '<td>' + item.NombreCliente + '</td>';
+//             cargaHtml += '<td>' + item.Fecha + '</td>';
+//             cargaHtml += '<td>' + item.TipoEntrega + '</td>';
+//             cargaHtml += '<td>' + item.TipoPago + '</td>';
+//             cargaHtml += '<td>' + item.TipoVenta + '</td>';
+//             cargaHtml += '<td>' + item.HoraEntrega + '</td>';
+//             cargaHtml += '<td>$' + item.Valor + '</td>';
+//             cargaHtml += '<td>' + item.EstadoVenta + '</td>';
+//             cargaHtml +=
+//               "<td><a class='btn-floating btn-medium waves-effect waves-light blue' onclick='verDetalleVentaHistorial(" +
+//               item.IdVenta +
+//               ")'><i class='material-icons'>more_vert</i></a></td>";
+//             cargaHtml += '</tr>';
+//           });
+//           $('#body_tabla_historial_ventas_mikasa').html(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// function verDetalleVentaHistorial(idVenta) {
+//   $('#modal_detalle_venta_historial').modal('open');
+//   var actionPromoCompra = 'VerDetalleVentaPromoCompra';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: actionPromoCompra, IdVenta: idVenta },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     sync: false,
+//     success: function(resp) {
+//       console.log(resp);
+
+//       var arrayDetalleVenta = JSON.parse(resp);
+//       // *El json se convierte a array
+//       var arrAgregados = arrayDetalleVenta[1];
+//       // *Array de agregados vinculado a la venta
+//       var arr = arrayDetalleVenta[0];
+//       // *Se obtiene el comnetario vinculado a la venta
+//       if (arrayDetalleVenta[2] != null) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+//         cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+//         cargaHtml += '</ul>';
+//       }
+//       // *Si no existe un comentario no e muestra en pantalla
+//       $.each(arr, function(i, item) {
+//         if (item.NombrePromo != null) {
+//           var arrayDetalle = JSON.stringify(eval(arr[i]));
+//           // *Se convierte a astring parte del array e formato JSON
+//           var arrayDosDetalle = JSON.parse(arrayDetalle);
+//           // *Se convierte nuevamente a array
+//           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+//           // *Se parsea el json con el detalle de piezas de la promo creada
+//           var arrayTresParse = JSON.parse(arrayTres);
+
+//           cargaHtml += '<ul class="collection">';
+//           cargaHtml += `<li class="collection-item"><b>${
+//             item.NombrePromo
+//           }</b></li>`;
+//           $.each(arrayTresParse, function(e, elem) {
+//             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
+//               elem.Detalle
+//             }</li>`;
+//             // *Se crea una estructura html que cargue los datos de la venta
+//           });
+//           cargaHtml += '</ul>';
+//         }
+//       });
+//       if (arrAgregados.length > 0) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += '<li class="collection-item"><b>Agregados Mikasa</b></li>';
+//         $.each(arrAgregados, function(a, agregado) {
+//           cargaHtml += `<li class="collection-item">${
+//             agregado.NombreAgregado
+//           }</li>`;
+//           // *Esta estructura html carga los datos de los agregados vinculados a la venta
+//         });
+//         cargaHtml += '</ul>';
+//       }
+//       $('#cargar_detalle_venta_historial').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para filtrar los datos en la tabla
+// $('#txt_buscar_ventas_canceladas').on('keyup', function() {
+//   var caracterFiltro = $(this)
+//     .val()
+//     .toLowerCase();
+//   $('#body_tabla_ventas_canceladas_mikasa tr').filter(function() {
+//     $(this).toggle(
+//       $(this)
+//         .text()
+//         .toLowerCase()
+//         .indexOf(caracterFiltro) > -1
+//     );
+//   });
+// });
+
+// // *Se cargan las ordenes pendientes de entrega para que sean visualizadas por el cliente
+// function cargarTrackingMisOrdenes() {
+//   var action = 'CargarTrackingMisOrdenes';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: action },
+//     url: '../app/control/despEntregas.php',
+//     type: 'POST',
+//     success: function(resp) {
+//       var arr = JSON.parse(resp);
+//       cargaHtml += '<ul class="collection">';
+//       if (arr.length > 0) {
+//         $.each(arr, function(i, item) {
+//           cargaHtml += '<li class="collection-item avatar">';
+//           cargaHtml += `<i class="material-icons circle green">${
+//             item.Icono
+//           }</i>`;
+//           cargaHtml += `<p class="green-text">Estado Entrega: ${
+//             item.EstadoEntrega
+//           }</p>`;
+//           cargaHtml += '<p>';
+//           cargaHtml += `Código Venta: ${item.CodigoVenta} </br>`;
+//           cargaHtml += `Precio: $${item.Valor} </br>`;
+//           cargaHtml += `TipoEntrega: ${item.TipoEntrega} </br>`;
+//           cargaHtml += `Receptor: ${item.Receptor}`;
+//           cargaHtml += '</p>';
+//           cargaHtml += `<a href="#!" class="secondary-content black-text" onclick="verDetalleTrackingMiEntrega(${
+//             item.IdVenta
+//           })"><i class="material-icons">more_horiz</i></a>`;
+//           cargaHtml += '</li>';
+//         });
+//         cargaHtml += '</ul>';
+//       } else {
+//         cargaHtml += '<li class="collection-item">';
+//         cargaHtml += '<p>No tienes entregas pendientes.</p>';
+//         cargaHtml += '</li>';
+//       }
+//       $('#cargar_tracking_mis_ordenes').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error al cargar los datos');
+//     }
+//   });
+// }
+
+// function verDetalleTrackingMiEntrega(idVenta) {
+//   $('#modal_detalle_venta_tracking').modal('open');
+//   var actionPromoCompra = 'VerDetalleVentaPromoCompra';
+//   var cargaHtml = '';
+//   $.ajax({
+//     data: { action: actionPromoCompra, IdVenta: idVenta },
+//     url: '../app/control/despVenta.php',
+//     type: 'POST',
+//     sync: false,
+//     success: function(resp) {
+//       var arrayDetalleVenta = JSON.parse(resp);
+//       // *El json se convierte a array
+//       var arrAgregados = arrayDetalleVenta[1];
+//       // *Array de agregados vinculado a la venta
+//       var arr = arrayDetalleVenta[0];
+//       // *Se obtiene el comnetario vinculado a la venta
+//       if (arrayDetalleVenta[2] != null) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += `<li class="collection-item"><b>Comentario:</b></li>`;
+//         cargaHtml += `<li class="collection-item">${arrayDetalleVenta[2]}</li>`;
+//         cargaHtml += '</ul>';
+//       }
+//       // *Si no existe un comentario no e muestra en pantalla
+//       $.each(arr, function(i, item) {
+//         if (item.NombrePromo != null) {
+//           var arrayDetalle = JSON.stringify(eval(arr[i]));
+//           // *Se convierte a astring parte del array e formato JSON
+//           var arrayDosDetalle = JSON.parse(arrayDetalle);
+//           // *Se convierte nuevamente a array
+//           var arrayTres = JSON.stringify(eval(arrayDosDetalle.Detalle));
+//           // *Se parsea el json con el detalle de piezas de la promo creada
+//           var arrayTresParse = JSON.parse(arrayTres);
+
+//           cargaHtml += '<ul class="collection">';
+//           cargaHtml += `<li class="collection-item"><b>${
+//             item.NombrePromo
+//           }</b></li>`;
+//           $.each(arrayTresParse, function(e, elem) {
+//             cargaHtml += `<li class="collection-item">${elem.Piezas} ${
+//               elem.Detalle
+//             }</li>`;
+//             // *Se crea una estructura html que cargue los datos de la venta
+//           });
+//           cargaHtml += '</ul>';
+//         }
+//       });
+//       if (arrAgregados.length > 0) {
+//         cargaHtml += '<ul class="collection">';
+//         cargaHtml += '<li class="collection-item"><b>Agregados Mikasa</b></li>';
+//         $.each(arrAgregados, function(a, agregado) {
+//           cargaHtml += `<li class="collection-item">${
+//             agregado.NombreAgregado
+//           }</li>`;
+//           // *Esta estructura html carga los datos de los agregados vinculados a la venta
+//         });
+//         cargaHtml += '</ul>';
+//       }
+//       $('#cargar_detalle_venta_tracking').html(cargaHtml);
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// function ObtenerDineroCartera() {
+//   var action = 'ObtenerDineroCartera';
+//   var cargaHtml = '';
+//   //   *Se cargan los datos de los ingredientes en el carrito
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despPromoCompra.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           cargaHtml += `$${respuesta}`;
+//           //   *--------------------------------------------------
+//           $('#total_cartera_webpay').html(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Variables globales utilizadas para la generación de rolls
+// let cantidadPiezasArmaTuPromo = 0;
+// let cantidadOpcionesCoberturas = 2;
+// let cantidadOpcionesRellenos = 0;
+// let arrayRollsCreados = [];
+// let coberturasPromoAGustoChef = [];
+// let cantidadSeleccionCoberturasChef = 0;
+// // *---------------------------------------------------
+
+// function cargarPromosCarta(estado, caracter) {
+//   var action = 'CargarPromosCarta';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despPromos.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       console.log(respuesta);
+
+//       // *----------------------------------------------------------------------
+//       var arr = JSON.parse(respuesta);
+//       // *Se parsea la respuesta json obtenida
+
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           //* Por defecto los datos serán cargados en pantalla
+//           $.each(arr, function(indice, item) {
+//             // *Se cargarán los datos en el menú index
+//             console.log(JSON.parse(item.ArrayTipoCoberturas));
+//             var detalleTipoCoberturas = JSON.parse(item.ArrayTipoCoberturas);
+//             var detalleAgregados = JSON.parse(item.ArrayAgregados);
+//             cargaHtml += '<div class="col s12 m6 l4 xl3">';
+//             cargaHtml += '<div class="card col s12 m12 l12">';
+//             if (item.Descuento > 0) {
+//               cargaHtml += `<div class="descuento"><p class="center-align">-${
+//                 item.Descuento
+//               }%</p></div>`;
+//             }
+//             cargaHtml +=
+//               '<div class="card-image waves-effect waves-block waves-light">';
+//             cargaHtml += `<img class="activator" src="uploads/${item.ImgUrl}">`;
+//             cargaHtml += '</div>';
+//             cargaHtml += '<div class="card-content">';
+//             cargaHtml += `<span class="card-title activator grey-text text-darken-4">${
+//               item.Nombre
+//             }<i class="material-icons right">more_vert</i></span>`;
+//             cargaHtml += '<div class="precios-productos">';
+//             if (item.Descuento > 0) {
+//               cargaHtml += `<span class="red-text"><strike>Antes: $${
+//                 item.Precio
+//               }</strike></span>`;
+//               cargaHtml += `<span class="green-text">Ahora: $${item.Precio -
+//                 (item.Precio / 100) * item.Descuento}</span>`;
+//             } else {
+//               cargaHtml += `<span class="green-text">Precio: $${
+//                 item.Precio
+//               }</span>`;
+//             }
+//             cargaHtml += '</div>';
+//             cargaHtml += '<div class="divider"></div>';
+//             cargaHtml += '<div class="btn-mant-productos">';
+
+//             if (item.IdTipoPreparacion == 2) {
+//               cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(${
+//                 item.IdPromo
+//               })"><i class="material-icons">add_shopping_cart</i></a>`;
+//             } else if (item.IdTipoPreparacion == 1) {
+//               cargaHtml += `<a class="btn-floating btn-medium waves-effect waves-light black" onclick="ComprobarTipoDePromo(${
+//                 item.IdPromo
+//               })"><i class="material-icons">add_shopping_cart</i></a>`;
+//             }
+
+//             cargaHtml += '</div>';
+//             cargaHtml += '</div>';
+//             cargaHtml += '<div class="card-reveal">';
+//             cargaHtml += `<span class="card-title grey-text text-darken-4"><b>${
+//               item.Nombre
+//             }</b><i class="material-icons right">close</i></span>`;
+//             // *Carga el detalle de los tipo de coberturas
+//             if (detalleTipoCoberturas == null) {
+//               cargaHtml += `<p>Arma tu promo de ${item.Cantidad} piezas</p>`;
+//             } else {
+//               cargaHtml += '<ul>';
+//               for (let i = 0; i < detalleTipoCoberturas.length; i++) {
+//                 cargaHtml += `<li><p>- ${detalleTipoCoberturas[i]}</p></li>`;
+//               }
+//               cargaHtml += '</ul>';
+//             }
+
+//             if (detalleAgregados != null) {
+//               cargaHtml += `<p><b>Incluye: </b></p>`;
+//               cargaHtml += '<ul>';
+//               for (let i = 0; i < detalleAgregados.length; i++) {
+//                 cargaHtml += `<li><p>- ${detalleAgregados[i]}</p></li>`;
+//               }
+//               cargaHtml += '</ul>';
+//             }
+
+//             cargaHtml += '<p></p>';
+//             cargaHtml += '</div>';
+//             cargaHtml += '</div>';
+//             cargaHtml += '</div>';
+//           });
+
+//           $('#carga_promos_cliente').html(cargaHtml);
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para cargar los checkbox de coberturas en arma tu promo
+// function cargarRadioButtonCoberturas(estado, caracter) {
+//   var action = 'CargarCoberturasCarta';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despCoberturas.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       // *----------------------------------------------------------------------
+//       var arr = JSON.parse(respuesta);
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           // *Las coberturas se cargan de forma ordenada según su índice
+//           function groupBy(collection, property) {
+//             var i = 0,
+//               val,
+//               index,
+//               values = [],
+//               result = [];
+//             for (; i < collection.length; i++) {
+//               val = collection[i][property];
+//               index = values.indexOf(val);
+//               if (index > -1) result[index].push(collection[i]);
+//               else {
+//                 values.push(val);
+//                 result.push([collection[i]]);
+//               }
+//             }
+//             cantidadOpcionesCoberturas = result.length;
+
+//             return result;
+//           }
+//           var arrayAgrupado = groupBy(arr, 'Indice');
+//           $.each(arrayAgrupado, function(indice, item) {
+//             cargaHtml += '<div class="content_coberturas">';
+//             cargaHtml += `<p>${indice + 1}.- </p>`;
+//             $.each(item, function(i, elementos) {
+//               cargaHtml += '<div class="radio_coberturas">';
+//               cargaHtml += '<p>';
+//               cargaHtml += '<label>';
+//               cargaHtml += `<input name='cobertura' type='radio' nombre='${
+//                 elementos.Nombre
+//               }' value='${elementos.IdCobertura}'></input>`;
+//               if (elementos.Precio != 0) {
+//                 cargaHtml += `<span>${elementos.Nombre}/+$${
+//                   elementos.Precio
+//                 }</span>`;
+//               } else {
+//                 cargaHtml += `<span>${elementos.Nombre}</span>`;
+//               }
+//               cargaHtml += '</label>';
+//               cargaHtml += '</p>';
+//               cargaHtml += '</div>';
+//             });
+//             cargaHtml += '</div>';
+//             $('#carga_chekbox_cobertura').html(cargaHtml);
+//           });
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// // *Función para cargar los checkbox de rellenos en arma tu promo
+// function cargarRadioButtonRellenos(estado, caracter) {
+//   var action = 'CargarRellenosCarta';
+//   var cargaHtml = '';
+//   //*Se envían datos del form y action, al controlador mediante ajax
+//   $.ajax({
+//     data: `action=${action}`,
+//     url: '../app/control/despRellenos.php',
+//     type: 'POST',
+//     success: function(respuesta) {
+//       // *----------------------------------------------------------------------
+//       var arr = JSON.parse(respuesta);
+//       // *-----------------------------------------------------------------------
+//       //*Acción a ejecutar si la respuesta existe
+//       switch (respuesta) {
+//         case 'error':
+//           alert('Lo sentimos ha ocurrido un error');
+//           break;
+//         default:
+//           // *Los rellenos se cargan de forma ordenada según su índice
+//           // *Se agrupan y se muestran de forma ordenada
+//           // *La función recibe el array con los rellenos y los agrupa en uno nuevo
+//           function groupBy(collection, property) {
+//             var i = 0,
+//               val,
+//               index,
+//               values = [],
+//               result = [];
+//             for (; i < collection.length; i++) {
+//               val = collection[i][property];
+//               index = values.indexOf(val);
+//               if (index > -1) result[index].push(collection[i]);
+//               else {
+//                 values.push(val);
+//                 result.push([collection[i]]);
+//               }
+//             }
+
+//             cantidadOpcionesRellenos = result.length;
+//             return result;
+//             // *Retorna el nuevo array
+//           }
+//           var arrayAgrupado = groupBy(arr, 'Indice');
+//           // *Se pasa el array y la propiedad por la que se quiere agrupar
+
+//           // *Nuevo array con los datos agrupados por indice
+//           $.each(arrayAgrupado, function(indice, item) {
+//             // *Se recorre el array en base a los indices
+//             cargaHtml += '<div class="content_rellenos">';
+//             cargaHtml += `<p>${indice + 1}.- </p>`;
+//             // *Se recorre el array de los rellenos
+//             $.each(item, function(i, elementos) {
+//               cargaHtml += '<div class="radio_rellenos">';
+//               cargaHtml += '<p>';
+//               cargaHtml += '<label class="radio-button-text">';
+//               cargaHtml += `<input name='relleno${
+//                 elementos.Indice
+//               }' type='radio' nombre='${elementos.Nombre}' value='${
+//                 elementos.IdRelleno
+//               }'></input>`;
+//               if (elementos.Precio != 0) {
+//                 cargaHtml += `<span>${elementos.Nombre}/+$${
+//                   elementos.Precio
+//                 }</span>`;
+//               } else {
+//                 cargaHtml += `<span>${elementos.Nombre}</span>`;
+//               }
+//               cargaHtml += '</label>';
+//               cargaHtml += '</p>';
+//               cargaHtml += '</div>';
+//             });
+//             cargaHtml += '</div>';
+//             $('#carga_chekbox_rellenos').html(cargaHtml);
+//           });
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error');
+//     }
+//   });
+// }
+
+// function cargarComboCantidadRollsArmaTuPromo() {
+//   // *Recibe la cantidad total de rolls y los divide por diez para distribuir las cantidades opcionales
+//   var cantidadOpciones = cantidadPiezasArmaTuPromo / 10;
+//   // *cantidadPiezasArmaTuPromo es una variable global que se actualiza en base las opciones de piezas creadas por el cliente
+//   var insertHtml = '';
+//   if (cantidadOpciones != 0) {
+//     for (var i = 1; i <= cantidadOpciones; i++) {
+//       insertHtml += `<option value='${i * 10}'>${i * 10}</option>`;
+//       // *Se cargan las cantidades opcionales en base a la disponibilidad de agregación
+//     }
+//   } else {
+//     insertHtml += '<option value="0">Selección completada</option>';
+//   }
+//   $('#cantidad_de_piezas_add_carro').html(insertHtml);
+// }
+
+// // *Comprueba el tipo de preparación de la promo mediante el id
+// function ComprobarTipoDePromo(id) {
+//   var idPromo = id;
+//   var action = 'ComprobarTipoDePromo';
+//   $.ajax({
+//     data: {
+//       action: action,
+//       id: idPromo
+//     },
+//     url: '../app/control/despPromos.php',
+//     type: 'POST',
+//     success: function(resp) {
+//       var arrayResp = JSON.parse(resp);
+//       $.each(arrayResp, function(indice, item) {
+//         // *El tipo de promo es arma tu promo por lo que se abre el modal y se cargan los ingredientes
+//         if (item.IdTipoPreparacion == 2) {
+//           $('#accion_promo_compra').text(`Arma tu promo ${item.Nombre}`);
+//           $('#cantidad_piezas_promo_compra').text(`(${item.Cantidad} piezas)`);
+//           $('#modal_add_arma_tu_promo').modal('open');
+//           $('#lbl_id_promo_compra').val(idPromo);
+//           cantidadPiezasArmaTuPromo = item.Cantidad;
+//           cargarComboCantidadRollsArmaTuPromo();
+//           cargarRadioButtonCoberturas();
+//           cargarRadioButtonRellenos();
+//         } else {
+//           // *Si el tipo de promo es a gusto del chef se verifica si los tipo de coberturas asociadas poseen más de una opción
+//           $('#lbl_id_promo_compra_chef').val(idPromo);
+//           var actionPromoChef = 'ComprobarTipoCoberturasPromoChef';
+//           var cargaHtml = '';
+//           $.ajax({
+//             data: {
+//               action: actionPromoChef,
+//               id: idPromo
+//             },
+//             url: '../app/control/despPromos.php',
+//             type: 'POST',
+//             success: function(resp) {
+//               var arrayResp = JSON.parse(resp);
+//               switch (arrayResp) {
+//                 // *No hay tipo de cobertura con más de una opción
+//                 case '1':
+//                   alert('No hay opciones de selección');
+//                   break;
+//                 default:
+//                   if (arrayResp.length > 0) {
+//                     // *Si existe un tipo de cobertura asociado con más de una opción
+//                     // *Se abre el modal asociado y se cargan las cobeturas opcionales
+//                     $('#modal_promo_chef_compra').modal('open');
+//                     $('#accion_promo_compra_chef').text(
+//                       `A gusto del chef ${item.Nombre}`
+//                     );
+//                     $('#cantidad_piezas_promo_compra_chef').text(
+//                       `(${item.Cantidad} piezas)`
+//                     );
+//                     $.each(arrayResp, function(indice, item) {
+//                       var index = indice;
+//                       var a = JSON.stringify(eval(item.Coberturas));
+//                       var arrayCoberturas = JSON.parse(a);
+//                       cargaHtml += `<p class="modal-titulo-eleccion-ingredientes">Cobertura ${
+//                         item.NombreTipoCobertura
+//                       }</p>`;
+//                       cargaHtml += '<div class="content_coberturas">';
+//                       $.each(arrayCoberturas, function(i, elem) {
+//                         cargaHtml += '<div class="radio_coberturas">';
+//                         cargaHtml += '<p>';
+//                         cargaHtml += '<label class="radio-button-text">';
+//                         cargaHtml += `<input name='coberturaChef${index +
+//                           1}' type='radio' value='${elem.id}' data-cantidad='${
+//                           elem.cantidad
+//                         }'></input>`;
+//                         cargaHtml += `<span>${elem.nombre}</span>`;
+//                         cargaHtml += '</label>';
+//                         cargaHtml += '</p>';
+//                         cargaHtml += '</div>';
+//                       });
+//                       cargaHtml += '</div>';
+//                       $('#carga_chekbox_coberturas_chef').html(cargaHtml);
+//                       cantidadSeleccionCoberturasChef++;
+//                     });
+//                     // indice++;
+//                   } else {
+//                     concretarPromoIngresoPromoChef();
+//                     // *Si no hay tipos de coberturas con más de una opción se ingresa automaticamente
+//                   }
+//                   break;
+//               }
+//             },
+//             error: function() {
+//               alert(
+//                 'Lo sentimos ha ocurrido un error al comprobar la promo seleccionada'
+//               );
+//             }
+//           });
+//         }
+//       });
+//     },
+//     error: function() {
+//       alert(
+//         'Lo sentimos ha ocurrido un error al comprobar la promo seleccionada'
+//       );
+//     }
+//   });
+// }
+
+// // *Los datos seleccionados se añaden a la lista para llevar la cuenta total de productos
+// // *Almacena los rolls creados
+// $('#btn_add_roll_promo').click(function() {
+//   if (cantidadPiezasArmaTuPromo == 0) {
+//     alert('Ya haz seleccionado la cantidad posible.');
+//   } else {
+//     $('#lista_rolls_compra').empty();
+//     var arrayRoll = [];
+//     var arrayCoberturaDetalleRoll = [];
+//     var arrayRellenoDetalleRoll = [];
+//     var listaHtml = '';
+//     var cantidadPiezas = $('#cantidad_de_piezas_add_carro').val();
+//     // for (var i = 1; i <= cantidadOpcionesCoberturas; i++) {
+//     var idCobertura = $(`input[name=cobertura]:checked`).val();
+//     var nombreCobertura = $(`input[name=cobertura]:checked`).attr('nombre');
+//     // *Se valida que se seleccione una cobertura
+//     if (idCobertura == null || nombreCobertura == null) {
+//       M.toast({
+//         html: 'Debes seleccionar una cobertura',
+//         displayLength: 3000,
+//         classes: 'red'
+//       });
+//       arrayCoberturaDetalleRoll = [];
+//     } else {
+//       // *Si se selecciona se ingresa al array
+//       arrayCoberturaDetalleRoll.push({
+//         Id: idCobertura,
+//         Nombre: nombreCobertura
+//       });
+//     }
+//     // }
+//     // *Se valida que todas las opciones de relleno posean una selección
+//     for (var j = 1; j <= cantidadOpcionesRellenos; j++) {
+//       var idRelleno = $(`input[name=relleno${j}]:checked`).val();
+//       var nombreRelleno = $(`input[name=relleno${j}]:checked`).attr('nombre');
+//       // *Si no se elije un relleno válido los array de detalle del roll se vacían
+//       if (idRelleno != null || nombreRelleno != null) {
+//         // M.toast({
+//         //   html: 'Selecciona al menos un relleno por opción.',
+//         //   displayLength: 3000,
+//         //   classes: 'red'
+//         // });
+//         // arrayCoberturaDetalleRoll = [];
+//         // arrayRellenoDetalleRoll = [];
+//         // break;
+//         // } else {
+//         arrayRellenoDetalleRoll.push({
+//           Id: idRelleno,
+//           Nombre: nombreRelleno
+//         });
+//       }
+//     }
+//     if (
+//       arrayCoberturaDetalleRoll.length > 0 &&
+//       arrayRellenoDetalleRoll.length > 0
+//     ) {
+//       arrayRoll.push(cantidadPiezas);
+//       cantidadPiezasArmaTuPromo -= cantidadPiezas;
+//       // *La variable global de cantidad de piezas arma tu promo se actualiza con la cantidad disponible
+//       arrayRoll.push({ Coberturas: arrayCoberturaDetalleRoll });
+//       arrayRoll.push({ Rellenos: arrayRellenoDetalleRoll });
+//       // *Si seleccionaron piezas para todas las opciones el roll creado se ingresa a un array
+//       arrayRollsCreados.push({ arrayRoll: arrayRoll });
+
+//       // *Se carga una lista con los rolls creados
+//       $.each(arrayRollsCreados, function(indice, item) {
+//         listaHtml += '<li class="collection-item">';
+//         listaHtml += `<span>${item.arrayRoll[0]} piezas con: </span>`;
+//         $.each(item.arrayRoll, function(indice, elem) {
+//           $.each(elem.Coberturas, function(ind, elem) {
+//             listaHtml += `<span>${elem.Nombre} | </span>`;
+//           });
+//           $.each(elem.Rellenos, function(ind, elem) {
+//             listaHtml += `<span>${elem.Nombre} | </span>`;
+//           });
+//         });
+//         listaHtml += `<a onclick='eliminarRollCompraList(${indice})' href="#">Eliminar<a/>`;
+//         listaHtml += '</li>';
+//       });
+//       // *Se carga el combobox de cantidad de opciones para los rolls creados
+//       cargarComboCantidadRollsArmaTuPromo();
+//       $('#lista_rolls_compra').append(listaHtml);
+//     } else {
+//       // !Cambio
+//       M.toast({
+//         html: 'Asegurate de haber seleccionado los ingredientes.',
+//         displayLength: 3000,
+//         classes: 'red'
+//       });
+//     }
+//   }
+// });
+
+// // *Elimina el rol específico de la lista arma tu promo
+// function eliminarRollCompraList(indice) {
+//   // *Se elimina un roll creado de la lista de la promo compra
+//   var listaHtml = '';
+//   var cantidadEliminada = arrayRollsCreados[indice].arrayRoll[0];
+//   cantidadPiezasArmaTuPromo =
+//     parseInt(cantidadPiezasArmaTuPromo) + parseInt(cantidadEliminada);
+//   arrayRollsCreados.splice(indice, 1);
+//   // *La variable cantidad de piezas se actualiza con las cantidades disponible después de la eliminación
+//   $('#lista_rolls_compra').empty();
+//   $.each(arrayRollsCreados, function(indic, item) {
+//     listaHtml += '<li class="collection-item">';
+//     listaHtml += `<span>${item.arrayRoll[0]} piezas con: </span>`;
+//     $.each(item.arrayRoll, function(indices, elem) {
+//       $.each(elem.Coberturas, function(ind, elem) {
+//         listaHtml += `<span>${elem.Nombre} | </span>`;
+//       });
+//       $.each(elem.Rellenos, function(indi, elem) {
+//         listaHtml += `<span>${elem.Nombre} | </span>`;
+//       });
+//     });
+//     listaHtml += `<a onclick='eliminarRollCompraList(${indice})' href="#">Eliminar<a/>`;
+//     listaHtml += '</li>';
+//   });
+//   $('#lista_rolls_compra').append(listaHtml);
+//   // *Se carga el combobox con las cantidades opcionales de creación de rolls
+//   cargarComboCantidadRollsArmaTuPromo();
+//   console.log(cantidadPiezasArmaTuPromo);
+//   console.log(arrayRollsCreados);
+//   console.log(cantidadEliminada);
+// }
+
+// $('#cancelar_arma_tu_promo_compra').on('click', function(evt) {
+//   evt.preventDefault();
+//   $('#modal_add_arma_tu_promo').modal('close');
+//   // *Borra los datos de la lista
+//   cantidadPiezasArmaTuPromo = 0;
+//   cantidadOpcionesCoberturas = 0;
+//   cantidadOpcionesRellenos = 0;
+//   arrayRollsCreados = [];
+//   // *Al cerrar el modal las variable globales se resetean
+// });
+
+// $('#cancelar_promo_chef_compra').on('click', function(evt) {
+//   evt.preventDefault();
+//   $('#modal_promo_chef_compra').modal('close');
+//   // *Borra los datos de la lista
+//   cantidadPiezasArmaTuPromo = 0;
+//   cantidadOpcionesCoberturas = 0;
+//   cantidadOpcionesRellenos = 0;
+//   arrayRollsCreados = [];
+//   cantidadSeleccionCoberturasChef = 0;
+//   // *Al cerrar el modal las variables globales se resetean
+// });
+
+// $('#form_arma_tu_promo').submit(function(evt) {
+//   evt.preventDefault();
+//   if (arrayRollsCreados.length == 0 || cantidadPiezasArmaTuPromo != 0) {
+//     alert('Por favor selecciona las piezas que deseas comprar');
+//   } else {
+//     swal({
+//       title: 'Espere un momento',
+//       html: 'Estamos procesando tu pedido',
+//       timer: 2000,
+//       onOpen: () => {
+//         swal.showLoading();
+//       }
+//     });
+//     var dataInfo = ';';
+//     var action = 'IngresarPromoCompra';
+//     var arrayRollsAIngresar = JSON.stringify(arrayRollsCreados);
+//     var id_promo = $('#lbl_id_promo_compra').val();
+//     dataInfo = {
+//       rollscompra: arrayRollsAIngresar,
+//       id_promo: id_promo,
+//       action: action
+//     };
+//     $.ajax({
+//       data: dataInfo,
+//       url: '../app/control/despPromoCompra.php',
+//       type: 'POST',
+//       success: function(resp) {
+//         switch (resp) {
+//           case '1':
+//             $('#modal_add_arma_tu_promo').modal('close');
+//             M.toast({
+//               html: 'Se añadió un producto al carro',
+//               displayLength: 3000,
+//               classes: 'light-green accent-3'
+//             });
+//             pulseBoton();
+//             break;
+//           case '2':
+//             swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+//             break;
+//         }
+//       },
+//       error: function() {
+//         alert('Lo sentimos ha ocurrido un error.');
+//       }
+//     });
+//   }
+// });
+
+// // function pulseBoton() {
+// //   $('#btn_carrito').toggleClass('pulse-button animated tada');
+// //   setTimeout(function() {
+// //     $('#btn_carrito').toggleClass('pulse-button animated tada');
+// //   }, 6000);
+// // }
+
+// $('#form_arma_tu_promo_chef').submit(function(evt) {
+//   evt.preventDefault();
+//   // *Se valida que la cantidad de coberturas opcionales para los tipo de coberturas posean una opción seleccionada
+//   for (var j = 1; j <= cantidadSeleccionCoberturasChef; j++) {
+//     var idCobertura = parseInt(
+//       $(`input[name=coberturaChef${j}]:checked`).val()
+//     );
+//     var cantidad = parseInt(
+//       $(`input[name=coberturaChef${j}]:checked`).attr('data-cantidad')
+//     );
+//     console.log(idCobertura, cantidad);
+//     if (idCobertura == null || isNaN(idCobertura)) {
+//       M.toast({
+//         html: 'Selecciona al menos una cobertura.',
+//         displayLength: 3000,
+//         classes: 'red'
+//       });
+//       arrayRollsCreados = [];
+//       break;
+//       // *Si no selecciona una opción se detiene el foreach
+//     } else {
+//       arrayRollsCreados.push({
+//         Cantidad: cantidad,
+//         IdCobertura: idCobertura
+//       });
+//     }
+//   }
+//   console.log(arrayRollsCreados);
+//   if (arrayRollsCreados.length != 0) {
+//     // alert('Por favor selecciona las piezas que deseas comprar');
+//     // } else {
+//     concretarPromoIngresoPromoChef();
+//   }
+// });
+
+// function concretarPromoIngresoPromoChef() {
+//   swal({
+//     title: 'Espera',
+//     html: 'Estamos procesando tu pedido',
+//     timer: 3000,
+//     onOpen: () => {
+//       swal.showLoading();
+//     }
+//   });
+//   var dataInfo = '';
+//   var action = 'IngresarPromoCompraChef';
+//   var id_promo = $('#lbl_id_promo_compra_chef').val();
+//   var arrayRollsAIngresarChef = JSON.stringify(arrayRollsCreados);
+//   dataInfo = {
+//     rollscompra: arrayRollsAIngresarChef,
+//     id_promo: id_promo,
+//     action: action
+//   };
+//   $.ajax({
+//     data: dataInfo,
+//     url: '../app/control/despPromoCompra.php',
+//     type: 'POST',
+//     success: function(resp) {
+//       console.log(resp);
+//       switch (resp) {
+//         case '1':
+//           $('#modal_promo_chef_compra').modal('close');
+//           M.toast({
+//             html: 'Se añadió un producto al carro',
+//             displayLength: 3000,
+//             classes: 'light-green accent-3'
+//           });
+//           pulseBoton();
+//           break;
+//         case '2':
+//           swal('Error!', 'La tarea no pudo llevarse a cabo', 'error');
+//           break;
+//       }
+//     },
+//     error: function() {
+//       alert('Lo sentimos ha ocurrido un error.');
+//     }
+//   });
+// }
 
 function cargaModalEmpleado(id) {
   $('#modal_actualiza_empleado').modal('open');
@@ -4303,6 +6164,7 @@ function limpiarFormulario() {
   document.getElementById('form_registro_empleado').reset();
 }
 
+// *Busca los empleados cuyos datos coincidan con los ingresados en el campo de textp
 $('#txt_filtro_empleados').on('keyup', function () {
   var filtroEmpleado = $(this).val().toLowerCase();
   $('#tabla_empleados tr').filter(function () {
@@ -6692,6 +8554,7 @@ jQuery.validator.addMethod('lettersonly', function (value, element) {
   return this.optional(element) || /^[a-zA-ZÀ-ÿ\u00f1\u00d1]+(\s*[a-zA-ZÀ-ÿ\u00f1\u00d1]*)*[a-zA-ZÀ-ÿ\u00f1\u00d1]+$/i.test(value);
 }, 'Ingresa solo letras por favor');
 
+// *Se añadió el método para validar que el formato del correo posea .com
 jQuery.validator.addMethod('emailCom', function (value, element) {
   return this.optional(element) || /^[a-zA-Z0-9\._-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,4}$/.test(value);
 }, 'Ingresa un correo válido');
@@ -7118,6 +8981,7 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
           processData: false,
           success: function success(resp) {
             //*Acción a ejecutar si la respuesta existe
+            console.log(resp);
             switch (resp) {
               case '1':
                 $('#modal_mantenedor_relleno').modal('close');

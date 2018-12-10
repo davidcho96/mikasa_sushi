@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require_once '../db_connection/connection.php';
 
 class IndiceRellenos extends connection{
@@ -117,7 +120,8 @@ class IndiceRellenos extends connection{
         }
     }
 
-    function obtenerDatosVinculadosIndiceRelleno(){
+    // *Obtiene los rellenos vinculados a ese índice para mostrarlos al momento de eliminarlo
+    public function obtenerDatosVinculadosIndiceRelleno(){
         try{
             $db = connection::getInstance();
             $conn = $db->getConnection();

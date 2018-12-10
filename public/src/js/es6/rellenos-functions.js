@@ -478,6 +478,7 @@ var validarFormRelleno = $('#form_mantenedor_relleno').validate({
           processData: false,
           success: function(resp) {
             //*Acción a ejecutar si la respuesta existe
+            console.log(resp);
             switch (resp) {
               case '1':
                 $('#modal_mantenedor_relleno').modal('close');

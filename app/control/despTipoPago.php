@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         break;
         case 'CargarModalTipoPago':
+        // *Se cargan los datos del modal seleccionado para cargarlos en el modal
             $tipopago->setIdTipoPago($_POST['id']);
             echo $tipopago->ObtenerInformacionTipoPago();
         break;

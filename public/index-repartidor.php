@@ -123,7 +123,7 @@
                                 <th>Receptor</th>
                                 <th>Valor</th>
                                 <th>Estado Entrega</th>
-                                <th colspan="3">Acciones</th>
+                                <th colspan="4">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="body_tabla__mis_entregas_pendientes_repartidor_mikasa"></tbody>
@@ -162,6 +162,50 @@
     </div>
     </div>
 
+     <div id="modal_cancelar_entrega_repartidor" class="modal">
+        <div class="modal-content">
+
+            <h5 class="center" id="accion_tipo_coberturas">Selecciona el motivo del rechazo de la compra.</h5>
+            <form action="" name="form_cancelar_entrega_repartidor" id="form_cancelar_entrega_repartidor">
+            <input type="hidden" id="txt_id_entrega_cancelar_repartidor">
+                <div>
+                    <p>
+                        <label>
+                        <input class="with-gap" name="radioMotivoCancelacionEntregaRepartidor" type="radio" checked value="1">
+                        <span>Dirección no encontrada.</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                        <input class="with-gap" name="radioMotivoCancelacionEntregaRepartidor" type="radio" value="2">
+                        <span>No se encontraba receptor.</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                        <input class="with-gap" name="radioMotivoCancelacionEntregaRepartidor" type="radio" value="3">
+                        <span>El pago no pudo ser realizado.</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                        <input class="with-gap" name="radioMotivoCancelacionEntregaRepartidor" type="radio" value="4"/>
+                        <span>Otro.</span>
+                        </label>
+                    </p>
+                </div>
+                <div class="input-field col l12 m12 s12 hide" id="input_motivo_cancelacion_entrega_repartidor">
+                    <input type="text" id="txt_motivo_cancelacion_entrega_repartidor" name="txt_motivo_cancelacion_entrega_repartidor">
+                    <label for="txt_motivo_cancelacion_entrega_repartidor">Motivo de cancelación</label>
+                </div>
+                <div class="center">
+                    <input type="submit" class="btn black" value="Confirmar">
+                    <button id="cancelar_modal_cancelar_entrega_repartidor" class="btn red">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="src/js/leaflet.js"></script>
     <script src="src/js/leaflet-routing-machine.min.js"></script>
     <script src="dist/js/script.min.js"></script>
@@ -173,7 +217,7 @@
             cargarTablaMisEntregasPendientesRepartidor();
             setInterval(function(){
                 comprobarEstadoSesion();
-                // cargarTablaEntregasPendientesRepartidor();
+                cargarTablaEntregasPendientesRepartidor();
                 // cargarTablaMisEntregasPendientesRepartidor();
             }, 60000);
 

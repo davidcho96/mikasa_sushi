@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo $coberturas->ObtenerInformacionCobertura();
         break;
         case 'ActualizarDatosCobertura':
+        // *Se verifican los datos del lado del servidor
         if($validate->check(['nombre', 'descripcion', 'precio', 'estado', 'indice', 'stock', 'unidadStock', 'uso', 'unidadUso', 'minima'], $_REQUEST)){
             $id = $_POST['id'];
             $nombre = $validate->str($_POST['nombre'], '100', '3');
@@ -44,9 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uso = $_POST['uso'];
             $minima = $_POST['minima'];
 
+            // *Si no se agregó una imagen se ingresa el texto misma que en el procedimiento deja por defecto la imagen ya almacenada
             if(empty($_FILES["imagenUrl"]["name"])){
                 $fileText = 'Misma';
             }else{
+                // *Se guarda la imagen en la carpeta uploads
                 $target_dir = "../../public/uploads/";
                 $target_file = $target_dir . basename($_FILES["imagenUrl"]["name"]);
                 $uploadOk = 1;
@@ -71,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
+            // *Se setean los datos en la clase coberturas
             $coberturas->setIdCobertura($id);
             $coberturas->setNombre($nombre);
             $coberturas->setDescripcion($descripcion);
@@ -88,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         break;
 
         case 'IngresarCobertura':
+        // *Se comprueba que se ingresen los datos
         if($validate->check(['nombre', 'descripcion', 'precio', 'indice', 'estado', 'stock', 'unidadStock', 'uso', 'unidadUso', 'minima'], $_REQUEST)){
             $nombre = $validate->str($_POST['nombre'], '100', '3');
             $descripcion = $validate->str($_POST['descripcion'], '1000', '3');
@@ -102,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uso = $_POST['uso'];
             $minima = $_POST['minima'];
 
+            // *Si no se selecciona una imagen se le asigna la que existe por defecto en los registros
             if(empty($_FILES["imagenUrl"]["name"])){
                 $fileText = 'default_food.jpg';
             }else{
@@ -129,6 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
+            // *Se setean los datos a la clase coberturas
             $coberturas->setNombre($nombre);
             $coberturas->setDescripcion($descripcion);
             $coberturas->setPrecioAdicional($precio);
@@ -144,10 +151,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         break; 
 
+        // *Se obtienen los datos de la tabla coberturas en BD para cargarlos en el checkbox
         case 'CargarChecboxCoberturas';
             echo $coberturas->cargarCoberturas();
         break;
 
+        // *Comprueba que la cobertura a eliminar no esté vinculada a un tipo de cobertura
         case 'ComprobarVinculacionCoberturas':
             $coberturas->setIdCobertura($_POST['id']);
             echo $coberturas->comprobarVinculacionCoberturas();

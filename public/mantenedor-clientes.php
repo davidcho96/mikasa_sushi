@@ -25,22 +25,12 @@ $sesionUsuario->validacionSesionAdmin();
     <!-- <link rel="stylesheet" href="src/css/ManCliente.css"> -->
 </head>
 <body>
-<nav class="top-nav background red">
-        <div class="container">
-            <div class="nav-wrapper">
-                <div class="row">
-                    <div class="col s12 m12 l12">
-                        <h1 class="center-align">Mantenedor Clientes</h1>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
 <?php
 require_once "templates/nav-admin.php";
 ?>
 <!-- Seccion de las tablas de carga de informacion-->
 <div class="container">
+    <h5>Mantenedor clientes</h5>
     <div class="row">
         <div class="col s12 m12 l12">
             <div>
@@ -157,9 +147,12 @@ require_once "templates/nav-admin.php";
         comprobarEstadoSesion();
         CargaEstadoCliente();
         CargarTablaClientes();
+        cargarNotificaciones();
+        
         setInterval(function(){
             // CargarTablaClientes();
             comprobarEstadoSesion();
+            cargarNotificaciones();
         }, 60000);
         $('#modal-actualiza-cliente').modal({
             dismissible: false,

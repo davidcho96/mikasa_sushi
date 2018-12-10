@@ -35,6 +35,7 @@ $sesionUsuario->validacionSesionCliente();
     <script>
         $(document).ready(function() {
             cargarAgregadosCarta();
+            cargarNotificaciones();
             comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();

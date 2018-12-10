@@ -103,7 +103,7 @@ $sesionUsuario->validacionSesionAdmin();
                     <div class="file-field input-field col l12">
                         <div class="btn black">
                             <span>Imagen</span>
-                            <input type="file" name="imagen_rellenos" id="imagen_rellenos" accept="image/x-png,image/jpg,image/jpeg">
+                            <input type="file" name="imagen_rellenos" id="imagen_rellenos" accept="image/jpeg, image/png">
                         </div>
                             <div class="file-path-wrapper">
                                 <input class="file-path" type="text" id="imagen_rellenos_text" name="imagen_rellenos_text">
@@ -122,6 +122,7 @@ $sesionUsuario->validacionSesionAdmin();
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
     <script>
         $(document).ready(function(){
+            cargarNotificaciones();
             cargarComboEstadoElemento()
             cargarMantenedorRellenos();
             cargarIndiceRelleno();
@@ -130,6 +131,7 @@ $sesionUsuario->validacionSesionAdmin();
             cargarComboUnidadMedida();
             setInterval(function(){
                 comprobarEstadoSesion();
+                cargarNotificaciones();
                 // cargarMantenedorRellenos();
                 // cargarTotalIndiceRellenos();
             }, 60000);

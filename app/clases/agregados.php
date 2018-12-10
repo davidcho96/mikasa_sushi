@@ -1,5 +1,9 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+//* Json encode convierte el array en string para ser utilizado en javascript 
+
+
 require_once "../db_connection/connection.php";
 
 class Agregados extends connection{
@@ -112,6 +116,7 @@ class Agregados extends connection{
         }
 	}
 
+	// *Se obtiene información del agregado seleccionado para editar
 	public function ObtenerInformacionAgregado(){
 		try{
 			$db = connection::getInstance();
@@ -251,6 +256,7 @@ class Agregados extends connection{
 		}
 	}
 
+	// *Comprueba si el agregado está vinculado a una promo
 	public function comprobarVinculacionAgregados(){
 		try{
 			$db = connection::getInstance();
@@ -275,6 +281,7 @@ class Agregados extends connection{
 
 	// *---------------------------------------------------
 
+	// *Se cargan los agregados en la carta para que sean adquiridos
 	public function CargarCartaAgregados(){
         try{
             $db = connection::getInstance();

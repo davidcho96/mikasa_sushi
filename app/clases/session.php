@@ -5,6 +5,7 @@
 class Sesion extends connection{
 
     public function validarSesion(){
+        // *Si la sesción existe se redirige a la página principal del usuario
         if(isset($_SESSION['user'])){
             switch ($_SESSION['user'][0]) {
                 case 'cliente':
@@ -24,6 +25,7 @@ class Sesion extends connection{
         if(!isset($_SESSION['user'])){
             header('Location: index.php');
         }
+        // *Si no existe la sesión de usuario se redirige al index prinicipal
     }
 
     public function validacionSesionAdmin(){
@@ -56,6 +58,7 @@ class Sesion extends connection{
                 break;
             }  
         }
+        // *Si la sesión no es de tipo cliente se redirige al empleado a su menú correspondiente
     }
 
     public function validacionSesionRepartidor(){
@@ -72,6 +75,7 @@ class Sesion extends connection{
                 break;
             }  
         }
+        // *Si la sesión no es de tipo repartidor se redirige al usuario a su menú correspondiente
     }
 
     public function validacionSesionVendedor(){
@@ -88,6 +92,7 @@ class Sesion extends connection{
                 break;
             }  
         }
+        // *Si la sesión no es de tipo vendedor se redirige al usuario a su menú correspondiente
     }
 
     public function validarEstadoSesion(){

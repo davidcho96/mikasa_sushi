@@ -1,5 +1,9 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+// *Con promos cliente nos referimos a las promos que son de tipo 'Arma tu promo'
+
 require_once '../db_connection/connection.php';
 
 class Promos extends connection{
@@ -153,6 +157,7 @@ class Promos extends connection{
                 if(empty($array) || $array == '' || $array == NULL){
                     $errorFor = 1;
                 }else{
+                    // *Se agregan los agregados seleccionados a al detalle de la promo creada
                     foreach ($array as $key=>$valor) {
                         $stmt2 = $conn->prepare("CALL agregarDetallePromo(?, ?, ?, ?, @out_value)");
                         $stmt2->bind_param("iiis", $null, $valor[1], $valor[0], $correo);
@@ -167,7 +172,7 @@ class Promos extends connection{
                 }
             }
 
-            $conn->commit();
+            // $conn->commit();
             if($errorFor == 0){
                 $conn->rollback();
                 echo '2';
@@ -195,10 +200,12 @@ class Promos extends connection{
             //* Resultados obtenidos de la consulta
 			$stmt->bind_result($result);
 			if($stmt->fetch()>0){
-				return $result;
+                return $result;
+                // *El elemento se eliminó exitosamente
 			}
 			else{
-				return 2;
+                return 2;
+                // *El elemento no pudo ser eliminado
             }
             $stmt->free_result();
         }catch(Exception $error){
@@ -278,7 +285,7 @@ class Promos extends connection{
                     }
                 }
             }
-            $conn->commit();
+            // $conn->commit();
             if($errorFor == 0){
                 $conn->rollback();
                 echo '2';
@@ -304,14 +311,18 @@ class Promos extends connection{
             mysqli_autocommit($conn, FALSE);
             //*Se prepara el procedimiento almacenado
             $stmt = $conn->prepare('CALL agregarPromo(?, ?, ?, ?, ?, ?, ?, ?, ?, @out_value)');
+            // *Se pasan los parámetros al procedimiento
             $stmt->bind_param("siiiiisis", $this->getNombre(), $this->getPrecio(), $this->getDescuento(), $this->getIdTipoPromo(), $this->getIdTipoPreparacion(), $this->getIdEstadoElemento(), $this->getImgUrl(), $this->getCantidad(), $correo);
             // ------------------------------------------------------------------------
             if($stmt->execute()){
                 $arrayAgregados = $this->getAgregados();
+                // *Se obtiene el array con agregados de la promo 
                 $arrayTipoCoberturas = $this->getTipoCoberturas();
+                // *Se obteien el array de los tipo de coberturas asociadas a la promo
                 if(empty($arrayAgregados) || $arrayAgregados == '' || $arrayAgregados == NULL){
                     $errorFor = 1;
                 }else{
+                    // *Se ingresan los agregados al detalle de la promo creda
                     foreach ($arrayAgregados as $key=>$valor) {
                         $stmt2 = $conn->prepare("CALL agregarDetallePromo(?, ?, ?, ?, @out_value)");
                         $stmt2->bind_param("iiis", $null, $valor[1], $valor[0], $correo);
@@ -327,6 +338,7 @@ class Promos extends connection{
                 if(empty($arrayTipoCoberturas) || $arrayTipoCoberturas == '' || $arrayTipoCoberturas == NULL){
                     $errorFor = 1;
                 }else{
+                    // *Se ingresan los tipo de coberturas asociados la promo creada
                     foreach ($arrayTipoCoberturas as $key=>$valor) {
                         $stmt3 = $conn->prepare("CALL agregarDetallePromo(?, ?, ?, ?, @out_value)");
                         $stmt3->bind_param("iiis",  $valor[0], $valor[1], $null, $correo);
@@ -341,7 +353,7 @@ class Promos extends connection{
                 }
             }
 
-            $conn->commit();
+            // $conn->commit();
             if($errorFor == 0){
                 $conn->rollback();
                 echo '2';
@@ -419,6 +431,7 @@ class Promos extends connection{
                 if(empty($arrayAgregados) || $arrayAgregados == '' || $arrayAgregados == NULL){
                     $errorFor = 1;
                 }else{
+                    // *Se ingresan los nuevos agregados al detalle de la promo
                     foreach ($arrayAgregados as $key=>$valor) {
                         $stmt2 = $conn->prepare("CALL actualizarDetallePromoChef(?, ?, ?, ?, ?, @out_value)");
                         $stmt2->bind_param("iiiis", $valor[1], $null, $valor[0],  $this->getIdPromo(), $correo);
@@ -433,7 +446,9 @@ class Promos extends connection{
                 }
                 if(empty($arrayTipoCoberturas) || $arrayTipoCoberturas == '' || $arrayTipoCoberturas == NULL){
                     $errorFor = 1;
+                    // *Si el array tipo coberturas está vacío se hace un rollback
                 }else{
+                    // *Se ingresan los nuevos tipo de coberturas asociados a la promo
                     foreach ($arrayTipoCoberturas as $key=>$valor) {
                         $stmt3 = $conn->prepare("CALL actualizarDetallePromoChef(?, ?, ?, ?, ?, @out_value)");
                         $stmt3->bind_param("iiiis",  $valor[1], $valor[0], $null,  $this->getIdPromo(), $correo);
@@ -471,7 +486,7 @@ class Promos extends connection{
             //* Se ejecuta
             $stmt->execute();
             //* Resultados obtenidos de la consulta
-            $stmt->bind_result($idPromo, $nombre, $precio, $descuento, $idTipoPromo, $tipoPromo, $idTipoPreparacion, $tipoElaboracion, $imgUrl, $estado, $idEstado);
+            $stmt->bind_result($idPromo, $nombre, $precio, $descuento, $idTipoPromo, $tipoPromo, $idTipoPreparacion, $tipoElaboracion, $imgUrl, $estado, $idEstado, $arrayTipoCobertura, $arrayAgregados, $cantidad);
             $datos = array();
             // if($stmt->fetch()>0){
                 while($stmt->fetch()){
@@ -486,7 +501,10 @@ class Promos extends connection{
                         "TipoPreparacion"=>$tipoElaboracion,
                         "ImgUrl"=>$imgUrl,
                         "Estado"=>$estado,
-                        "IdEstado"=>$idEstado
+                        "IdEstado"=>$idEstado,
+                        "ArrayTipoCoberturas"=>$arrayTipoCobertura,
+                        "ArrayAgregados"=>$arrayAgregados,
+                        "Cantidad"=>$cantidad
                     );
                 }
                 return json_encode($datos, JSON_UNESCAPED_UNICODE);
@@ -496,6 +514,7 @@ class Promos extends connection{
         }
     }
 
+    // *Se comprueba que tipo de promo es la promo que se desea adquirir
     public function comprobarTipoDePromo(){
         try{
             $db = connection::getInstance();
@@ -526,6 +545,7 @@ class Promos extends connection{
         }
     }
 
+    // *Comprueba si la promo posee un tipo de cobertura que tenga más de una opción
     public function comprobarTipoCoberturasPromoChef(){
         try{
             $db = connection::getInstance();

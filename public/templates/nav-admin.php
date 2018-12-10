@@ -58,7 +58,10 @@
                                 <a href="entregas-pendientes.php">Entregas pendientes</a>
                             </li>
                             <li>
-                                <a href="historial-entregas.php">Historial de ventas</a>
+                                <a href="entregas-realizadas.php">Entregas realizadas</a>
+                            </li>
+                            <li>
+                                <a href="entregas-canceladas.php">Entregas canceladas</a>
                             </li>
                         </ul>
                     </div>
@@ -71,7 +74,7 @@
         </li>
         <li>
             <a href="mantenedor-empleado.php">
-                <i class="material-icons">supervised_user_circle</i>
+                <i class="material-icons">supervisor_account</i>
                 Empleados
             </a>
         </li>
@@ -88,6 +91,12 @@
                 Encuestas
             </a>
         </li> -->
+        <li>
+            <a href="mantenedor-horarios.php">
+            <i class="material-icons">calendar_today</i>
+                Feriados
+            </a>
+        </li>
         <li>
             <a href="mantenedor-infoContacto.php">
             <i class="material-icons">contact_phone</i>
@@ -163,6 +172,24 @@
             </a>
         </li>
     </ul>
-    <a href="#" data-target="slide-out" class="sidenav-trigger">
-        <i class="material-icons">menu</i>
-    </a>
+    <div class="nav-menu-admin">
+        <a href="#" data-target="slide-out" class="sidenav-trigger">
+            <i class="material-icons black-text">menu</i>
+        </a>
+        <div>
+            <a href="index-admin.php" class="brand-logo">
+                <img src="dist/img/logo.png" alt="" class="nav-image-no-circle">
+            </a>
+        </div>
+        <div>
+            <a href="#" id="notificaciones_admin">
+                <i class="material-icons black-text">notifications</i>
+            </a>
+        </div>
+    </div>
+    <div class="content-notificaciones" id="notificaciones_content">
+        <span class="triangulo-content">▲</span>
+        <div class="content-principal">
+            <div id="carga_notificaciones" style="overflow-y:auto; height: 96%;" class="collection"></div>
+        </div>
+    </div>

@@ -39,16 +39,18 @@ $sesionUsuario->validacionSesionAdmin();
                 <input type="text" id="txt_buscar_tipo_promo">
             </div>
            <div class="col l12 s12 m12">
-                <table id="tabla_tipo_promo">
-                <thead>
-                    <h5>Tipo Promo</h5>
-                    <tr>
-                        <td>Tipo de promo</td>
-                        <td colspan='2'>Acciones</td>
-                    </tr>
-                </thead>
-                <tbody id="body_tabla_tipo_promo"></tbody>
-                </table>
+                <div style="overflow-x:auto;">
+                    <table id="tabla_tipo_promo">
+                    <thead>
+                        <h5>Tipo Promo</h5>
+                        <tr>
+                            <td>Tipo de promo</td>
+                            <td colspan='2'>Acciones</td>
+                        </tr>
+                    </thead>
+                    <tbody id="body_tabla_tipo_promo"></tbody>
+                    </table>
+                </div>
            </div>
         </div>
     </div>
@@ -77,10 +79,12 @@ $sesionUsuario->validacionSesionAdmin();
     <!-- <script src="src/js/es6/tipo-promo-functions.js"></script> -->
     <script>
     $(document).ready(function(){
+        cargarNotificaciones();
         CargarTablaTipoPromo();
         comprobarEstadoSesion();
         setInterval(function(){
             comprobarEstadoSesion();
+            cargarNotificaciones();
             // CargarTablaTipoPromo();
         }, 60000);
         $('#modal_mantenedor_tipo_promo').modal({

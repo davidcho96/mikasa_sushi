@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require_once '../db_connection/connection.php';
 class tipoEmpleado extends connection{
     private $idEstado;
@@ -21,6 +24,7 @@ class tipoEmpleado extends connection{
 		$this->TipoEmpleado = $TipoEmpleado;
     }
 
+    // *Se obtienen los datos de la BD para cargar el combobox asociado
     public function comboboxTipoEmpleado(){
         try{
             $db = connection::getInstance();

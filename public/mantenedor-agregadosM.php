@@ -106,9 +106,11 @@ $sesionUsuario->validacionSesionAdmin();
         $(document).ready(function(){
             cargarComboEstadoElemento();
             cargarMantenedorAgregados();
+            cargarNotificaciones();
             comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();
+                cargarNotificaciones();
                 // cargarMantenedorAgregados();
             }, 60000);
             $('#modal_mantenedor_agregado').modal({

@@ -93,7 +93,7 @@ $sesionUsuario->validacionSesionCliente();
 
 
     <script src="dist/js/script.min.js"></script>
-    <!-- <script src="src/js/es6/carrito-function.js"></script> -->
+    <script src="src/js/es6/funciones-compra-venta.js"></script>
     <script>
         $(document).ready(function() {
             $('.collapsible').collapsible();

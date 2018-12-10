@@ -1,5 +1,8 @@
 <?php
 
+//*BD = Base de datos
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para ser utilizado en javascript
 require_once '../db_connection/connection.php';
 
 class IndiceCoberturas extends connection{
@@ -60,6 +63,7 @@ class IndiceCoberturas extends connection{
             $datos = array();
 			if($stmt->fetch()>0){
                 echo $total;
+                // *Retorna la cattidad de opciones de elección de coberturas
 			}else{
                 echo 'error';
             }
@@ -84,8 +88,10 @@ class IndiceCoberturas extends connection{
             $datos = array();
 			if($stmt->fetch()>0){
                 echo $result;
+                // *Se devuelve el resultado del procedimiento almacenado
 			}else{
                 echo '2';
+                // *No existen datos
             }
                 $stmt->free_result();
         }catch(Exception $error){
@@ -110,6 +116,7 @@ class IndiceCoberturas extends connection{
                 echo $result;
 			}else{
                 echo '2';
+                // *No se devolvieron datos
             }
                 $stmt->free_result();
         }catch(Exception $error){
@@ -117,7 +124,8 @@ class IndiceCoberturas extends connection{
         }
     }
 
-    function obtenerDatosVinculadosIndiceCobertura(){
+    // *Consulta cuantos datos están vinculados a ese indice para mostrarlos al momento de eliminar
+    public function obtenerDatosVinculadosIndiceCobertura(){
         try{
             $db = connection::getInstance();
             $conn = $db->getConnection();
@@ -130,8 +138,10 @@ class IndiceCoberturas extends connection{
             $datos = array();
 			if($stmt->fetch()>0){
                 echo $result;
+                // *Devuelve la cantidad de datos vinculados
 			}else{
                 echo 'algunos';
+                // *No existen datos vinculados
             }
                 $stmt->free_result();
         }catch(Exception $error){

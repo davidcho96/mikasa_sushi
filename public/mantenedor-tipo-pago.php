@@ -39,15 +39,17 @@ $sesionUsuario->validacionSesionAdmin();
                 <input type="text" id="txt_buscar_tipo_pago">
             </div>
             <table id="tabla_tipo_pago">
-            <thead>
-                <h5>Tipo Pago</h5>
-                <tr>
-                    <td>Tipo de pago</td>
-                    <td colspan='2'>Acciones</td>
-                </tr>
-            </thead>
-            <tbody id="body_tabla_tipo_pago"></tbody>
-            </table>
+            <div style="overflow-x:auto;">
+                <thead>
+                    <h5>Tipo Pago</h5>
+                    <tr>
+                        <td>Tipo de pago</td>
+                        <td colspan='2'>Acciones</td>
+                    </tr>
+                </thead>
+                <tbody id="body_tabla_tipo_pago"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -75,10 +77,12 @@ $sesionUsuario->validacionSesionAdmin();
     <script src="src/js/es6/tipo-pago-functions.js"></script>
     <script>
     $(document).ready(function(){
+        cargarNotificaciones();
         CargarTablaTipoPago();
         comprobarEstadoSesion();
         setInterval(function(){
             comprobarEstadoSesion();
+            cargarNotificaciones();
             // CargarTablaTipoPago();
         }, 60000);
         $('#modal_mantenedor_tipo_pago').modal({

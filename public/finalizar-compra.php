@@ -48,6 +48,12 @@
             position: absolute;
             right: 30px;
         }
+
+        .datos-webpay-pago{
+            display: flex;
+            justify-content: space-between;
+        }
+
     </style>
 
 </head>
@@ -59,18 +65,19 @@
         <div class="col l8 m8 s12 carrito-items">
             <div class="consideraciones-compra col l12 m12 s12" >
                 <p id="info_apertura"></p>
+                <p id="estado_apertura"></p>
                 <p id="precio_maximo"></p>
             </div>
             <form action="" id="form_compra_cliente">
-            <div class="col l12 m12 s12">
+            <div class="col l12 m12 s12 input-field center" style="margin-bottom: 40px;">
                 <h5>Completa los datos de compra</h5>
             </div>
-            <div class="input-field col l12 m12 s12">
+            <!-- <div class="input-field col l12 m12 s12">
                 <label class="active">Tipo de Pago</label>
                 <select name="combo_tipo_pago" id="combo_tipo_pago_form_cliente" class="browser-default">
                     
                 </select>
-            </div>
+            </div> -->
             <div class="input-field col l6 m6 s12">
                 <label class="active">Tipo de Entrega</label>
                 <select name="combo_tipo_entrega" id="combo_tipo_entrega_form" class="browser-default">
@@ -82,9 +89,20 @@
                 <label for="txt_hora_entrega" class="active">Hora de entrega/retiro</label>
                 <span class="helper-text">La hora debe ser al menos 20 minutos después de la hora actual.</span>
             </div>
+            <div id="direccion_content" class="hide">
+                <div class="input-field col l9 m9 s9">
+                    <input type="text" id="txt_direccion_entrega" name="txt_direccion_entrega">
+                    <label for="txt_direccion_entrega">Dirección de entrega</label>
+                </div>
+                <div class="input-field col l3 m3 s3">
+                    <input type="text" id="txt_direccion_numero" name="txt_direccion_numero">
+                    <label for="txt_direccion_numero">Número</label>
+                </div>
+            </div>
             <div class="input-field col l12 m12 s12">
-                <input type="text" id="txt_direccion_entrega" name="txt_direccion_entrega">
-                <label for="txt_direccion_entrega">Dirección de entrega</label>
+                <input type="text" id="txt_comentario_compra" name="txt_comentario_compra">
+                <label for="txt_comentario_compra">Comentario adicional</label>
+                <span class="helper-text">Añade un comentario adicional a la compra, sobre los ingredientes o algún otro factor.</span>
             </div>
             <div class="input-field col l12 m12 s12">
                 <div id="check_receptor"></div>
@@ -102,6 +120,29 @@
             <div class="input-field col l12 m12 s12 hide" id="input_receptor_pedido">
                 <input type="text" id="txt_nombre_receptor" name="txt_nombre_receptor">
                 <label for="txt_nombre_receptor">Nombre de quién recibirá el producto</label>
+            </div>
+            <div class=" input-field col l12 m12 s12">
+                <!-- <p>Selecciona un método de pago</p> -->
+                <div>
+                    <p class="radio_pago">
+                        <label>
+                            <input name="check_metodo_pago" id="check_metodo_pago" type="radio"/>
+                            <span><img src="https://entienda.cl/wp-content/uploads/2013/06/webpayplus.jpg" alt="" height="55px" width="95px"></span><br>
+                            <span>Pago electrónico a través de Webpay. Puedes utilizar tarjetas de Debito y Crédito (Mastercard, Visa, Magna, etc…)</span>
+                        </label>
+                    </p>
+                </div>
+            </div>
+            <div class="col l12 m12 s12 center-align div_check">
+                <div>
+                    <p class="check_terminos">
+                        <label>
+                            <input type="checkbox" id="check_terminos_condiciones" name="check_terminos_condiciones"/>
+                            <span>Acepto los <a class="modal-trigger" href="#modal_terminos_condiciones">términos y condiciones del servicio</a> de Mikasa.</span>
+                        </label>
+                    </p>
+                    <div id="error_checkbox_terminos" class="center-align"></div>'
+                </div>
             </div>
             <div class="input-field col l12 m12 s12 center">
                 <input type="submit" class="btn black" value="Finalizar Compra">
@@ -129,6 +170,41 @@
         </div>
         </div>
         </div>
+
+        <div id="modal_terminos_condiciones" class="modal">
+            <div class="modal-content">
+                <h5>Términos y condiciones de uso</h5>
+                <p>
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Mollitia aut quibusdam ipsam quos nam pariatur error. Labore quo accusantium possimus quos officiis! Voluptatibus provident id aliquid alias quas quasi corrupti?
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus optio consequatur, totam fuga, illum nihil quae, laborum et ut aperiam dolore aliquam recusandae nam quidem iste. Asperiores doloribus beatae ullam.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">De acuerdo</a>
+            </div>
+        </div>
+        <div id="modal_pago_webpay" class="modal">
+            <div class="modal-content">
+                <h5>Simulación servicio webpay <img src="https://entienda.cl/wp-content/uploads/2013/06/webpayplus.jpg" alt="" height="55px" width="95px"></h5>
+                    <h5>Datos de la compra</h5>
+                        <ul class="collection">
+                            <li class="collection-item datos-webpay-pago">
+                                <p>Monto de compra: </p>
+                                <p id="precio_total_carrito_webpay"></p>
+                            </li>
+                            <li class="collection-item datos-webpay-pago">
+                                <p>Saldo disponible: </p>
+                                <p id="total_cartera_webpay"></p>
+                            </li>
+                        </ul>
+                    <div class="input-field center">
+                        <button class="btn black" id="btn_pagar_webpay">Pagar</button>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cerrar</a>
+            </div>
+        </div>
    </div>
 
 </div>
@@ -137,10 +213,12 @@
 <script src="src/js/es6/funciones-compra-venta.js"></script>
 <script>
     $(document).ready(function() {
+        // $('#modal_pago_webpay').modal('open');
         cargarDatosCarritoCompraFinalizarCompra();
         ObtenerPrecioTotalCarrito();
         comprobarEstadoSesion();
-        cargarComboBoxTipoPago();
+        ObtenerDineroCartera();
+        // cargarComboBoxTipoPago();
         cargarComboBoxTipoEntrega();
         CargarDatosInfoEmpresaIndex();
         cargarPrecioMaximoCompra();

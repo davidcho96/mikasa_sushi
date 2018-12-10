@@ -67,7 +67,7 @@ $sesionUsuario->validacionSesionAdmin();
                     <div class="file-field input-field">
                         <div class="btn black">
                             <span>Imagen</span>
-                            <input type="file" name="imagen_promo" id="imagen_promo" accept="image/x-png,image/jpg,image/jpeg">
+                            <input type="file" name="imagen_promo" id="imagen_promo" accept="image/jpeg, image/png">
                         </div>
                             <div class="file-path-wrapper">
                                 <input class="file-path" type="text" id="imagen_promo_text" name="imagen_promo_text">
@@ -121,7 +121,7 @@ $sesionUsuario->validacionSesionAdmin();
         
                 <h5 class="center" id="accion_promo_chef">Ingresar Promo A Gusto Del Chef</h5>
                 <form action="" name="form_mantenedor_promo_chef" id="form_mantenedor_promo_chef">
-                <label id="lbl_id_promo_chef" class="lblid"></label>
+                <label id="lbl_id_promo_chef" class="lbl-id"></label>
                     <div class="input-field">
                         <input id="txt_nombre_promo_chef" name="txt_nombre_promo_chef" type="text">
                         <label for="txt_nombre_promo_chef">Nombre</label>
@@ -161,7 +161,7 @@ $sesionUsuario->validacionSesionAdmin();
                     <div class="file-field input-field">
                         <div class="btn black">
                             <span>Imagen</span>
-                            <input type="file" name="imagen_promo_chef" id="imagen_promo_chef" accept="image/x-png,image/jpg,image/jpeg">
+                            <input type="file" name="imagen_promo_chef" id="imagen_promo_chef" accept="image/jpeg, image/png">
                         </div>
                             <div class="file-path-wrapper">
                                 <input class="file-path" type="text" id="imagen_promo_text_chef" name="imagen_promo_text_chef">
@@ -213,6 +213,7 @@ $sesionUsuario->validacionSesionAdmin();
         <!-- <script src="src/js/es6/promo-functions.js"></script> -->
         <script>
         $(document).ready(function(){
+                cargarNotificaciones();
                 cargarComboAgregados();
                 cargarComboEstadoElemento();
                 cargarMantenedorPromosCliente();
@@ -221,6 +222,7 @@ $sesionUsuario->validacionSesionAdmin();
                 comprobarEstadoSesion();
             setInterval(function(){
                 comprobarEstadoSesion();
+                cargarNotificaciones();
                 // cargarMantenedorPromosCliente();
             }, 60000);
             $('#modal_mantenedor_promo_cliente').modal({

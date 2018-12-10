@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require_once "../db_connection/connection.php"; // clase conexion
 
 class InfoContacto extends connection {
@@ -66,6 +69,7 @@ class InfoContacto extends connection {
 					return $result;
 				}else{
 					return 2;
+					// *Error en la ejecución
 				}
 			
 			//*Se libera la respuesta en BD
@@ -103,6 +107,7 @@ class InfoContacto extends connection {
 		}
 	}
 
+	// *Obtiene los datos de la info de contacto a actualizar para cargarlos en el modal
 	public function cargaModalInfoContacto(){
 		try{
 			$db = connection::getInstance();
@@ -151,6 +156,7 @@ class InfoContacto extends connection {
 				return $result;
 			}else{
 				return 2;
+				// *Error en la ejecución
 			}
 		
 		//*Se libera la respuesta en BD
@@ -170,6 +176,7 @@ class InfoContacto extends connection {
 				echo $result;
 			}else{
 				echo 2;
+				// *error en la ejecución
 			}
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";

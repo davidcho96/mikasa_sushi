@@ -359,13 +359,13 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
     combo_indice_cobertura: {
       required: true
     },
-    imagen_coberturas: {
-      // required: true,
-      extension: 'jpeg|jpg|png'
-    },
-    imagen_coberturas_text: {
-      // required: true
-    },
+    // imagen_coberturas: {
+    //   // required: true,
+    //   extension: 'jpeg|jpg|png'
+    // },
+    // imagen_coberturas_text: {
+    //   // required: true
+    // },
     txt_cantidad_stock_cobertura: {
       required: true,
       min: 0.1,
@@ -413,13 +413,13 @@ var validarFormCoberturas = $('#form_mantenedor_cobertura').validate({
     combo_indice_cobertura: {
       required: 'Selecciona una opción'
     },
-    imagen_coberturas: {
-      // required: '',
-      extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
-    },
-    imagen_coberturas_text: {
-      // required: 'Selecciona una imagen'
-    },
+    // imagen_coberturas: {
+    //   // required: '',
+    //   extension: 'Ingresa un archivo válido (png, jpg, jpeg)'
+    // },
+    // imagen_coberturas_text: {
+    //   // required: 'Selecciona una imagen'
+    // },
     txt_cantidad_stock_cobertura: {
       required: 'Campo requerido *',
       min: 'La cantidad mínima es 0.1',

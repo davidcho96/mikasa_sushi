@@ -1,5 +1,8 @@
 <?php
 
+//* La clase hereda a la clase conexión para obtener la conexión a la BD MySQL
+// *Json encode convierte el array en string para su uso en javascript
+
 require '../db_connection/connection.php';
 
 class ReseteoPass extends connection{
@@ -31,6 +34,8 @@ class ReseteoPass extends connection{
 		$this->correo = $correo;
 	}
 
+	// *Se ingresa una nueva fila a la tabla de reseteo pass
+	// *Este dato solo dura 24 horas a menos que el usuario ya lo haya utilizado para recuperar su contraseña
     public function ingresarReseteoPass(){
 		try{
 			$dbc = connection::getInstance();
@@ -41,8 +46,10 @@ class ReseteoPass extends connection{
 			//*Se ejecuta la consulta en BD
 			if($stmt2->execute()){
 				return 1;
+				// *El token se registró exitosamente
 			}else{
 				return 2;
+				// *Error en la ejecución
 			}
 			$stmt2->free_result();
 		}catch(Exception $error){
@@ -50,7 +57,8 @@ class ReseteoPass extends connection{
 		}
     }
     
-    
+	// *Verifica si el token aún existe
+	// *Se utilizará para validar que la acción de recuperar pass se ejecute dentro de las 24 horas
 	public function consultarExistenciaToken(){
 		try{
 			$db = connection::getInstance();
@@ -65,14 +73,17 @@ class ReseteoPass extends connection{
 			//*Se comprueba la respuesta
 			if($stmt->fetch()>0){
 				return true;
+				// *Si existe
 			}else{
 				return false;
+				// *No existe
 			}
 		}catch(Exception $error){
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
     }
-    
+	
+	// *Consulta si existe el token asociado a ese correo
     public function consultarCorreoToken($token){
 		try{
 			$db = connection::getInstance();
@@ -94,7 +105,8 @@ class ReseteoPass extends connection{
 			echo 'Ha ocurrido una excepción: ', $error->getMessage(), "\n";
 		}
     }
-    
+	
+	// *Si se cambia la contraseña existosamente se elimina el token
     public function eliminarToken($token){
         try{
 			$db = connection::getInstance();
@@ -104,9 +116,11 @@ class ReseteoPass extends connection{
 			$stmt->bind_param('s', $token);
 			//*Se ejecuta la consulta en BD
 			if($stmt->execute()){
-                return 1;
+				return 1;
+				// *El token se eliminó correctamente
             }else {
-                return 2;
+				return 2;
+				// *Error en la ejecución
             }
 
 		}catch(Exception $error){
